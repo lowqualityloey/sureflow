@@ -2,11 +2,11 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1: Deterministic local task gate (spec APPROVED — implementation planning; code start gated on §9 toolchain)
-- **Overall Status**: ACTIVE
-- **Target Release / Deadline**: M1 implementation — pending §9 toolchain answers (PM, Node pin, TS strictness, test runner)
-- **Current Working Branch**: `main` (no commits yet)
-- **Last Updated**: 2026-09-20
+- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T5 committed; T6–T11 remain
+- **Overall Status**: CHECKPOINT_DUE — canonical records reconciled; T6 remains planned/gated and NOT authorized
+- **Target Release / Deadline**: M1 implementation — no deadline recorded
+- **Current Working Branch**: `main` at `e035cde`
+- **Last Updated**: 2026-09-21
 
 
 ---
@@ -16,27 +16,33 @@
 ### Milestone Roadmap
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
-- [/] **M1-build**: T1..T11 implementation (`docs/tasks/2026-09-20-m1-task-breakdown.md`); code start BLOCKED until §9 toolchain answers land
+- [/] **M1-build**: T1–T5 committed; T6 planned/gated/NOT authorized; T7–T11 planned/not started
 
 ### Active Milestone Task Breakdown
 
 - [x] TASK-2026-09-20-sureflow-discovery-intake: discovery baseline — completed
 - [x] TASK-2026-09-20-m1-local-task-gate: M1 spec — approved 2026-09-20
-- [/] TASK-2026-09-20-m1-tasks: T1..T11 build plan ready (code start gated on §9 toolchain)
-- [!] Open questions §9 (package manager, Node pin, TS strictness, test runner, schemas, exit codes, commit scope) — BLOCKED on human; nothing in T1..T11 starts before answers
+- [x] T1: npm/Node 24 TypeScript scaffold — committed `d7a5d24`
+- [x] T2: state authority and policy decisions — committed `6ad617f`
+- [x] T3: append-only evidence and redaction — committed `a4f16af`
+- [x] T4: deterministic verifier — committed `7c70622`
+- [x] T5: CLI `init` and read-only `status` — committed `e035cde`
+- [ ] T6: planned / gated / NOT authorized
+- [ ] T7–T11: planned / not started
+- [!] Checkpoint stop: T6 requires separate explicit authorization; this documentation commit does not authorize implementation
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md` (FINAL FOR REVIEW — DO NOT IMPLEMENT)
-- **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` (awaiting human approval)
-- **Key Source Files in Flight**: `docs/specs/2026-09-20-m1-local-task-gate.md`, `docs/tasks/2026-09-20-m1-local-task-gate.md`, `docs/adrs/2026-09-20-stack-and-m1-boundary.md`, `docs/STATE.md`, `PROMPTKIT.md` §§1–2 (zero implementation code by design)
+- **Active RFC / Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md` (approved 2026-09-20; §9 addendum records toolchain decisions)
+- **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` plus `docs/tasks/2026-09-20-m1-task-breakdown.md` (reconciled in the working tree)
+- **Key Source Files in Flight**: Documentation reconciliation only; no source or test implementation is in flight. T6 is planned/gated/NOT authorized.
 - **Verification Commands (Scoped)**:
-  - Unit Tests: N/A — no suite exists (repo is docs-only; `find` confirms zero manifests)
-  - Typecheck: N/A — no language adopted
-  - Linter: N/A — no language adopted
-  - Executed this turn: `find` inventory, `git status`/`git log` (no commits yet), full reads of ARCHITECTURE/README/SECURITY/BENCHMARKS/CONTRIBUTING/CHANGELOG/PROMPTKIT.md/STATE.md, toolchain probe (python3/node present, rustc/go absent — informational only)
+  - Unit Tests: `npm test` → 34 passed, 0 failed across 6 files (2026-09-21)
+  - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
+  - Linter: `npm run lint` → exit 0 (2026-09-21)
+  - Runtime status: `node dist/src/cli.js status` → controlled exit 2 because `.sureflow/state/` has not been initialized
 
 ---
 
@@ -46,26 +52,22 @@
 - **Task ID**: `TASK-2026-09-20-m1-local-task-gate`
 - **Task Record**: `docs/tasks/2026-09-20-m1-local-task-gate.md`
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Execution Scope**: `M1 spec for review; writes limited to docs/adrs, docs/tasks, docs/specs, docs/STATE.md, PROMPTKIT.md §§1–2; no implementation code`
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `In Progress`
+- **Execution Scope**: `M1 control-plane slice only: init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/`
+- **Execution State**: `checkpoint_due`
+- **Mapped `pk:tasks` Status**: `Checkpoint due — T6 authorization pending`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Owner / Current Actor**: `Cline + human (authority)`
+- **Owner / Current Actor**: `Codex checkpoint handoff + human authority`
 - **Start Time**: `2026-09-20 23:55 UTC`
-- **Current Branch**: `main (no commits yet)`
-- **Current Revision**: `N/A — no commits yet`
-- **Checkpoint Policy**: `Soft checkpoint on M1 spec review delivery`
-- **Blockers and Resume Condition**: `M1 spec awaiting human approval
-  of AC-1..AC-8 + §9 answers; resume to implementation only on
-  explicit approval`
-- **Verification Status**: `Spec + records written 2026-09-20; no
-  test suite exists yet; no implementation files added`
+- **Current Branch**: `main`
+- **Current Revision**: `e035cde feat(cli): add T5 init and status surfaces`
+- **Checkpoint Policy**: `Hard checkpoint at session boundary; implementation paused until record reconciliation`
+- **Blockers and Resume Condition**: `Canonical records are reconciled to T1–T5 commit history. T6 is NOT authorized. This documentation commit does not authorize implementation; resume only after separate explicit T6 authorization.`
+- **Verification Status**: `2026-09-21: npm test 34/34 passed; npm run typecheck exit 0; npm run lint exit 0`
 - **CI Evidence**: `N/A — no host-project CI`
-- **Changed-File Summary**: `ADR + M1 spec + M1 Task Record (new);
-  M0 record (completed), STATE.md + PROMPTKIT.md §§1–2 (updated)`
-- **Latest Checkpoint**: `None yet`
-- **Latest Handoff**: `None`
-- **Next Action**: `Human approves M1 spec AC-1..AC-8 + §9 answers`
+- **Changed-File Summary**: `Documentation only: docs/STATE.md, canonical M1 Task Record, task breakdown, checkpoint record, and handoff record as needed for consistency; no source/tests changed`
+- **Latest Checkpoint**: `docs/tasks/2026-09-20-m1-local-task-gate.checkpoint-1.md`
+- **Latest Handoff**: `docs/tasks/2026-09-20-m1-local-task-gate.handoff-1.md`
+- **Next Action**: `STOP after the authorized reconciliation commit. Await a separate explicit decision on T6; no implementation work is authorized.`
 
 ---
 
@@ -105,11 +107,11 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - M1 spec review: AC-1..AC-8 + §9 (package manager, Node pin, TS strictness, test runner, schemas, exit codes, commit scope) — owner: human; resume: explicit approval, then implementation may start.
+  - T6 is NOT authorized — owner: human; resume implementation only after a separate explicit T6 authorization.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M1); C7 capability-filter before MCP (deferred post-M1); C8 stack-agnostic verify-adapter interface (M1 avoids via fixture-local verify). C2/C3/C5 closed by M-D4/M-D3. Full text: `docs/specs/2026-09-20-sureflow-discovery-intake.md` §5.
 - **Technical Debt & Risks**:
-  - R1 stack-by-default — CLOSED by explicit human M-D1 (+ ADR). R2 full-core-at-once — mitigated by binding M1 non-goals. R3/R4/R5 standing. No code debt exists (zero implementation files).
+  - R1 stack-by-default — CLOSED by explicit human M-D1 (+ ADR). R2 full-core-at-once — mitigated by binding M1 non-goals. R3/R4/R5 standing. npm emitted an `ignore-workspace-root-check` user-config deprecation warning during all three verification commands; it did not fail a gate.
 
 ---
 
@@ -121,9 +123,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. Human approves (or amends) M1 spec AC-1..AC-8 + §9 answers (`docs/specs/2026-09-20-m1-local-task-gate.md`).
-2. On approval: decide package manager, Node pin, TS strictness, test runner — then implementation may start (still gated).
-3. Decide initial-commit scope via `pk:commit` (human approval; tree still uncommitted, no HEAD yet).
+1. STOP after the authorized reconciliation commit. T6 remains NOT authorized; await a separate explicit decision before implementation.
 
 ---
 
@@ -135,6 +135,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | :--- | :--- | :--- | :--- |
 | 2026-09-20 | Cline | M0 discovery intake | Read ARCH/README/SECURITY/BENCHMARKS/CONTRIBUTING/CHANGELOG/PROMPTKIT/STATE; confirmed 0% implemented, no stack adopted; created Task Record + discovery spec; synced STATE.md §§1–5,7,3A |
 | 2026-09-20 | Cline | M1 spec for review | Recorded human M-D1..M-D5 in ADR; closed M0; wrote M1 spec (AC-1..AC-8 + §9) + M1 Task Record; updated PROMPTKIT.md §§1-2 + STATE.md; zero code |
+| 2026-09-21 | Codex | M1 T1–T5 checkpoint | Verified commits through T5 and 34 passing tests plus clean typecheck/lint; found canonical record drift; wrote checkpoint + handoff and stopped at `checkpoint_due` |
 
 ---
 
@@ -145,5 +146,6 @@ Compact record of pairing sessions to enable instant chat resumption:
 | :--- | :--- | :--- | :--- | :--- |
 | 2026-09-20 (M0 discovery) | ~15 | host telemetry unavailable | ~150k tok total (~8k-15k tok/turn heuristic) | Discovery reads of 8 docs + Task Record + spec + STATE.md sync; heuristic per checkpoint protocol, not billing telemetry |
 | 2026-09-20 (M1 spec) | ~14 | host telemetry unavailable | ~140k tok total (~8k-15k tok/turn heuristic) | ADR + M1 spec + M1 Task Record + STATE/PROMPTKIT sync; heuristic, not billing telemetry |
+| 2026-09-21 (sync, status, checkpoint) | ~3 | host telemetry unavailable | ~30k tok total (~8k-15k tok/turn heuristic) | Disk sync, CLI status, repository audit, verification, and durable checkpoint; heuristic, not billing telemetry |
 
-- **Running total**: ~29 turns (2 sessions) - ~290k tokens estimated cumulative spend
+- **Running total**: ~32 turns (3 sessions) · ~320k tokens estimated cumulative spend
