@@ -1,0 +1,28 @@
+{
+  "name": "sureflow",
+  "version": "0.0.0-m1",
+  "description": "Deterministic engineering control plane for AI coding agents (M1: local task gate).",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "engines": {
+    "node": "24.20.0",
+    "npm": ">=11"
+  },
+  "bin": {
+    "sureflow": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^26.6.2",
+    "eslint": "^9.18.0",
+    "typescript": "~5.7.3",
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^3.0.5"
+  }
+}

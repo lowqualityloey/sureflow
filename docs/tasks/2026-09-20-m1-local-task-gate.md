@@ -52,10 +52,10 @@
 - **Execution State**: `in_progress`
 - **Mapped pk:tasks Status**: `In Progress`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Blockers and Resume Condition**: `Spec in review; resume to
-  implementation only on explicit human approval of AC-1..AC-8`
+- **Blockers and Resume Condition**: `T1 authorized; T2..T11 gated until T1 accepted + explicit per-task authorization`
 - **Verification Status**: `Spec review only; no suite exists yet`
 - **CI Evidence**: `N/A`
+- **Commit Evidence (design baseline — pre-existing field was absent, appended post-commit per pk:commit gate)**: `4942ca4acd8c75c580cbfe98b16888948cb669f7 — docs(baseline) 2026-09-20; T1..T11 not started`
 - **Changed-File Summary**: `ADR + M1 spec + M1 Task Record (new);
   M0 record + STATE.md + PROMPTKIT.md §§1–2 (updated)`
 - **Next Action**: `Human reviews final M1 spec + AC for approval`
