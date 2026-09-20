@@ -23,6 +23,8 @@ Deliver the bounded M1 control-plane slice with four CLI commands (`init`, `run`
 - Pre-checkpoint worktree was clean.
 - Canonical M1 Task Record and task breakdown reconciled to T1–T5
   commit history in the checkpoint working tree.
+- T6 preflight stopped before implementation; the human-approved
+  contract correction is recorded in Scope Change 1 and M-D6..M-D9.
 
 ## Remaining Work
 
@@ -35,19 +37,19 @@ Deliver the bounded M1 control-plane slice with four CLI commands (`init`, `run`
 
 ## Changed Files
 
-Committed T1–T5 work spans `package.json`, `package-lock.json`, TypeScript/ESLint/Vitest configuration, `src/`, `tests/`, and the T4/T6 seam record. Current reconciliation changes are documentation-only: `docs/STATE.md`, the canonical M1 Task Record, task breakdown, this checkpoint record, and the paired handoff record.
+Committed T1–T5 work spans `package.json`, `package-lock.json`, TypeScript/ESLint/Vitest configuration, `src/`, and `tests/`. The current T6 preflight correction changes documentation only: M1 spec, M-D6..M-D9 ADR, Scope Change 1/T6–T8 handoff, canonical Task Record, task breakdown, T4/T6 seam link, STATE, checkpoint, and handoff.
 
 ## Decisions and Invariants
 
-- Preserve the human-approved M-D1..M-D5 decisions in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`.
+- Preserve human-approved M-D1..M-D5 and M-D6..M-D9.
 - `.sureflow/state/` is authoritative runtime state; `docs/STATE.md` is never runtime input.
 - Verifier verdicts remain exactly `PASS | FAIL | UNKNOWN | BLOCKED`; `UNKNOWN` never becomes `PASS`.
 - The T4/T6 seam permits exactly one terminal evidence record per `(taskId, capability, target)`; retry observations belong in events.
 - `PolicyDecision` and `VerificationVerdict` remain
   separate domains; default-deny remains in force.
-- Protected operations require explicit human approval according to
-  policy; no runtime approval-delivery mechanism is claimed as
-  implemented.
+- `REQUIRE_APPROVAL` is a terminal M1 policy halt with zero
+  execution, zero retry, and no mapping to a verification verdict. M1 has
+  no runtime approval-delivery mechanism.
 - `expectedResult` comes from the approved
   acceptance/fixture contract, never from evidence.
 - Maximum one automatic retry.
@@ -65,8 +67,10 @@ Committed T1–T5 work spans `package.json`, `package-lock.json`, TypeScript/ESL
 
 ## Blocker and Resume Condition
 
-The canonical records are reconciled and T6 is NOT authorized. The task remains `checkpoint_due`; this documentation commit does not authorize any T6 implementation edit.
+The contract correction is documentation-only. T8 is now the gated
+prerequisite to T6; T6 and T7 remain gated. The task remains
+`checkpoint_due`.
 
 ## Prioritized Next Action
 
-STOP after the authorized reconciliation commit. T6 remains gated and requires separate explicit authorization.
+STOP. Await separate explicit T8 authorization; T6 and T7 remain gated.

@@ -9,6 +9,7 @@
 - **Owner**: human (decision) / T6 (writer invariant)
 - **Resolution**: `(taskId, capability, target)` selector + terminal
   evidence cardinality, no ordering semantics (see below)
+- **Related T6/T8 Correction**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md` — T8 now precedes T6 and owns the acceptance contract
 
 ## Resolution (approved, applied in T4)
 
@@ -120,3 +121,8 @@ semantics, reducers/projections, event sourcing.
 contract (`fixtures/t0-basic/task.json`, M-D5) and must NEVER be
 derived from the evidence being verified. Also recorded as a doc
 comment on `VerificationRequest` in `src/verifier.ts`.
+
+The 2026-09-21 T6 preflight correction makes T8 a prerequisite to T6,
+removes the free-form verify-command concept, and limits
+`repo.test` to `testProfile: "npm-test"` with closed
+dispatch. This record's evidence-cardinality rules are unchanged.

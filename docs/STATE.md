@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T5 committed; T6–T11 remain
-- **Overall Status**: CHECKPOINT_DUE — canonical records reconciled; T6 remains planned/gated and NOT authorized
+- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T5 committed; T8 fixture contract now precedes T6
+- **Overall Status**: CHECKPOINT_DUE — T6 preflight contracts reconciled; T8, T6, and T7 remain gated
 - **Target Release / Deadline**: M1 implementation — no deadline recorded
-- **Current Working Branch**: `main` at `e035cde`
+- **Current Working Branch**: `main` at `d5e7bcb`
 - **Last Updated**: 2026-09-21
 
 
@@ -16,7 +16,7 @@
 ### Milestone Roadmap
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
-- [/] **M1-build**: T1–T5 committed; T6 planned/gated/NOT authorized; T7–T11 planned/not started
+- [/] **M1-build**: T1–T5 committed; revised order is T8 gated → T6 gated → T7/T9–T11 gated
 
 ### Active Milestone Task Breakdown
 
@@ -27,17 +27,18 @@
 - [x] T3: append-only evidence and redaction — committed `a4f16af`
 - [x] T4: deterministic verifier — committed `7c70622`
 - [x] T5: CLI `init` and read-only `status` — committed `e035cde`
-- [ ] T6: planned / gated / NOT authorized
-- [ ] T7–T11: planned / not started
-- [!] Checkpoint stop: T6 requires separate explicit authorization; this documentation commit does not authorize implementation
+- [ ] T8: minimal T0 fixture contract prerequisite / gated / NOT authorized
+- [ ] T6: depends on completed T8 / gated / NOT authorized
+- [ ] T7 and T9–T11: gated / not started
+- [!] Checkpoint stop: documentation correction only; no implementation authorization
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md` (approved 2026-09-20; §9 addendum records toolchain decisions)
-- **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` plus `docs/tasks/2026-09-20-m1-task-breakdown.md` (reconciled in the working tree)
-- **Key Source Files in Flight**: Documentation reconciliation only; no source or test implementation is in flight. T6 is planned/gated/NOT authorized.
+- **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` plus `docs/tasks/2026-09-20-m1-task-breakdown.md` and linked Scope Change 1
+- **Key Source Files in Flight**: Documentation/spec reconciliation only; no source, test, config, fixture, package, or runtime implementation is in flight.
 - **Verification Commands (Scoped)**:
   - Unit Tests: `npm test` → 34 passed, 0 failed across 6 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -54,20 +55,20 @@
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **Execution Scope**: `M1 control-plane slice only: init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/`
 - **Execution State**: `checkpoint_due`
-- **Mapped `pk:tasks` Status**: `Checkpoint due — T6 authorization pending`
+- **Mapped `pk:tasks` Status**: `Checkpoint due — T8/T6/T7 gated`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
 - **Owner / Current Actor**: `Codex checkpoint handoff + human authority`
 - **Start Time**: `2026-09-20 23:55 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `e035cde feat(cli): add T5 init and status surfaces`
+- **Current Revision**: `d5e7bcb docs(state): reconcile M1 history through T5`
 - **Checkpoint Policy**: `Hard checkpoint at session boundary; implementation paused until record reconciliation`
-- **Blockers and Resume Condition**: `Canonical records are reconciled to T1–T5 commit history. T6 is NOT authorized. This documentation commit does not authorize implementation; resume only after separate explicit T6 authorization.`
+- **Blockers and Resume Condition**: `T8 is NOT authorized. T6 remains gated until T8 is separately authorized, implemented, verified, and committed, then T6 is separately reauthorized. T7 remains gated.`
 - **Verification Status**: `2026-09-21: npm test 34/34 passed; npm run typecheck exit 0; npm run lint exit 0`
 - **CI Evidence**: `N/A — no host-project CI`
-- **Changed-File Summary**: `Documentation only: docs/STATE.md, canonical M1 Task Record, task breakdown, checkpoint record, and handoff record as needed for consistency; no source/tests changed`
+- **Changed-File Summary**: `Documentation only: M1 spec, ADR, Scope Change 1/T6–T8 handoff, canonical Task Record, breakdown, T4/T6 seam link, STATE, checkpoint, and handoff; no implementation artifacts`
 - **Latest Checkpoint**: `docs/tasks/2026-09-20-m1-local-task-gate.checkpoint-1.md`
 - **Latest Handoff**: `docs/tasks/2026-09-20-m1-local-task-gate.handoff-1.md`
-- **Next Action**: `STOP after the authorized reconciliation commit. Await a separate explicit decision on T6; no implementation work is authorized.`
+- **Next Action**: `STOP. Await separate explicit T8 authorization; T6 and T7 remain gated.`
 
 ---
 
@@ -91,6 +92,7 @@
 - Sureflow invariants (carried from ARCHITECTURE.md §§7/41 + user brief, preserved as design intent, not implemented code): control plane owns authority; minimum sufficient context; risk/context independent; workflows = intent, policies = authority; capabilities = actions; skills = knowledge, never authority; workers disposable, state durable; multi-agent optional + cost-gated; evidence > model confidence; verification stays deterministic; explicit human approval for protected ops; MCP optional external provider; Git/tasks/evidence/events/state distinct; CLI = intent, router = topology; token efficiency never overrides correctness; CPAC > raw token minimization; every subsystem justifies complexity.
 - Discovery constraint: no stack invented — CONTRIBUTING.md forbids assuming runtime/PM/CI before adoption (observed 2026-09-20).
 - Human M-D1..M-D5 (2026-09-20, `docs/adrs/2026-09-20-stack-and-m1-boundary.md`): TS+Node stack; local tracking for M1; 5 protected ops + max-1-retry-then-HALT; `.sureflow/state/` authoritative, `docs/STATE.md` never runtime state; isolated `fixtures/t0-basic/`, never own source tree as fixture.
+- Human M-D6..M-D9 (2026-09-21, `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md`): `REQUIRE_APPROVAL` is a terminal policy halt with no M1 approval delivery; T8 precedes T6; `repo.test` uses only closed `npm-test` dispatch; cwd containment is not an OS sandbox.
 
 ---
 
@@ -107,7 +109,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - T6 is NOT authorized — owner: human; resume implementation only after a separate explicit T6 authorization.
+  - T8 is not authorized; T6 depends on T8 and remains gated; T7 remains gated — owner: human; resume only after a separate explicit T8 decision.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M1); C7 capability-filter before MCP (deferred post-M1); C8 stack-agnostic verify-adapter interface (M1 avoids via fixture-local verify). C2/C3/C5 closed by M-D4/M-D3. Full text: `docs/specs/2026-09-20-sureflow-discovery-intake.md` §5.
 - **Technical Debt & Risks**:
@@ -119,11 +121,12 @@ Staging area for rules observed during sessions but not yet approved as invarian
 | Date | Title & Scope | Decision Summary | ADR File |
 | :--- | :--- | :--- | :--- |
 | 2026-09-20 | M1 stack/tracking/protection/state/fixture (M-D1..M-D5) | TS+Node; local tracking; 5 protected ops + 1 retry then HALT; `.sureflow/state/` authoritative; `fixtures/t0-basic/` | `docs/adrs/2026-09-20-stack-and-m1-boundary.md` |
+| 2026-09-21 | M1 T6 preflight contracts (M-D6..M-D9) | terminal `REQUIRE_APPROVAL`; T8 before T6; closed `npm-test` profile; no OS-sandbox claim | `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` |
 
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. STOP after the authorized reconciliation commit. T6 remains NOT authorized; await a separate explicit decision before implementation.
+1. STOP. Await separate explicit T8 authorization; T6 and T7 remain gated.
 
 ---
 

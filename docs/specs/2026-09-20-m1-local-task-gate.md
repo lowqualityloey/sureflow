@@ -3,11 +3,13 @@
 <a id="PLAN-m1-local-task-gate"></a>
 
 - **Author**: Cline (AI coding agent)
-- **Status**: Approved by human 2026-09-20 — implementation planning authorized; implementation start still gated on §9 toolchain answers
+- **Status**: Approved by human 2026-09-20; amended by the human-approved T6 preflight correction on 2026-09-21
 - **Created**: 2026-09-20
 - **Target Release**: M1 (first useful vertical slice)
 - **Task Record**: `docs/tasks/2026-09-20-m1-local-task-gate.md`
 - **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5)
+- **T6 Preflight Decisions**: `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D9)
+- **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
 - **Stack**: TypeScript + Node.js (human decision M-D1; package manager,
   Node pin, TS config, test runner NOT yet decided — see §9)
 
@@ -20,13 +22,15 @@ execution -> evidence -> deterministic verification -> ACCEPT or HALT.
 ## 2. Scope (bounded — user-confirmed)
 
 - **Commands (4 only)**: `init`, `run`, `status`, `verify`.
-- **Policy**: static default-deny file + explicit human approval gate.
+- **Policy**: static default-deny file; `REQUIRE_APPROVAL` is a
+  terminal M1 policy halt with no approval-delivery mechanism.
 - **Execution**: one disposable worker, allowlisted capabilities.
 - **Evidence**: append-only JSONL event/evidence log.
 - **Verification**: deterministic runner; PASS / FAIL / UNKNOWN /
   BLOCKED; UNKNOWN or missing evidence -> HALT.
 - **Repair**: max 1 automated retry, then HALT + human.
-- **Fixture**: `fixtures/t0-basic/`, minimal and deterministic.
+- **Fixture**: `fixtures/t0-basic/`, minimal and deterministic;
+  its contract is established before T6.
 ## 3. Non-goals (binding for M1)
 
 No multi-agent execution, MCP, skills, provider adapters, stack
@@ -46,10 +50,24 @@ record + human approval.
   allowlist per worker + the 5 protected ops (M-D3) each marked
   `require: human-approval`. Default-deny: anything not listed is
   denied. Policy is data, never natural-language authority.
+- **M1 approval semantics**: `REQUIRE_APPROVAL` means zero
+  capability execution, no retry, and a terminal policy-layer halt. M1 has
+  no `--approve` flag, environment approval, approval token,
+  schema, store, authenticity/expiry machinery, or resumable approval
+  delivery. CLI invocation and `init --force` never imply
+  approval. `REQUIRE_APPROVAL` is not converted into
+  `VerificationVerdict.BLOCKED`.
 - **Capabilities (M1 allowlist)**: `repo.read`, `repo.write`
   (fixture-scoped), `repo.test`. Everything else (incl. `git.push`,
   `deploy.*`, `db.migrate`, `secret.*`, `network.external`) is
   denied in M1. Worker cwd is jailed to `fixtures/t0-basic/`.
+- **Closed `repo.test` profile**: only
+  `testProfile: "npm-test"` is valid. Sureflow maps it internally
+  to executable `npm` and fixed `["test"]` argv with
+  `shell: false` and cwd equal to the bounded worker root.
+  Executable and argv are never supplied by the model, CLI, task, or
+  fixture. Missing/unsupported profiles halt with no arbitrary-command
+  fallback.
 - **Events/evidence (append-only JSONL)**:
   `.sureflow/events/events.jsonl` + `.sureflow/evidence/evidence.jsonl`.
   Required fields per record: `who/what, when, task, capability,
@@ -60,13 +78,19 @@ record + human approval.
   missing/stale evidence -> `HALT` (surfaced as BLOCKED +
   human-required). Test evidence (exit code, suite counts) never
   authorizes a protected op.
+- **Domain separation**: policy-layer `DENY` and
+  `REQUIRE_APPROVAL` halt before execution and do not manufacture
+  verification verdicts. `BLOCKED` remains in the stable
+  `VerificationVerdict` domain but is not a mapping target for
+  `REQUIRE_APPROVAL`.
 ## 5. CLI behavior
 
 - `sureflow init` — creates `.sureflow/{state,events,evidence,
   policy}/` + `default.json` + fixture scaffold. Refuses to
   overwrite existing state without an explicit flag. Prints what
   was created, what was verified, what needs the human.
-- `sureflow run "<task>"` — loads policy, creates task record in
+- `sureflow run "<task>"` — consumes the already-approved T0
+  fixture/acceptance contract, loads policy, creates task record in
   `.sureflow/state/tasks/`, resolves the allowlist, runs the single
   worker step jailed to the fixture, appends events/evidence, runs
   verification, prints ACCEPT or HALT + next human action.
@@ -90,16 +114,28 @@ record + human approval.
   step is permitted (M-D3). Second failure, any protected-op hit,
   any denied capability, or any UNKNOWN -> HALT, preserve evidence,
   require human. No repair loops, no "fix-forward" improvisation.
-- Human approval gate: protected ops (M-D3 list) always BLOCK
-  pending explicit human approval evidence; model output or a
-  passing test never substitutes.
+- Protected operations (M-D3 list) produce terminal
+  `REQUIRE_APPROVAL` policy halts in M1: zero execution and zero
+  retry. The runtime may report that human approval is required, but M1
+  cannot receive approval evidence. Model output, CLI invocation,
+  `init --force`, and passing tests never substitute.
 ## 7. Fixture `fixtures/t0-basic/`
 
-- Minimal deterministic task: worker writes `output.txt` (or
-  equivalent marker) inside the fixture; `verify` asserts exact
-  content + records exit-code evidence. Fixture contains its own
-  `task.json` (objective, acceptance, verify command) so M1 needs
-  no stack adapter and never touches Sureflow's own source tree.
+- The minimal `task.json` contract contains only
+  `taskId`, `capability`, `target`,
+  `expectedResult`, and `testProfile` when capability is
+  `repo.test`. It contains no command, argv, run ID, attempt ID,
+  sequence number, provider metadata, or generalized execution profile.
+- `expectedResult` belongs to this acceptance contract and is
+  supplied to `VerificationRequest` independently of persisted
+  evidence.
+- T8 establishes this contract before T6. T6 consumes it; it does not
+  duplicate fixture data.
+- `repo.read` and `repo.write` paths are hard-jailed by
+  Sureflow's path resolver. `repo.test` uses closed dispatch, but
+  cwd containment is not an OS sandbox: M1 does not claim that test-process
+  code cannot access filesystem paths or network resources outside the
+  worker root. Hard subprocess isolation is outside M1.
 - Determinism rule: same fixture + same policy + same code must
   yield the same verdict. Wall-clock timestamps are recorded as
   provenance but never influence PASS/FAIL.
@@ -112,8 +148,10 @@ record + human approval.
   outside `repo.read/write/test` is DENIED pre-execution and
   logged with policy decision.
 - [ ] AC-3 (protected op): simulated protected-op request (e.g.
-  fake `deploy.production`) BLOCKS pending human approval; no
-  approval evidence -> HALT, never ACCEPT.
+  fake `deploy.production`) returns
+  `PolicyDecision.REQUIRE_APPROVAL` and terminally HALTs with
+  zero execution and zero retry. It does not emit or map to
+  `VerificationVerdict.BLOCKED`.
 - [ ] AC-4 (unknown/missing evidence): deleted or corrupt evidence
   record -> `verify` emits UNKNOWN -> HALT, never PASS.
 - [ ] AC-5 (repair bound): failing fixture step retries exactly
@@ -162,10 +200,13 @@ Human closed §9 items 1–3 and 5 as follows (items 4, 6 partially open):
   names (camelCase convention set), `status` field layout,
   initial `package.json` script names. T1 resolves, human confirms.
 
-## 10. Verification plan (no code yet)
+## 10. Verification plan
 
-- This turn: ADR + spec + two Task Records written; STATE.md
-  synced; `git status` inspection; no implementation files added.
-- At review: human approves AC-1..AC-8 + §9 answers.
-- After approval: implement strictly inside the boundary, then
-  execute AC-1..AC-8 for real with `tsc`, tests, and lint evidence.
+- T1–T5 are committed through `e035cde`; the canonical history
+  reconciliation is committed at `d5e7bcb`.
+- This T6 preflight correction is documentation-only. Verify exact
+  documentation scope, required contract markers, links, dependency order,
+  and `git diff --check` before requesting `pk:commit`.
+- T8 must establish and verify the minimal T0 fixture contract before T6.
+- T6 must consume that contract and execute the existing AC verification
+  plan without broadening the approved M1 boundary.
