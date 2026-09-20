@@ -4,12 +4,12 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1 in progress (authorized); T2..T11 NOT started
+- **Status**: T1 done; T2 done (awaiting commit); T3..T11 NOT started
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
   executed post-implementation with `tsc` + test + lint evidence )
 ## Atomic tasks (dependency-ordered, 1–4h each)
 
-- [/] T1 Toolchain + scaffold (p0): package manager, Node pin,
+- [x] T1 Toolchain + scaffold (p0): done + committed d7a5d24; engines follow-up ^24.0.0 applied in T2 scope: package manager, Node pin,
   `tsconfig strict`, zero-`any` lint, test runner, `sureflow` bin
   stub. Gherkin: Given clean checkout When install+typecheck run
   Then exit 0 with pinned versions recorded.

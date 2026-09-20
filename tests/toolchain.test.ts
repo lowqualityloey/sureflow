@@ -11,8 +11,12 @@ const pkg: {
 };
 
 describe("T1 toolchain gate", () => {
-  it("pins Node 24.x via engines", () => {
-    expect(pkg.engines.node).toMatch(/^24\./);
+  it("declares the Node 24.x runtime contract via engines", () => {
+    // Supported contract is the 24.x range (exact pin lives in the
+    // lockfile + provenance, not in engines).
+    expect(pkg.engines.node).toBe("^24.0.0");
+    const major = Number(process.version.replace(/^v/, "").split(".")[0]);
+    expect(major).toBe(24);
   });
 
   it("exposes the approved quality-gate scripts", () => {
