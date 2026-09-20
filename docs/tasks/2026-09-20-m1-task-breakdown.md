@@ -4,7 +4,7 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1 done; T2 done (awaiting commit); T3..T11 NOT started
+- **Status**: T1 done; T2 done; T3 done (awaiting commit); T4..T11 NOT started
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
   executed post-implementation with `tsc` + test + lint evidence )
 ## Atomic tasks (dependency-ordered, 1–4h each)
