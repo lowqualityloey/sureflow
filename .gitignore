@@ -1,0 +1,8 @@
+# Node / Sureflow runtime ignores
+node_modules/
+.sureflow/
+dist/
+coverage/
+*.log
+.DS_Store
+.env
