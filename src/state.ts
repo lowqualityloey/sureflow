@@ -73,6 +73,44 @@ export function createTaskState(taskId: string, nowIso: string): TaskState {
   };
 }
 
+/** Minimal project state factory (T5 init). */
+export function createProjectState(projectName: string, nowIso: string): ProjectState {
+  return {
+    schemaVersion: STATE_SCHEMA_VERSION,
+    projectName,
+    initializedAt: nowIso,
+  };
+}
+
+/** Minimal active-task pointer factory (T5 init: no active task). */
+export function createActiveState(nowIso: string): ActiveState {
+  return {
+    schemaVersion: STATE_SCHEMA_VERSION,
+    activeTaskId: null,
+    updatedAt: nowIso,
+  };
+}
+
+export function isProjectState(value: unknown): value is ProjectState {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    v["schemaVersion"] === STATE_SCHEMA_VERSION &&
+    typeof v["projectName"] === "string" &&
+    typeof v["initializedAt"] === "string"
+  );
+}
+
+export function isActiveState(value: unknown): value is ActiveState {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    v["schemaVersion"] === STATE_SCHEMA_VERSION &&
+    (v["activeTaskId"] === null || typeof v["activeTaskId"] === "string") &&
+    typeof v["updatedAt"] === "string"
+  );
+}
+
 export function isTaskState(value: unknown): value is TaskState {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;

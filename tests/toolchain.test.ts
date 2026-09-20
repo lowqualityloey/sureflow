@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { cliExecutable } from "./helpers/cliArtifact.js";
 
 const pkg: {
   engines: { node: string };
@@ -26,12 +27,10 @@ describe("T1 toolchain gate", () => {
   });
 
   it("cli stub exits 0 on --help and 2 on unknown command", () => {
-    const help = execFileSync("node", ["--experimental-strip-types", "src/cli.ts", "--help"], {
-      encoding: "utf8",
-    });
+    const help = execFileSync("node", [cliExecutable(), "--help"], { encoding: "utf8" });
     expect(help).toContain("init, run, status, verify");
     expect(() =>
-      execFileSync("node", ["--experimental-strip-types", "src/cli.ts", "run"], { stdio: "pipe" }),
+      execFileSync("node", [cliExecutable(), "run"], { stdio: "pipe" }),
     ).toThrow();
   });
 });
