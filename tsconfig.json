@@ -22,6 +22,6 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src", "tests/toolchain.test.ts", "tests/statePolicy.test.ts", "tests/evidenceStore.test.ts", "tests/evidenceRedact.test.ts", "vitest.config.ts", "eslint.config.js"],
+  "include": ["src", "tests/toolchain.test.ts", "tests/statePolicy.test.ts", "tests/evidenceStore.test.ts", "tests/evidenceRedact.test.ts", "tests/verifier.test.ts", "vitest.config.ts", "eslint.config.js"],
   "exclude": ["node_modules", "dist", "fixtures", ".sureflow"]
 }

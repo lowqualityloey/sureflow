@@ -4,12 +4,12 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1 done; T2 done; T3 done (awaiting commit); T4..T11 NOT started
+- **Status**: T1–T4 done (T4 closing in this commit); T5..T11 NOT started
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
   executed post-implementation with `tsc` + test + lint evidence )
 ## Atomic tasks (dependency-ordered, 1–4h each)
 
-- [x] T1 Toolchain + scaffold (p0): done + committed d7a5d24; engines follow-up ^24.0.0 applied in T2 scope: package manager, Node pin,
+- [x] T1 Toolchain + scaffold (p0): done + committed d7a5d24; engines follow-up ^24.0.0 applied in T2 scope
   `tsconfig strict`, zero-`any` lint, test runner, `sureflow` bin
   stub. Gherkin: Given clean checkout When install+typecheck run
   Then exit 0 with pinned versions recorded.
@@ -18,8 +18,7 @@
   helpers that refuse `docs/STATE.md` as input. AC-6 seam.
 - [ ] T3 Events/evidence JSONL (p0): append-only writers, required
   fields, secret redaction -> HALT. AC-4 seam.
-- [ ] T4 Verifier (p0): PASS/FAIL/UNKNOWN/BLOCKED + UNKNOWN-never-
-  PASS + missing/stale -> HALT. AC-4 seam.
+- [x] T4 Verifier (p0): done — pure `verifyEvidence`; selector `(taskId, capability, target)`; PASS/FAIL/UNKNOWN only (BLOCKED preserved, never manufactured); UNKNOWN-never-PASS incl. corrupt/unreadable/duplicate. Seam conflict + T6/T7 invariants: `docs/tasks/2026-09-20-t4-t6-evidence-seam.md`
 - [ ] T5 CLI init/status (p1): `init` (no-overwrite default),
   `status` read-only 4-line view. AC-1/AC-8 seams.
 - [ ] T6 CLI run + worker jail (p0): policy load, task record,
