@@ -15,7 +15,7 @@
 - **External Reference**: `N/A - local tracking remains authoritative`
 - **Owner / Actor**: Human authority owns approval; Codex may implement only separately authorized M2 tasks
 - **Execution Scope**: Sureflow M2 in this repository; one independent Node/TypeScript fixture target; one local worker/project/task
-- **Approval Boundary**: M2-T7 single orchestration integration is authorized only within the existing run/verify/policy compatibility boundary and its genuinely required focused tests/helpers, plus the existing M2 Task Record/STATE projection. Commit, push, scope expansion, M2-T8, pull request, remote action, release, deployment, or rollback require separate explicit human authorization.
+- **Approval Boundary**: M2-T8 end-to-end and negative acceptance is authorized only for the independent acceptance harness, focused tests/helpers, the required test-project include, and this existing M2 Task Record/STATE projection. Commit, push, pull request, remote action, release, deployment, post-M2 work, or rollback require separate explicit human authorization.
 - **Created**: 2026-09-21 10:38 UTC
 
 ## 2. Objective and Boundaries
@@ -38,12 +38,15 @@
   - read-only Git-visible tracked/non-ignored-untracked baseline and scope inspection;
   - append-only change/check/scope evidence and deterministic aggregate verification;
   - one generalized run/verify orchestration pipeline with T0 compatibility preserved;
-  - independent fixture acceptance and the full negative-test matrix.
+  - independent fixture acceptance and the full negative-test matrix;
+  - T8 acceptance harness `tests/m2Acceptance.test.ts` and its explicit `tsconfig.json` test-project inclusion.
 - **Explicit Non-Goals**:
   - all items listed in the specification's Non-Goals and Deferred Post-M2 sections;
-  - M2-T8 implementation during this T7;
+  - production/runtime changes to the accepted T1-T7 implementation;
+  - changes to the independent fixture source or contract;
+  - M2-T9 or any post-M2 implementation;
   - commits, pushes, pull requests, releases, or other remote side effects.
-- **Dependencies**: Accepted clean baseline `4b081037c43e954437ef92eac143bd87cd960f01`; accepted M1/M1.1 contracts and M2-T1 through M2-T6; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T7 implementation authorization is active; T8 remains separately gated.
+- **Dependencies**: Accepted clean baseline `9fe350a256f2eb9f469e5e1e191e62acc5e98a29`; accepted M1/M1.1 contracts and M2-T1 through M2-T7; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T8 implementation authorization is active.
 - **Risk**: `High` — M2 expands from fixed verification to real source mutation. Mitigation: exact-path/preimage gates, default-deny policy, one closed adapter, clean Git baseline, post-run scope inspection, deterministic evidence, one-task authorization, and hard stop conditions.
 - **Verification Condition**: M2 is complete only when AC-M2.1–AC-M2.9 pass, N1–N16 pass, the independent temporary-repository acceptance reaches PASS/accepted, and the complete Sureflow typecheck/test/lint/build/hygiene gates pass without weakening existing tests.
 
@@ -62,42 +65,70 @@
   - Require no pre-existing tracked or non-ignored untracked project changes outside `.sureflow/**`; classify every unexpected Git-visible path as a terminal violation without claiming ignored-file/outside-repository detection.
 - [x] **M2-T6 — Aggregate evidence verifier** (`#priority/p0`, `area:backend`, `type:feature`, 4–5 h; depends on T1/T3–T5) — accepted / complete at `4b081037c43e954437ef92eac143bd87cd960f01` after GitHub Actions run `35614567881`
   - Reuse append-only evidence and base verifier; require current contract, exact changed paths, compliant scope, and all required checks.
-- [~] **M2-T7 — Single orchestration integration** (`#priority/p0`, `area:backend`, `type:refactor`, 5–7 h; depends on T1–T6) — implementation authorized and in progress
+- [x] **M2-T7 — Single orchestration integration** (`#priority/p0`, `area:backend`, `type:refactor`, 5–7 h; depends on T1–T6) — accepted / complete at `9fe350a256f2eb9f469e5e1e191e62acc5e98a29`; CI run `35621524786`
   - Generalize the one run/verify pipeline; preserve policy, lock, state, event, evidence, CLI, and T0 compatibility invariants.
-- [ ] **M2-T8 — End-to-end and negative acceptance** (`#priority/p1`, `area:backend`, `type:test`, 4–6 h; depends on T7)
+- [~] **M2-T8 — End-to-end and negative acceptance** (`#priority/p1`, `area:backend`, `type:test`, 4–6 h; depends on T7) — locally implemented and verified; commit authorization remains separate
   - Execute the independent temp-repository flow, N1–N16, full regressions, hygiene/review, and acceptance evidence.
 
 No task may start merely because its predecessor is checked. Each task needs separate human authorization and an event-driven checkpoint before the next task.
 
 ## 4. Acceptance Criteria
 
-- [ ] **AC-M2.1 — Project detection**: Repository evidence deterministically resolves the one supported adapter; unsupported or ambiguous projects halt before writes.
-  - **Result**: Pending
-  - **Evidence**: Focused detector tests and independent fixture acceptance
-- [ ] **AC-M2.2 — Contract and authority**: Human/control-plane task bytes become one hashed immutable snapshot; workers cannot write `.sureflow/**`, expand path authority, change content/preimage, or weaken verification; a mid-run disk change halts without changing the active plan.
-  - **Result**: Pending
-  - **Evidence**: Contract/policy test matrix
-- [ ] **AC-M2.3 — Bounded useful write**: Exactly one authorized tracked source file with a matching preimage is atomically replaced; every containment or stale violation is refused, and every unauthorized Git-visible changed path halts.
-  - **Result**: Pending
-  - **Evidence**: Writer/scope tests and end-to-end changed-path assertion
-- [ ] **AC-M2.4 — Closed verification**: Snapshot-owned required profile IDs resolve only to fixed npm argv in canonical order; workers cannot select or weaken them; missing scripts halt; npm script bodies retain host filesystem/network access and are not sandboxed by `shell: false`.
-  - **Result**: Pending
-  - **Evidence**: Adapter dispatch tests
-- [ ] **AC-M2.5 — Change evidence**: Evidence records current contract digest, before/after file digests, actual changed paths, scope result, and every required verification result.
-  - **Result**: Pending
-  - **Evidence**: Persisted JSONL assertions with redaction checks
-- [ ] **AC-M2.6 — Deterministic verdict**: Only complete/current/unambiguous passing evidence yields PASS; missing/corrupt/duplicate/stale evidence yields UNKNOWN and explicit failures yield FAIL.
-  - **Result**: Pending
-  - **Evidence**: Aggregate verifier matrix and stale-accepted reconciliation tests
-- [ ] **AC-M2.7 — Negative paths**: Specification cases N1–N16 pass exactly.
-  - **Result**: Pending
-  - **Evidence**: Named automated tests mapped to every negative ID
-- [ ] **AC-M2.8 — Independent acceptance**: The public CLI changes a disposable copy of `fixtures/m2-node-ts-project/`, never Sureflow's own source tree, and reaches accepted/PASS after real checks.
-  - **Result**: Pending
-  - **Evidence**: End-to-end acceptance command, state, evidence, Git scope, and CLI assertions
-- [ ] **AC-M2.9 — Regression and scope**: Existing M1/M1.1 behavior remains green and no deferred post-M2 subsystem appears.
-  - **Result**: Pending
-  - **Evidence**: Full suite, typecheck, lint, build, diff, reference, harness, hygiene, changed-file, and architecture review gates
+- [x] **AC-M2.1 — Project detection**: Repository evidence deterministically resolves the one supported adapter; unsupported or ambiguous projects halt before writes.
+  - **Result**: Passed locally
+  - **Evidence**: T2 acceptance remains green; T8 N1 unsupported-project and N2 missing-script cases halt before mutation.
+- [x] **AC-M2.2 — Contract and authority**: Human/control-plane task bytes become one hashed immutable snapshot; M2's immutable `targetPath` is both the sole authorized project-write target and the sole expected Git-visible project change; workers cannot write `.sureflow/**`, substitute the target, change content/preimage, or weaken verification; a mid-run disk change halts without changing the active plan.
+  - **Result**: Passed locally
+  - **Evidence**: T1/T7 regressions plus N3 malformed/unknown/duplicate/invalid contract cases and N16 mid-run contract-integrity mismatch.
+- [x] **AC-M2.3 — Bounded useful write**: Exactly one immutable `targetPath` authorized by the task, tracked source file with a matching preimage is atomically replaced; every containment or stale violation is refused, and every Git-visible project path other than `targetPath` halts.
+  - **Result**: Passed locally
+  - **Evidence**: T4/T5 regressions plus N5 unauthorized targets, N6 dirty/stale baselines, N7 single-target authority mismatch, N10 unauthorized post-write path, and N13 no-op/missing-change evidence.
+- [x] **AC-M2.4 — Closed verification**: Snapshot-owned required profile IDs resolve only to fixed npm argv in canonical order; workers cannot select or weaken them; missing scripts halt; npm script bodies retain host filesystem/network access and are not sandboxed by `shell: false`.
+  - **Result**: Passed locally
+  - **Evidence**: T3 regression plus AC-M2.8 real wrapper trace: `run typecheck`, `test`, `run lint`, `run build`; N2 missing-script halt.
+- [x] **AC-M2.5 — Change evidence**: Evidence records current contract digest, before/after file digests, actual changed paths, scope result, and every required verification result.
+  - **Result**: Passed locally
+  - **Evidence**: AC-M2.8 persisted JSONL assertions cover contract, replacement, project scope, and all four verification records; N10/N13 cover post-write scope/evidence violations.
+- [x] **AC-M2.6 — Deterministic verdict**: Only complete/current/unambiguous passing evidence yields PASS; missing/corrupt/duplicate/stale evidence yields UNKNOWN and explicit failures yield FAIL.
+  - **Result**: Passed locally
+  - **Evidence**: T6 regression plus N8/N9 failures, N11 missing evidence, N12 corrupt/stale evidence, N13 no-op/missing-target evidence, and read-only verify helper.
+- [x] **AC-M2.7 — Negative paths**: Specification cases N1–N16 pass exactly.
+  - **Result**: Passed locally, 35 negative test cases / 38 total T8 tests
+  - **Evidence**: `tests/m2Acceptance.test.ts` maps N1, N2, N3 (4 cases), N4 (3 parameterized cases), N5 (9 cases), N6 (2), N7 single-target authority mismatch, N8, N9 (2), N10 post-write unauthorized path, N11, N12 (2), N13 (2), N14 (2), N15 (2), and N16.
+- [x] **AC-M2.8 — Independent acceptance**: The public CLI changes a disposable copy of `fixtures/m2-node-ts-project/`, never Sureflow's own source tree, and reaches accepted/PASS after real checks.
+  - **Result**: Passed locally on the permitted host
+  - **Evidence**: Public `init`, `run TASK-M2-FIXTURE-DISPLAY-NAME`, and `verify TASK-M2-FIXTURE-DISPLAY-NAME`; replacement bytes, accepted state, seven evidence records, Git-visible target scope, and read-only verify were asserted.
+- [x] **AC-M2.9 — Regression and scope**: Existing M1/M1.1 behavior remains green and no deferred post-M2 subsystem appears.
+  - **Result**: Passed locally, subject to final canonical gate rerun below
+  - **Evidence**: Public T0 run/verify regression, T1-T7 regressions, full suite, typecheck, lint, build, diff, reference, harness, hygiene, and exact changed-file scope checks.
+
+## 4A. M2 Contract Authority Reconciliation
+
+The original planning baseline proposed a richer generalized authority shape
+with `permittedCapabilities`, `allowedPaths`, nested `change.path`,
+`expectedChangedPaths`, and a task-selectable `stopPolicy`. T1 implemented a
+closed single-target representation instead. No prior explicit simplification
+authorization was found in the historical T1 records.
+
+Human authority explicitly approved the implemented representation for M2 on
+2026-09-22. For M2, `targetPath` is simultaneously the sole task-authorized
+project-write target and the sole expected Git-visible project change. The
+fixed orchestration capabilities are `repo.read`, `repo.write`, and
+`repo.verify`; they are individually evaluated through existing policy before
+project mutation and are not task-expandable. M2 strict stopping semantics are
+fixed control-plane behavior, not task-selectable input.
+
+The richer path and capability declarations are deferred to a future
+multi-file/generalized milestone. This is an authority reconciliation, not a
+runtime migration; the accepted runtime schema remains unchanged.
+
+### N7/N10 boundary
+
+N7 is the pre-write single-target authority check: disagreement between the
+immutable `targetPath` and the detected project target is refused with no
+project mutation. N10 remains the post-write observation that verification or
+execution introduced some other Git-visible project path; that is a scope
+violation with changes preserved.
 
 ## 5. Execution Policy
 
@@ -116,8 +147,8 @@ No task may start merely because its predecessor is checked. Each task needs sep
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
 - **Start Time**: `2026-09-21`
-- **Current Actor**: Codex completed the authorized M2-T7 local implementation and verification; commit, push, and M2-T8 remain unauthorized
-- **Next Action**: Await separate M2-T7 commit authorization. Do not commit, push, or begin M2-T8.
+- **Current Actor**: Codex completed the authorized M2-T8 local implementation and verification; T8 commit/push and remote acceptance remain unauthorized
+- **Next Action**: Await separate M2-T8 commit authorization. Do not commit, push, or begin post-M2 work.
 
 ### Transition History
 
@@ -140,6 +171,10 @@ No task may start merely because its predecessor is checked. Each task needs sep
 | in_progress | awaiting_review | 2026-09-22 | Codex | T7 implementation and local verification complete; commit authorization remains separate | Focused T7 33/33, permitted-host full suite 309/309 across 20 files, canonical gates, and hygiene checks passed |
 | awaiting_review | in_progress | 2026-09-22 | Human authority | Narrow T7 remediation authorized: restore T6 baseline typing, preserve T4 apply-time preimage validation, and add the required interleaving regression; T8 remains gated | This authorization |
 | in_progress | awaiting_review | 2026-09-22 | Codex | T7 remediation and local verification complete; commit authorization remains separate | T4 30/30, T7 33/33, permitted-host full suite 310/310, canonical gates, and hygiene checks passed |
+| awaiting_review | in_progress | 2026-09-22 | Human authority | M2-T7 remote acceptance recorded on `9fe350a256f2eb9f469e5e1e191e62acc5e98a29` after GitHub Actions run `35621524786`; M2-T8 acceptance implementation authorized | This authorization |
+| in_progress | awaiting_review | 2026-09-22 | Codex | T8 independent public acceptance and N1-N16 coverage completed; commit authorization remains separate | T8 focused file 38/38 on permitted host; restricted sandbox `spawnSync node EPERM` preserved as environment evidence |
+| awaiting_review | in_progress | 2026-09-22 | Human authority | Explicitly reconciled and approved the implemented T1 single-target M2 contract; richer path/capability/stop-policy fields are deferred to a future generalized milestone | This authorization |
+| in_progress | awaiting_review | 2026-09-22 | Codex | Reconciled the M2 specification and T8 acceptance mapping; retained the existing N7 behavior and clarified its boundary with N10 | Focused T8 acceptance and canonical gates rerun after reconciliation |
 
 ## 7. Evidence and Completion Gate
 
@@ -158,6 +193,8 @@ No task may start merely because its predecessor is checked. Each task needs sep
   - `tests/boundedReplacement.test.ts` — focused T4 policy, trackedness, containment, digest, atomic-write, mode, cleanup, and no-orchestration coverage
   - `src/projectScope.ts` — read-only porcelain-v1 Git-visible baseline and one-target scope classification
   - `tests/projectScope.test.ts` — focused T5 baseline, parsing, failure, containment-of-scope, and no-mutation coverage
+  - `tests/m2Acceptance.test.ts` — independent public CLI acceptance, AC-M2.1–AC-M2.9 assertions, and N1-N16 negative coverage
+  - `tsconfig.json` — explicit typecheck/project-service inclusion for the T8 acceptance test
 - **Scope Change Records**: `None`
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
@@ -169,18 +206,20 @@ No task may start merely because its predecessor is checked. Each task needs sep
 - **T7 Verification Evidence**: Focused M2-T7 integration suite: 33/33 passed. Permitted-host full Sureflow suite: 309/309 tests across 20 files, including the T0 path and T1-T6 regressions. Root typecheck, lint, and build passed. `git diff --check`, canonical PromptKit reference validation, fixed-scope harness/security preflight, scope, secret, debug, credential-file, runtime-artifact, dependency/version, and CI guards passed. The restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`; the permitted-host full-suite result is the passing evidence. The repository-wide execution-control validator remains non-green at exactly 98 pre-M2 historical diagnostics; no current M2-T7 diagnostics apply and no legacy repair was attempted.
 - **T7 Remediation Evidence**: `src/projectChangeVerifier.ts` has zero diff from accepted T6 baseline `4b081037c43e954437ef92eac143bd87cd960f01`. T4 now uses a shared private read-only current-target validation helper; preflight and apply invoke it independently, and apply uses fresh path/mode/preimage data. The required stale-between-preflight-and-apply test passes: refusal, preimage reason, external bytes preserved, and no temporary artifact. Focused T4 suite: 30/30; focused T7 suite: 33/33; permitted-host full suite: 310/310 across 20 files. All original T4/T6 tests remain unchanged and green; no retry, repair, rollback, evidence success, or verification execution follows the stale refusal.
 - **T7 Verification Evidence**: Focused M2-T7 integration suite: 33/33 passed. Permitted-host full Sureflow suite: 310/310 tests across 20 files, including the T0 path and T1-T6 regressions. Root typecheck, lint, and build passed. `git diff --check`, canonical PromptKit reference validation, fixed-scope harness/security preflight and regression, scope, secret, debug, credential-file, runtime-artifact, dependency/version, and CI guards passed. The restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`; the permitted-host full-suite result is the passing evidence. The repository-wide execution-control validator remains non-green at exactly 98 pre-M2 historical diagnostics; no current M2-T7 diagnostics apply and no legacy repair was attempted.
+- **T7 Remote Acceptance Evidence**: GitHub Actions run `35621524786` tested `9fe350a256f2eb9f469e5e1e191e62acc5e98a29` and passed; T7 is accepted / complete. No T8 changes were present in that tested SHA.
+- **T8 Verification Evidence**: `tests/m2Acceptance.test.ts` passed 38/38 after the contract reconciliation on the permitted host. The independent fixture’s pre-change `npm test` was exactly 0/1 as intentionally expected; its typecheck, lint, and build passed under explicit Node 24. AC-M2.8 exercised public `init`, `run`, and `verify` against a disposable copy of `fixtures/m2-node-ts-project/`; the real npm wrapper observed `run typecheck`, `test`, `run lint`, and `run build` in order. The test asserted the replacement bytes, accepted task state, seven persisted evidence records, expected Git-visible target path, and read-only public verify. AC-M2.9 preserved the public T0 run/verify path. N1-N16 passed with 35 negative cases: unsupported project; missing script; malformed/unknown/duplicate/invalid contract; DENY/REQUIRE_APPROVAL; absolute/traversal/control-plane/directory/missing/untracked/symlink targets; dirty/stale baseline; single-target authority mismatch; failed/spawn-error/terminated verification; unauthorized post-write path; missing/corrupt/stale/no-op/missing-target evidence; replay; existing lock/release-owner race; and mid-run contract integrity mismatch. The focused T1/T4/T5/T6/T7/T0 regression selection passed 192/192 across 7 files. The full permitted-host root suite passed 348/348 across 21 files. Root typecheck, lint, build, and `git diff --check` passed; fixture typecheck, lint, and build passed under explicit Node 24. Correct PromptKit reference validation and harness/security preflight passed. The restricted sandbox reproduced the known `spawnSync node EPERM` when the harness launches node; permitted-host execution is the passing evidence. The execution-control validator remained non-green only for pre-M2 records: this run observed 105 historical diagnostics, none for the current M2 record; the documented historical 98-count drift was not investigated. No T1-T7 runtime files, fixture source/contract, package, dependency, CI, or post-M2 files were changed.
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Exception Verification**: `N/A - TDD Enforcement Mode disabled`
 - **CI Evidence**: `M2-T1 remote acceptance is recorded at b1014149684ab46ccd53a59bfa8155e086a600b2. M2-T2 remote acceptance is recorded at 7f17028da00b817dd97545faa3f132cc922cee17, GitHub Actions run 35599713727. M2-T3 remote acceptance is recorded at 9b94cfa205269bc75766fadde2f657fcad2275a2, GitHub Actions run 35603513806. M2-T4 remote acceptance is recorded at 1db22b3df297af29f23890b094030e4a507fdc25, GitHub Actions run 35607104678; npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness all succeeded. M2-T5 remote acceptance is recorded at a33651bb288e90d6628aaa87df96eaf5997eb635, GitHub Actions run 35610656688; npm ci, typecheck, 241 tests across 18 files, lint, build, diff check, and cleanliness all succeeded. M2-T6 remote acceptance is recorded at 4b081037c43e954437ef92eac143bd87cd960f01, GitHub Actions run 35614567881; npm ci, typecheck, 276 tests across 19 files including 35 project-change-verifier tests, lint, build, diff check, and cleanliness all succeeded.`
-- **Review Evidence**: `Human authorized M2-T7 only after T6 remote acceptance. The narrow remediation review found and corrected the T4 preflight/apply stale-preimage regression, restored src/projectChangeVerifier.ts to the exact T6 baseline, and added only the required interleaving proof. T7 local review confirms one orchestration path over the accepted T1-T6 modules, deterministic M2-vs-T0 routing, existing policy/state/lock/evidence/event/CLI contracts, read-only M2 verify, and no T8 behavior. T7 is locally complete and ready for separate commit authorization; T8 remains unauthorized.`
-- **Commit Evidence**: `T5 committed atomically with subject feat(m2): add git-visible scope inspection; pushed to origin/main as a33651bb288e90d6628aaa87df96eaf5997eb635. T5 remote CI acceptance is recorded in run 35610656688. T6 committed atomically with subject feat(m2): add aggregate project change verifier; pushed to origin/main as 4b081037c43e954437ef92eac143bd87cd960f01. T6 remote CI acceptance is recorded in run 35614567881. T7 implementation and the authorized narrow remediation are locally complete and remain uncommitted; commit and push require separate authorization.`
+- **Review Evidence**: `T7 is accepted remotely at 9fe350a256f2eb9f469e5e1e191e62acc5e98a29. Human authorized T8 only for the independent acceptance harness, focused tests/helpers, required test-project include, and canonical docs. Human authority subsequently reconciled the implemented T1 single-target contract for M2: targetPath is the sole authorized and expected project path; repo.read/repo.write/repo.verify are fixed orchestration capabilities; strict stopping is fixed control-plane behavior. Review confirms no T1-T7 runtime or fixture-source change, no dependency/package/CI change, no deferred post-M2 subsystem, and truthful preservation of the restricted-sandbox process limitation. T8 is locally complete and ready for separate commit authorization; remote T8 acceptance is not claimed.`
+- **Commit Evidence**: `T5 committed atomically with subject feat(m2): add git-visible scope inspection; pushed to origin/main as a33651bb288e90d6628aaa87df96eaf5997eb635. T6 committed atomically with subject feat(m2): add aggregate project change verifier; pushed to origin/main as 4b081037c43e954437ef92eac143bd87cd960f01. T7 committed/pushed as 9fe350a256f2eb9f469e5e1e191e62acc5e98a29 and accepted by GitHub Actions run 35621524786. T8 remains local and uncommitted; commit and push require separate authorization.`
 - **Pull Request Evidence**: `N/A before PR; remote action is not authorized`
 - **Release Evidence**: `N/A - M2 planning is not a release`
-- **Blocker and Resume Condition**: `T1-T6 are accepted remotely. T7 local implementation and verification are complete; separate commit authorization is required before staging/commit or push. T8 remains separately unauthorized.`
-- **Completion State**: `T1-T6 accepted / complete; T7 locally implemented and verified, awaiting commit authorization; T8 remains gated`
-- **Acceptance Results**: `AC-M2.1–AC-M2.9 pending`
-- **Changed-File Summary**: T6 aggregate verifier source/test, required test-project include, the narrow accepted-spec integrity-mismatch clarification, and the existing M2 Task Record/STATE projection were accepted remotely at `4b081037c43e954437ef92eac143bd87cd960f01`. Final T7 local changes are limited to `docs/STATE.md`, this Task Record, `src/boundedReplacement.ts`, `src/cli.ts`, `src/m2Orchestration.ts`, `src/policy.ts`, `src/runTask.ts`, `src/verifyTask.ts`, `tests/boundedReplacement.test.ts`, `tests/m2Orchestration.test.ts`, and `tsconfig.json`; `src/projectChangeVerifier.ts` has zero diff from accepted T6. T7 is locally complete and uncommitted; no T8 implementation, dependency, CI, or remote state change is authorized.
+- **Blocker and Resume Condition**: `T1-T7 are accepted remotely. T8 local implementation and verification are complete; separate commit authorization is required before staging/commit, push, or remote acceptance. No post-M2 work is authorized.`
+- **Completion State**: `T1-T7 accepted / complete; T8 locally implemented and verified, awaiting separate commit authorization`
+- **Acceptance Results**: `AC-M2.1–AC-M2.9 passed locally; remote T8 acceptance pending`
+- **Changed-File Summary**: `T8 reconciliation changes are exactly docs/specs/2026-09-21-m2-real-project-change-gate.md, docs/STATE.md, docs/tasks/2026-09-21-m2-real-project-change-gate.md, tests/m2Acceptance.test.ts, and tsconfig.json. The tsconfig change adds only the T8 acceptance test to the explicit typecheck/project-service include list. No T1-T7 runtime file, fixture source/contract, package, dependency, CI, or post-M2 file changed.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `T6 remote acceptance recorded on 2026-09-22; M2-T7 implementation and narrow remediation authorized and locally verified on 2026-09-22; T7 is awaiting separate commit authorization and must stop before commit/push or T8`
+- **Completion Decision and Timestamp**: `T7 remote acceptance recorded on 2026-09-22; M2-T8 implementation and local acceptance verification completed on 2026-09-22; T8 is awaiting separate commit authorization and must stop before commit/push or post-M2 work`

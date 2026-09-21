@@ -95,7 +95,7 @@ The explicit non-goals in the Planning Record are binding. In addition:
 2. **Adapter floor**: one literal adapter ID, `node-typescript/npm-scripts-v1`; no registry or dynamic loading.
 3. **Mutation floor**: one existing tracked UTF-8 text file replaced atomically, guarded by its SHA-256 preimage.
 4. **Verification floor**: canonical order `typecheck`, `test`, `lint`, `build`, filtered to the contract's non-empty required set.
-5. **Scope oracle**: fixed read-only Git status/track checks with shell disabled; any changed path outside the contract's exact allowed paths halts.
+5. **Scope oracle**: fixed read-only Git status/track checks with shell disabled; any changed project path other than the immutable `targetPath` halts.
 6. **Failure recovery**: pre-write failures change no project file; post-write verification/scope failures preserve the bounded change and halt.
 7. **Compatibility**: one generalized orchestrator consumes a resolved execution plan. The T0 entry point may remain as a thin compatibility adapter; no second orchestration framework is permitted.
 8. **Replacement origin**: replacement bytes come from the validated control-plane task contract, not worker output; a future `ReplacementProposal` seam is deferred with model/provider integration.
@@ -148,67 +148,59 @@ The adapter is a single deep module, not an extensibility framework. Core orches
 
 Names are proposed and may change only through plan review or a recorded scope change. The semantics are binding.
 
+The original planning draft proposed a richer generalized authority shape with
+declared capability, allowed-path, nested-change, expected-path, and
+task-selectable stop-policy fields. Human authority explicitly reconciled that
+draft on 2026-09-22: the implemented T1 representation is the authoritative
+M2 model. The richer shape is deferred to a future multi-file/generalized
+milestone and is not silently abandoned or retrofitted into M2.
+
+For M2, the contract contains one project, one task, one immutable
+`targetPath`, one existing tracked UTF-8 replacement, and fixed required
+verification profiles. `targetPath` is simultaneously the sole task-authorized
+project-write target and the sole expected Git-visible project change. The
+worker cannot expand or substitute that authority.
+
+The M2 orchestration capabilities are statically fixed as `repo.read`,
+`repo.write`, and `repo.verify`; they are individually evaluated through the
+existing policy before project mutation and are not worker-selectable or
+task-expandable. M2 strict stopping semantics are fixed control-plane
+behavior, not a task-selectable field.
+
 ```ts
-export const REAL_PROJECT_TASK_SCHEMA_VERSION = 1 as const;
-export const NODE_TYPESCRIPT_NPM_PROFILE = "node-typescript/npm-scripts-v1" as const;
-
-export type RealProjectCapability =
-  | "repo.read"
-  | "repo.write"
-  | "repo.verify";
-
-export type VerificationCheck =
-  | "typecheck"
-  | "test"
-  | "lint"
-  | "build";
-
-export interface DeclaredReplacement {
-  readonly kind: "replace-file";
-  readonly path: string;                 // normalized repository-relative path
-  readonly expectedBeforeSha256: string; // exactly 64 lowercase hex characters
-  readonly content: string;              // exact control-plane-supplied replacement bytes as UTF-8 text
-}
-
-export interface RealProjectTaskContract {
-  readonly schemaVersion: typeof REAL_PROJECT_TASK_SCHEMA_VERSION;
+export interface M2TaskContract {
+  readonly schemaVersion: 1;
   readonly taskId: string;
-  readonly objective: string;
-  readonly adapter: typeof NODE_TYPESCRIPT_NPM_PROFILE;
-  readonly permittedCapabilities: readonly RealProjectCapability[];
-  readonly allowedPaths: readonly string[];
-  readonly change: DeclaredReplacement;
-  readonly requiredVerification: readonly VerificationCheck[];
-  readonly acceptance: {
-    readonly expectedChangedPaths: readonly string[];
-    readonly scope: "allowed-paths-only";
-    readonly verification: "all-required-pass";
-    readonly evidence: "complete-current-unambiguous";
-  };
-  readonly stopPolicy: "m2-strict-v1";
-}
-
-export interface ValidatedExecutionPlan {
-  readonly contractSha256: string;
-  readonly taskId: string;
-  readonly objective: string;
-  readonly adapter: typeof NODE_TYPESCRIPT_NPM_PROFILE;
-  readonly permittedCapabilities: readonly RealProjectCapability[];
-  readonly authorizedTarget: string;
+  readonly adapter: "node-typescript/npm-scripts-v1";
+  readonly operation: "replace-existing-file";
+  readonly targetPath: string;
   readonly expectedBeforeSha256: string;
   readonly replacementContent: string;
   readonly requiredVerification: readonly VerificationCheck[];
-  readonly expectedChangedPaths: readonly string[];
-  readonly stopPolicy: "m2-strict-v1";
+}
+
+export interface ValidatedExecutionPlan {
+  readonly schemaVersion: 1;
+  readonly taskId: string;
+  readonly adapter: "node-typescript/npm-scripts-v1";
+  readonly operation: "replace-existing-file";
+  readonly targetPath: string;
+  readonly expectedBeforeSha256: string;
+  readonly replacementContent: string;
+  readonly requiredVerification: readonly VerificationCheck[];
+  readonly contractSha256: string;
+  readonly source: { readonly path: ".sureflow/task.json"; readonly sha256: string };
 }
 ```
 
 Parser invariants:
 
 - Reject unknown fields at every object level.
-- Require non-empty, unique capabilities, paths, changed paths, and verification checks.
-- Require `change.path` and every expected changed path to appear in `allowedPaths`.
-- For M2 acceptance, require exactly one `change` and exactly one expected changed path equal to `change.path`.
+- Require the exact closed M2 fields, a normalized repository-relative
+  `targetPath`, a matching preimage digest, replacement content, and unique
+  required verification profiles.
+- The single `targetPath` is both the sole authorized write target and the sole
+  expected Git-visible project path for M2.
 - Reject absolute, drive-prefixed, empty, dot, traversal, `.git/`, `.sureflow/`, symlink-escaping, directory, missing, untracked, and non-UTF-8 targets.
 - Reject any command, executable, argv, shell, environment, approval, provider, network, Git mutation, or remote field.
 - Reject `.sureflow/task.json` and every `.sureflow/**` path as a replacement target, even when presented through `repo.write`.
@@ -217,7 +209,9 @@ Parser invariants:
 
 - `.sureflow/task.json` is trusted control-plane input supplied or approved by the human authority. It is never worker output and is not writable through worker `repo.write`.
 - M2 intentionally stores replacement content directly in the task contract. No worker/reasoner produces a `ReplacementProposal` in M2; therefore M2 proves deterministic bounded change application, not model/provider integration.
-- The worker/executor receives only a `ValidatedExecutionPlan`. It cannot select a different target, expand `allowedPaths`, alter the preimage, add/remove verification checks, or replace the content after validation.
+- The worker/executor receives only a `ValidatedExecutionPlan`. It cannot select
+  a different target, alter the preimage, add/remove verification checks, or
+  replace the content after validation.
 - The control plane reads the exact task-contract bytes once, computes SHA-256, parses and validates them, copies the accepted values into one immutable execution-plan snapshot, and uses only that snapshot for the run.
 - Later on-disk mutation of `.sureflow/task.json` cannot change the active plan. Before acceptance, the control plane re-hashes the on-disk contract; a mismatch records an authority-integrity failure and halts rather than silently accepting.
 - The original contract digest and control-plane provenance are recorded in evidence. A later `verify` invocation loads a fresh snapshot and requires its digest to match the terminal evidence; replacement or stale evidence becomes UNKNOWN, never PASS.
@@ -332,14 +326,18 @@ The single orchestrator must execute this order:
 3. Read valid authoritative runtime state and policy.
 4. Detect the supported project from repository evidence.
 5. Resolve snapshot-owned required verification checks to the one closed adapter profile. A missing required script halts before writes.
-6. Require a clean Git-visible baseline outside `.sureflow/**`, tracked allowed target, path containment, and matching preimage hash.
-7. Evaluate every requested capability with existing policy semantics; any non-ALLOW result halts before writes.
+6. Require a clean Git-visible baseline outside `.sureflow/**`, tracked
+   `targetPath`, path containment, and matching preimage hash.
+7. Evaluate each fixed M2 capability (`repo.read`, `repo.write`, and
+   `repo.verify`) with existing policy semantics; any non-ALLOW result halts
+   before writes.
 8. Reject pre-existing task state or terminal evidence for the same task/contract.
 9. Persist `pending`, then `running` state.
-10. Apply only the snapshot-owned target/content atomically through the control-plane bounded writer; the worker cannot select or expand path authority.
+10. Apply only the snapshot-owned target/content atomically through the control-plane bounded writer; the worker cannot select or substitute another target.
 11. Run required verification steps once each in canonical order. M2 adds no retry unless separately planned and authorized.
 12. Re-hash `.sureflow/task.json`; if it differs from the immutable snapshot digest, record an authority-integrity failure and halt without changing the active plan.
-13. Capture post-run Git scope. Any Git-visible changed path outside `allowedPaths` records a scope violation and halts.
+13. Capture post-run Git scope. Any Git-visible changed project path other than
+   `targetPath` records a scope violation and halts.
 14. Append redacted terminal evidence for contract digest/provenance, replacement digests, scope result, and each required check.
 15. Derive the verdict from evidence. Only complete, current, unambiguous passing evidence becomes PASS.
 16. Transition to `accepted` only on PASS; otherwise transition to `halted`.
@@ -366,7 +364,7 @@ M2 reuses `EvidenceRecord`, redaction, and append-only JSONL unchanged. It appen
 - Missing, duplicate, stale-contract, or ambiguous required evidence yields UNKNOWN.
 - An observed contract-integrity mismatch during execution is an explicit failure and cannot change the already-authorized snapshot.
 - Explicit failed verification, unchanged replacement digest, or scope violation yields FAIL.
-- PASS requires the current contract digest, exactly the expected changed paths, no unauthorized path, and exactly one passed result for every required check.
+- PASS requires the current contract digest, exactly one changed project path equal to `targetPath`, no other unauthorized path, and exactly one passed result for every required check.
 - Model text, worker claims, event history, task state, timestamps, or “latest wins” ordering never establish PASS.
 - `verify` reconciles stale `accepted` state to `halted` on FAIL or UNKNOWN, preserving M1 behavior.
 
@@ -415,18 +413,18 @@ The acceptance task must fail at least one required check before the declared re
 | ID | Scenario | Expected deterministic result | Project mutation |
 | :--- | :--- | :--- | :--- |
 | N1 | Missing Node/TypeScript repository evidence | HALT: unsupported project | None |
-| N2 | Unsupported adapter ID, worker-selected profile, or missing required npm script | HALT: unsupported/insufficient verification profile | None |
+| N2 | Unsupported adapter ID or missing required npm script | HALT: unsupported/insufficient verification profile | None |
 | N3 | Malformed contract, unknown field, duplicate entry, or invalid enum | HALT: invalid task contract | None |
 | N4 | Policy DENY or REQUIRE_APPROVAL for any capability | HALT with the exact policy domain preserved | None |
 | N5 | Absolute, traversal, `.git/`, `.sureflow/` (including `task.json`), directory, symlink-escape, missing, or untracked write target | HALT: unauthorized target | None |
-| N6 | Dirty baseline or allowed file preimage hash mismatch | HALT: stale/ambiguous baseline | None |
-| N7 | Declared change path is outside `allowedPaths` or expected paths | HALT: scope contract violation | None |
+| N6 | Dirty baseline or `targetPath` preimage hash mismatch | HALT: stale/ambiguous baseline | None |
+| N7 | Immutable declared `targetPath` disagrees with the detected project target | HALT: single-target authority/scope mismatch | None |
 | N8 | Required verification exits nonzero | FAIL; state `halted`; failure evidence recorded | Bounded declared change remains |
 | N9 | Verification spawn error or termination | FAIL; state `halted`; exact terminal result recorded | Bounded declared change remains |
 | N10 | Verification script mutates an unauthorized Git-visible tracked or non-ignored untracked path | FAIL: scope violation; state `halted` | Changes remain for inspection |
 | N11 | Required verification evidence missing | UNKNOWN; never PASS; stale accepted state halts | None during read-only verify |
 | N12 | Evidence corrupt, schema-invalid, unreadable, duplicate, or contract digest stale | UNKNOWN; never PASS; stale accepted state halts | None during read-only verify |
-| N13 | Changed file digest is unchanged or expected changed path is missing | FAIL or UNKNOWN according to explicit vs missing evidence; never PASS | No additional mutation |
+| N13 | Changed target digest is unchanged or the expected `targetPath` is missing | FAIL or UNKNOWN according to explicit vs missing evidence; never PASS | No additional mutation |
 | N14 | Existing task state or terminal evidence for task ID | HALT: replay/ambiguity refused | None |
 | N15 | Existing mutation lock or lock release integrity failure | HALT; never accepted | None before lock, bounded change may remain after release failure |
 | N16 | `.sureflow/task.json` changes after snapshot creation | Active plan remains unchanged; contract-integrity evidence fails and task HALTs | Only the already-authorized bounded change may remain |
@@ -436,8 +434,8 @@ The acceptance task must fail at least one required check before the declared re
 ## 11. Acceptance Criteria
 
 - **AC-M2.1 — Project detection**: Supported fixture evidence resolves exactly `node-typescript/npm-scripts-v1`; unsupported or ambiguous evidence halts before task state or project writes.
-- **AC-M2.2 — Strict task contract and authority**: Human/control-plane-owned bytes are hashed and parsed once into an immutable plan; worker writes cannot target `.sureflow/**`, expand paths, change content/preimage, or weaken verification; any on-disk contract change before acceptance halts without altering the active plan.
-- **AC-M2.3 — Bounded useful write**: From a clean committed fixture baseline, Sureflow atomically replaces exactly one authorized tracked source file whose preimage matches, refuses every containment/staleness violation, and halts on any unauthorized Git-visible changed path.
+- **AC-M2.2 — Strict task contract and authority**: Human/control-plane-owned bytes are hashed and parsed once into an immutable plan; M2's immutable `targetPath` is both the sole authorized project-write target and the sole expected Git-visible project change; worker writes cannot target `.sureflow/**`, substitute the target, change content/preimage, or weaken verification; any on-disk contract change before acceptance halts without altering the active plan.
+- **AC-M2.3 — Bounded useful write**: From a clean committed fixture baseline, Sureflow atomically replaces exactly one immutable `targetPath` that is tracked and whose preimage matches, refuses every containment/staleness violation, and halts on any Git-visible project path other than `targetPath`.
 - **AC-M2.4 — Closed verification**: Snapshot-owned required profile IDs resolve to fixed npm argv in canonical order; workers cannot choose or weaken them; missing scripts halt; `shell: false` is documented only as the direct spawn setting, never as an npm-script sandbox.
 - **AC-M2.5 — Change evidence**: Persisted evidence identifies the current contract digest, before/after file digests, exact changed paths, scope compliance, and every required verification result without relying on model confidence.
 - **AC-M2.6 — Deterministic verdict**: The end-to-end acceptance task reaches PASS/`accepted` only when every required fact is complete, current, and unambiguous; missing/corrupt/duplicate/stale evidence never becomes PASS.
