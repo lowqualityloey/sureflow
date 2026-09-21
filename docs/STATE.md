@@ -2,11 +2,11 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M2-T2 project detection — locally complete; authorized atomic commit
-- **Overall Status**: M1 and M1.1 accepted / complete; M2-T1 accepted / complete; M2-T2 locally implemented, verified, and authorized for commit; M2-T3 through M2-T8 remain unauthorized
+- **Current Milestone / Epic**: M2-T3 closed verification profile resolution and dispatch — locally committed; push unauthorized
+- **Overall Status**: M1 and M1.1 accepted / complete; M2-T1 and M2-T2 accepted / complete; M2-T3 locally committed and verified; M2-T4 through M2-T8 remain unauthorized
 - **Target Release / Deadline**: M2 — no deadline recorded
-- **Current Working Branch**: `main` from accepted M2-T1 baseline `b1014149684ab46ccd53a59bfa8155e086a600b2`; the authorized M2-T2 commit is local-only
-- **Last Updated**: 2026-09-21
+- **Current Working Branch**: `main` from accepted M2-T2 baseline `7f17028da00b817dd97545faa3f132cc922cee17`; local M2-T3 commit is ahead of origin/main
+- **Last Updated**: 2026-09-22
 
 
 ---
@@ -26,7 +26,8 @@
 - [x] **M1.1-H7**: Public source-install and `init --force` documentation truth — accepted after GitHub Actions run `35588373963` passed on `9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0`
 - [x] **M2-plan**: Real Project Change Gate planning baseline approved with contract clarification complete; implementation unauthorized
 - [x] **M2-T1**: Contract + independent fixture — accepted / complete at `b1014149684ab46ccd53a59bfa8155e086a600b2`
-- [x] **M2-T2**: Project detection — locally complete and verified; atomic commit authorized; push not authorized
+- [x] **M2-T2**: Project detection — accepted / complete at `7f17028da00b817dd97545faa3f132cc922cee17` after remote CI run `35599713727`
+- [x] **M2-T3**: Closed verification profile resolution and dispatch — locally committed and verified; push remains unauthorized
 
 ### Active Milestone Task Breakdown
 
@@ -45,16 +46,16 @@
 - [x] T11: documentation and acceptance closeout complete
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
-- [x] TASK-2026-09-21-m2-real-project-change-gate: T2 locally complete; authorized atomic commit; T3-T8 unauthorized
-- [!] Stop boundary: do not push T2 or begin M2-T3 without separate authorization
+- [x] TASK-2026-09-21-m2-real-project-change-gate: T3 locally committed; push unauthorized; T4-T8 unauthorized
+- [!] Stop boundary: do not push T3 or begin M2-T4 without separate authorization
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m2-real-project-change-gate.md` — approved M2 plan; T1 accepted; T2 implementation and authorized local commit complete; T3-T8 unauthorized
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m2-real-project-change-gate.md` — approved M2 plan; T1/T2 accepted; T3 committed locally; T4-T8 unauthorized
 - **Active Task Spec**: `docs/tasks/2026-09-21-m2-real-project-change-gate.md`
-- **Key Files in Flight**: T2 project detector, focused T2 tests, required test-project include, and the existing M2 Task Record/STATE projection only. The T1 contract and independent fixture remain unchanged. No T3-T8 implementation, dependency, CI, or remote changes are authorized.
+- **Key Files in Flight**: T3 verification adapter, focused T3 tests, required test-project include, and the existing M2 Task Record/STATE projection only. T1/T2 implementation and fixture remain unchanged. No T4-T8 implementation, dependency, CI, or remote changes are authorized.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -68,6 +69,10 @@
   - M2-T1 focused contract suite: 18 tests passed; full Sureflow suite: 154 tests passed across 14 files in the permitted host environment; typecheck, lint, and build passed (2026-09-21)
   - M2-T2 focused project-detection suite: 15 tests passed; T1 regression suite: 18 tests passed; full Sureflow suite: 169 tests passed across 15 files with Node 24; typecheck, lint, and build passed (2026-09-22)
   - M2-T2 fixture checks: typecheck, lint, and build passed; the fixture application test intentionally failed 0/1 before the planned bounded replacement and was not changed (2026-09-22)
+  - M2-T2 remote acceptance: GitHub Actions run `35599713727` passed on `7f17028da00b817dd97545faa3f132cc922cee17`; T2 project-detection coverage and the root quality gates were green; T3-T8 were not implemented in that tested SHA (2026-09-22)
+  - M2-T3 focused verification-adapter suite: 17 tests passed; T2 project-detection and T1 contract regressions: 33 tests passed; full Sureflow suite: 186 tests passed across 16 files in the permitted Node 24 host environment (2026-09-22)
+  - M2-T3 fixture dispatch: typecheck, lint, and build passed; the fixture application test intentionally failed 0/1 before bounded replacement; no fixture test was weakened or skipped (2026-09-22)
+  - M2-T3 canonical gates: typecheck, lint, build, `git diff --check`, PromptKit reference validation, harness/security preflight, and scope/secret/debug/credential/runtime-artifact guards passed; restricted sandbox reproduced the known `spawnSync npx EPERM`, so the full-suite result above is the permitted host result (2026-09-22)
 
 ---
 
@@ -81,20 +86,20 @@
 - **Execution State**: `awaiting_review`
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
-- **Owner / Current Actor**: `Codex under explicit M2-T2 implementation and commit authorization; push and T3 remain unauthorized`
+- **Owner / Current Actor**: `Codex after the authorized M2-T3 local commit; push and T4 remain unauthorized`
 - **Start Time**: `2026-09-21`
 - **Current Branch**: `main`
-- **Current Revision**: `b1014149684ab46ccd53a59bfa8155e086a600b2; matches origin/main with uncommitted M2-T2 changes`
+- **Current Revision**: `local M2-T3 atomic commit; origin/main remains at 7f17028da00b817dd97545faa3f132cc922cee17`
 - **Checkpoint Policy**: `Human plan review; separate authorization for each M2-T task; checkpoint before every task transition, commit, push, scope expansion, or stop-condition response`
-- **Blockers and Resume Condition**: `T2 is locally complete in its authorized atomic commit; no push is authorized. M2-T3 requires separate task authorization.`
-- **Verification Status**: `T2 focused tests, T1 regression, canonical Node 24 local gates, fixture structural checks, git diff hygiene, PromptKit validation, harness preflight, and scope/secret/debug/credential/runtime-artifact guards passed. Repository-wide execution-control validation remains non-green due to pre-M2 legacy Task Records; no diagnostics apply to the M2 Task Record or this STATE projection. No legacy repairs were attempted and the raw diagnostic count is not an M2 quality metric.`
+- **Blockers and Resume Condition**: `T3 is locally committed and verified; push is not authorized. M2-T4 requires separate task authorization.`
+- **Verification Status**: `T3 focused suite, T2/T1 regressions, permitted-host full suite, fixture checks, canonical Node 24 gates, diff hygiene, PromptKit validation, harness preflight, and scope/secret/debug/credential/runtime-artifact guards passed. The repository-wide execution-control validator command remains non-green due only to pre-M2 legacy Task Records; no diagnostics apply to the M2 Task Record or this STATE projection. No legacy repairs were attempted and its raw diagnostic count is not an M2 quality metric.`
 - **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed on e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) passed on 505daa10f43410a6eefb28a5b758af94227c1fbe; its test job and all steps concluded success. H4: GitHub Actions CI run 35579830623 (<https://github.com/lowqualityloey/sureflow/actions/runs/35579830623>) passed on ce4be6af2326cf8ab6c2237b0234406501a042e0; its test job and all required steps concluded success. H5: GitHub Actions CI run 35583342650 (<https://github.com/lowqualityloey/sureflow/actions/runs/35583342650>) passed on adbd526617ec82326b3921a4a69e336198412149; the test job and every required step concluded success.`
-- **Changed-File Summary**: `Authorized T2 commit: src/projectDetection.ts, tests/projectDetection.test.ts, tsconfig.json, and the existing M2 Task Record/STATE projection. T1 files are unchanged; no T3-T8 implementation or remote state changed.`
-- **Latest Checkpoint**: `M2-T1 accepted / complete at b1014149684ab46ccd53a59bfa8155e086a600b2; M2-T2 locally complete and authorized for one atomic local commit 2026-09-22; T3-T8 unauthorized`
+- **Changed-File Summary**: `M2-T3 atomic local commit: src/verificationAdapter.ts, tests/verificationAdapter.test.ts, tsconfig.json, and the existing M2 Task Record/STATE projection. T1/T2 files and fixture are unchanged; no T4-T8 implementation or remote state changed.`
+- **Latest Checkpoint**: `M2-T2 accepted / complete at 7f17028da00b817dd97545faa3f132cc922cee17 after remote CI run 35599713727; M2-T3 locally committed and verified; push unauthorized; T4-T8 unauthorized`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `STOP after the authorized T2 commit. Do not push or begin M2-T3.`
+- **Next Action**: `Report T3 commit evidence and STOP. Do not push or begin M2-T4.`
 
 ---
 
@@ -152,9 +157,9 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. M2-T1 is accepted / complete at b1014149684ab46ccd53a59bfa8155e086a600b2.
-2. Complete the one authorized T2 commit locally.
-3. STOP. Do not push or begin M2-T3.
+1. M2-T1 and M2-T2 are accepted / complete; T2 remote acceptance is run `35599713727` on `7f17028da00b817dd97545faa3f132cc922cee17`.
+2. Report the completed local M2-T3 commit and exact T3 surface.
+3. STOP. Do not push or begin M2-T4.
 
 ---
 
