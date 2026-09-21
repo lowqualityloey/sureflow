@@ -31,7 +31,7 @@
   - **AC-H1.2**: Workflow has `contents: read`, no persisted checkout credentials, no cache, artifacts, matrix, write operations, secrets, paid service, or nonstandard runner.
   - **AC-H1.3**: The actual remote GitHub Actions run against the committed H1 revision is green.
 - [x] **H2**: Node 24 type alignment — accepted / complete at `505daa10f43410a6eefb28a5b758af94227c1fbe`.
-- [x] **H3**: runtime namespace symlink containment — committed `d8932eb`; local verification accepted; H4–H7 remain gated.
+- [x] **H3**: runtime namespace symlink containment — accepted / complete; committed `d8932eb`, remotely verified by CI run `35577273766`; H4–H7 remain gated.
 - [ ] **H4**: state interruption safety — planned / gated / unauthorized.
 - [ ] **H5**: mutation lock — planned / gated / unauthorized.
 - [ ] **H6**: event corruption surfacing — planned / gated / unauthorized.
@@ -54,8 +54,8 @@
 - **Mapped `pk:tasks` Status**: `Complete — H1–H3 accepted; H4–H7 gated`
 - **Active Task Pointer**: `H3 / TASK-2026-09-21-m1-1-reliability-hardening (accepted)`
 - **Start Time**: `2026-09-21 06:50 UTC`
-- **Current Actor**: `Codex, H3 committed under explicit authorization`
-- **Next Action**: `STOP. Do not push or begin H4.`
+- **Current Actor**: `Codex, H3 remotely accepted under explicit authorization`
+- **Next Action**: `STOP. Do not begin H4.`
 
 ### Transition History
 
@@ -67,6 +67,7 @@
 | in_progress | completed | 2026-09-21 07:51 UTC | Codex | H2 commit pushed and remote CI passed | `origin/main` = `505daa10f43410a6eefb28a5b758af94227c1fbe`; CI run `35574889277` concluded `success` |
 | completed | in_progress | 2026-09-21 | Human authority | H3 explicitly authorized; H4–H7 remain gated | User authorization: `Authorize H3 only` |
 | in_progress | completed | 2026-09-21 | Codex | H3 local gates passed and atomic commit created; H4–H7 remain gated | Commit `d8932eb`; full suite and canonical gates passed |
+| completed | accepted | 2026-09-21 | Codex | GitHub Actions CI passed for pushed H3 revision; H4–H7 remain gated | Run `35577273766` tested `1d0fed15cb54f938d55115e4a2a75caa9578d8c4` and concluded `success` |
 
 ## 6. Evidence and Completion Gate
 
@@ -81,12 +82,12 @@
 - **TDD Exception Verification**: `N/A - exception work type`
 - **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) tested e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c and passed. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) tested 505daa10f43410a6eefb28a5b758af94227c1fbe and passed; its test job and all steps concluded success.`
 - **Review Evidence**: `Human accepted H1 local implementation`
-- **Commit Evidence**: `H1: e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main. H2: 505daa10f43410a6eefb28a5b758af94227c1fbe (chore(toolchain): align Node typings with Node 24), pushed non-force to origin/main. H3: d8932eb (fix(paths): enforce runtime symlink containment), committed locally; not pushed.`
+- **Commit Evidence**: `H1: e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main. H2: 505daa10f43410a6eefb28a5b758af94227c1fbe (chore(toolchain): align Node typings with Node 24), pushed non-force to origin/main. H3: d8932eb (fix(paths): enforce runtime symlink containment) plus 1d0fed1 (docs(m1.1): record H3 commit completion), pushed non-force to origin/main; remote head `1d0fed15cb54f938d55115e4a2a75caa9578d8c4`.`
 - **Pull Request Evidence**: `N/A - direct main push explicitly authorized for H1`
 - **Release Evidence**: `N/A`
-- **Blocker and Resume Condition**: `H3 has no blocker. Push requires separate authorization; H4–H7 remain gated and unauthorized.`
-- **Completion State**: `accepted — committed locally; not pushed`
-- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 local and remote CI verification passed for the exact pushed revision. H3 focused 9-test coverage and full 100-test suite, typecheck, lint, build, diff check, PromptKit reference validation, and harness/security checks pass.`
+- **Blocker and Resume Condition**: `H3 has no blocker. H4–H7 remain gated and unauthorized.`
+- **Completion State**: `accepted — pushed and remotely verified`
+- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 local and remote CI verification passed for the exact pushed revision. H3 focused 9-test coverage and full 100-test suite, typecheck, lint, build, diff check, PromptKit reference validation, harness/security checks, and GitHub Actions CI pass for `1d0fed15cb54f938d55115e4a2a75caa9578d8c4` all pass.`
 - **Changed-File Summary**: `H1 and H2 remain unchanged. H3 changes only the shared runtime containment helper, approved runtime resolvers, evidence-store path handling, focused tests, the required TypeScript test include, this Task Record, and docs/STATE.md. No CLI, policy semantics, verifier semantics, H4/H5 behavior, dependency, CI, or tracked runtime artifact changes.`
 - **Completion Exception**: `None`
 - **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success. H2 accepted 2026-09-21 07:51 UTC after CI run 35574889277 concluded success.`
