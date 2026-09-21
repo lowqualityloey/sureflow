@@ -111,7 +111,9 @@ function runtimeSemantics(root: string): {
 } {
   const runtime = readRuntimeState(root);
   const evidence = readEvidence(root).filter((entry) => entry.kind === "record");
-  const events = readExecutionEvents(root);
+  const events = readExecutionEvents(root)
+    .filter((entry) => entry.kind === "record")
+    .map((entry) => entry.event);
   const verification = cli(["verify", TASK_ID], root);
   const status = cli(["status"], root);
   const task = runtime.kind === "ok" ? runtime.tasks.find((item) => item.taskId === TASK_ID) : undefined;

@@ -22,6 +22,10 @@ export interface ExecutionEvent {
 
 export type ExecutionEventDraft = Omit<ExecutionEvent, "schemaVersion">;
 
+export type ExecutionEventReadEntry =
+  | { readonly kind: "record"; readonly line: number; readonly event: ExecutionEvent }
+  | { readonly kind: "corrupt"; readonly line: number; readonly raw: string; readonly error: string };
+
 export function defaultEventsPath(rootDir: string): string {
   return resolveSureflowPath(rootDir, EVENTS_RELATIVE_PATH);
 }
@@ -41,6 +45,24 @@ function toPersistedEvent(draft: ExecutionEventDraft): ExecutionEvent {
   };
 }
 
+export function isExecutionEvent(value: unknown): value is ExecutionEvent {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    v["schemaVersion"] === EVENT_SCHEMA_VERSION &&
+    typeof v["actor"] === "string" &&
+    typeof v["recordedAt"] === "string" &&
+    typeof v["taskId"] === "string" &&
+    typeof v["capability"] === "string" &&
+    (v["policyDecision"] === "ALLOW" ||
+      v["policyDecision"] === "DENY" ||
+      v["policyDecision"] === "REQUIRE_APPROVAL") &&
+    typeof v["target"] === "string" &&
+    typeof v["result"] === "string" &&
+    typeof v["provenance"] === "string"
+  );
+}
+
 export function appendExecutionEvent(rootDir: string, draft: ExecutionEventDraft): ExecutionEvent {
   const path = defaultEventsPath(rootDir);
   mkdirSync(dirname(path), { recursive: true });
@@ -49,34 +71,36 @@ export function appendExecutionEvent(rootDir: string, draft: ExecutionEventDraft
   return event;
 }
 
-export function readExecutionEvents(rootDir: string): readonly ExecutionEvent[] {
+export function readExecutionEvents(rootDir: string): readonly ExecutionEventReadEntry[] {
   let text: string;
   try {
     text = readFileSync(defaultEventsPath(rootDir), "utf8");
-  } catch {
-    return [];
-  }
-  const events: ExecutionEvent[] = [];
-  for (const line of text.split("\n")) {
-    if (line.trim().length === 0) continue;
-    const parsed: unknown = JSON.parse(line);
-    if (typeof parsed !== "object" || parsed === null) continue;
-    const value = parsed as Record<string, unknown>;
-    if (
-      value["schemaVersion"] === EVENT_SCHEMA_VERSION &&
-      typeof value["actor"] === "string" &&
-      typeof value["recordedAt"] === "string" &&
-      typeof value["taskId"] === "string" &&
-      typeof value["capability"] === "string" &&
-      (value["policyDecision"] === "ALLOW" ||
-        value["policyDecision"] === "DENY" ||
-        value["policyDecision"] === "REQUIRE_APPROVAL") &&
-      typeof value["target"] === "string" &&
-      typeof value["result"] === "string" &&
-      typeof value["provenance"] === "string"
-    ) {
-      events.push(value as unknown as ExecutionEvent);
+  } catch (error: unknown) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
+      return [];
     }
+    const message = error instanceof Error ? error.message : String(error);
+    return [{ kind: "corrupt", line: 0, raw: "", error: `unreadable event file: ${message}` }];
   }
-  return events;
+  const entries: ExecutionEventReadEntry[] = [];
+  const lines = text.split("\n");
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = index + 1;
+    const raw = lines[index] ?? "";
+    if (raw.trim().length === 0) continue;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw) as unknown;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      entries.push({ kind: "corrupt", line, raw, error: message });
+      continue;
+    }
+    if (!isExecutionEvent(parsed)) {
+      entries.push({ kind: "corrupt", line, raw, error: "line is not a valid ExecutionEvent" });
+      continue;
+    }
+    entries.push({ kind: "record", line, event: parsed });
+  }
+  return entries;
 }

@@ -15,6 +15,7 @@ import { appendEvidence, readEvidence } from "../src/evidenceStore.js";
 import { DEFAULT_M1_POLICY } from "../src/policy.js";
 import { REDACTED } from "../src/redaction.js";
 import { runT0Task } from "../src/runTask.js";
+import { readRuntimeState } from "../src/stateReader.js";
 import { initRuntimeState } from "../src/stateWriter.js";
 import type { T0TaskFixture } from "../src/t0Fixture.js";
 import { verifyEvidence } from "../src/verifier.js";
@@ -97,6 +98,32 @@ function evidenceRecords(root: string): readonly Extract<ReturnType<typeof readE
   return readEvidence(root).filter((entry) => entry.kind === "record");
 }
 
+function eventRecords(root: string): readonly Extract<ReturnType<typeof readExecutionEvents>[number], { kind: "record" }>[] {
+  return readExecutionEvents(root).filter((entry) => entry.kind === "record");
+}
+
+function eventsPath(root: string): string {
+  return join(root, ".sureflow/events/events.jsonl");
+}
+
+function ensureEventsDirectory(root: string): void {
+  mkdirSync(join(root, ".sureflow/events"), { recursive: true });
+}
+
+function eventJson(result: string): string {
+  return JSON.stringify({
+    schemaVersion: 1,
+    actor: "worker:t0",
+    recordedAt: "2026-09-21T00:00:00.000Z",
+    taskId: DEFAULT_FIXTURE.taskId,
+    capability: DEFAULT_FIXTURE.capability,
+    policyDecision: "ALLOW",
+    target: DEFAULT_FIXTURE.target,
+    result,
+    provenance: "npm test; shell=false",
+  });
+}
+
 describe("T6 closed npm-test dispatch", () => {
   it("always dispatches npm test with shell false and bounded cwd", () => {
     const calls: unknown[][] = [];
@@ -132,6 +159,171 @@ describe("T6 event persistence boundary", () => {
     );
     expect(persisted).not.toContain(secret);
     expect(persisted).toContain(REDACTED);
+  });
+});
+
+describe("H6 event corruption surfacing", () => {
+  it("treats a missing events.jsonl as empty history without creating it", () => {
+    const root = tempRoot();
+
+    expect(readExecutionEvents(root)).toEqual([]);
+    expect(existsSync(eventsPath(root))).toBe(false);
+  });
+
+  it("preserves valid event entries in source order", () => {
+    const root = tempRoot();
+    appendExecutionEvent(root, {
+      actor: "worker:t0",
+      recordedAt: "2026-09-21T00:00:00.000Z",
+      taskId: DEFAULT_FIXTURE.taskId,
+      capability: DEFAULT_FIXTURE.capability,
+      policyDecision: "ALLOW",
+      target: DEFAULT_FIXTURE.target,
+      result: "first",
+      provenance: "npm test; shell=false",
+    });
+    appendExecutionEvent(root, {
+      actor: "worker:t0",
+      recordedAt: "2026-09-21T00:00:01.000Z",
+      taskId: DEFAULT_FIXTURE.taskId,
+      capability: DEFAULT_FIXTURE.capability,
+      policyDecision: "ALLOW",
+      target: DEFAULT_FIXTURE.target,
+      result: "second",
+      provenance: "npm test; shell=false",
+    });
+
+    expect(eventRecords(root).map((entry) => entry.event.result)).toEqual(["first", "second"]);
+  });
+
+  it("surfaces malformed JSON without throwing or changing bytes", () => {
+    const root = tempRoot();
+    ensureEventsDirectory(root);
+    const raw = "{malformed event\n";
+    writeFileSync(eventsPath(root), raw, "utf8");
+
+    expect(() => readExecutionEvents(root)).not.toThrow();
+    const entries = readExecutionEvents(root);
+    expect(entries).toHaveLength(1);
+    const entry = entries[0];
+    expect(entry?.kind).toBe("corrupt");
+    if (entry?.kind === "corrupt") {
+      expect(entry.line).toBe(1);
+      expect(entry.raw).toBe("{malformed event");
+      expect(entry.error).toBeTruthy();
+    }
+    expect(readFileSync(eventsPath(root), "utf8")).toBe(raw);
+  });
+
+  it("surfaces schema-invalid JSON rather than skipping it", () => {
+    const root = tempRoot();
+    ensureEventsDirectory(root);
+    writeFileSync(eventsPath(root), `${JSON.stringify({ schemaVersion: 1, result: "missing fields" })}\n`, "utf8");
+
+    const entries = readExecutionEvents(root);
+    expect(entries).toHaveLength(1);
+    const entry = entries[0];
+    expect(entry?.kind).toBe("corrupt");
+    if (entry?.kind === "corrupt") {
+      expect(entry.line).toBe(1);
+      expect(entry.raw).toContain("missing fields");
+      expect(entry.error).toBe("line is not a valid ExecutionEvent");
+    }
+  });
+
+  it("surfaces primitive and non-object lines as corruption", () => {
+    const root = tempRoot();
+    ensureEventsDirectory(root);
+    writeFileSync(eventsPath(root), `null\n42\n"event"\n`, "utf8");
+
+    expect(readExecutionEvents(root).map((entry) => entry.kind)).toEqual(["corrupt", "corrupt", "corrupt"]);
+    expect(readExecutionEvents(root).map((entry) => entry.line)).toEqual([1, 2, 3]);
+  });
+
+  it("preserves valid and corrupt entries together in source order", () => {
+    const root = tempRoot();
+    ensureEventsDirectory(root);
+    writeFileSync(eventsPath(root), `${eventJson("first")}\n{bad\n${eventJson("last")}\n`, "utf8");
+
+    const entries = readExecutionEvents(root);
+    expect(entries.map((entry) => entry.kind)).toEqual(["record", "corrupt", "record"]);
+    expect(entries[0]?.kind === "record" ? entries[0].event.result : undefined).toBe("first");
+    expect(entries[1]?.kind === "corrupt" ? entries[1].line : undefined).toBe(2);
+    expect(entries[2]?.kind === "record" ? entries[2].event.result : undefined).toBe("last");
+  });
+
+  it("surfaces an unreadable existing event representation", () => {
+    const root = tempRoot();
+    mkdirSync(eventsPath(root), { recursive: true });
+
+    const entries = readExecutionEvents(root);
+    expect(entries).toHaveLength(1);
+    const entry = entries[0];
+    expect(entry?.kind).toBe("corrupt");
+    if (entry?.kind === "corrupt") {
+      expect(entry.line).toBe(0);
+      expect(entry.raw).toBe("");
+      expect(entry.error).toContain("unreadable event file");
+    }
+  });
+
+  it("leaves corrupt event bytes unchanged after a read", () => {
+    const root = tempRoot();
+    ensureEventsDirectory(root);
+    const raw = `${eventJson("valid")}\n{corrupt prefix\n`;
+    writeFileSync(eventsPath(root), raw, "utf8");
+
+    readExecutionEvents(root);
+
+    expect(readFileSync(eventsPath(root), "utf8")).toBe(raw);
+  });
+
+  it("appends after corruption without rewriting the corrupt prefix", () => {
+    const root = tempRoot();
+    ensureEventsDirectory(root);
+    const corruptPrefix = "{corrupt prefix\n";
+    writeFileSync(eventsPath(root), corruptPrefix, "utf8");
+
+    appendExecutionEvent(root, {
+      actor: "worker:t0",
+      recordedAt: "2026-09-21T00:00:00.000Z",
+      taskId: DEFAULT_FIXTURE.taskId,
+      capability: DEFAULT_FIXTURE.capability,
+      policyDecision: "ALLOW",
+      target: DEFAULT_FIXTURE.target,
+      result: "appended",
+      provenance: "npm test; shell=false",
+    });
+
+    const bytes = readFileSync(eventsPath(root), "utf8");
+    expect(bytes.startsWith(corruptPrefix)).toBe(true);
+    expect(eventRecords(root).map((entry) => entry.event.result)).toEqual(["appended"]);
+  });
+
+  it("keeps event corruption non-authoritative for verification and state", () => {
+    const root = setup();
+    appendEvidence(root, {
+      actor: "worker:t0",
+      recordedAt: "2026-09-21T00:00:03.000Z",
+      taskId: DEFAULT_FIXTURE.taskId,
+      capability: DEFAULT_FIXTURE.capability,
+      policyDecision: "ALLOW",
+      target: DEFAULT_FIXTURE.target,
+      result: "ok",
+      provenance: "npm test; shell=false",
+    });
+    ensureEventsDirectory(root);
+    writeFileSync(eventsPath(root), "{corrupt event\n", "utf8");
+    const beforeState = readRuntimeState(root);
+
+    expect(readExecutionEvents(root)[0]?.kind).toBe("corrupt");
+    expect(verifyEvidence({
+      taskId: DEFAULT_FIXTURE.taskId,
+      capability: DEFAULT_FIXTURE.capability,
+      target: DEFAULT_FIXTURE.target,
+      expectedResult: DEFAULT_FIXTURE.expectedResult,
+    }, readEvidence(root))).toMatchObject({ verdict: "PASS" });
+    expect(readRuntimeState(root)).toEqual(beforeState);
   });
 });
 
@@ -213,7 +405,7 @@ describe("T6 policy, retry, evidence, verification, and state", () => {
     expect(outcome.verdict).toBeNull();
     expect(process.calls).toHaveLength(0);
     expect(taskStatus(root)).toBe("halted");
-    expect(readExecutionEvents(root)[0]?.result).toBe("policy-denied");
+    expect(eventRecords(root)[0]?.event.result).toBe("policy-denied");
   });
 
   it("REQUIRE_APPROVAL is a terminal policy halt with zero execution and retry", () => {
@@ -228,7 +420,7 @@ describe("T6 policy, retry, evidence, verification, and state", () => {
     expect(outcome.attempts).toBe(0);
     expect(outcome.verdict).toBeNull();
     expect(process.calls).toHaveLength(0);
-    expect(readExecutionEvents(root)[0]?.result).toBe("approval-required");
+    expect(eventRecords(root)[0]?.event.result).toBe("approval-required");
   });
 
   it("rejects unsupported profile and jail escape before process execution", () => {
@@ -279,8 +471,8 @@ describe("T6 policy, retry, evidence, verification, and state", () => {
     expect(outcome.kind).toBe("accepted");
     expect(outcome.attempts).toBe(2);
     expect(process.calls).toHaveLength(2);
-    expect(readExecutionEvents(root).map((event) => event.result)).toEqual(["test-failed"]);
-    expect(Object.keys(readExecutionEvents(root)[0] ?? {})).toEqual([
+    expect(eventRecords(root).map((entry) => entry.event.result)).toEqual(["test-failed"]);
+    expect(Object.keys(eventRecords(root)[0]?.event ?? {})).toEqual([
       "schemaVersion",
       "actor",
       "recordedAt",
@@ -309,7 +501,7 @@ describe("T6 policy, retry, evidence, verification, and state", () => {
     expect(outcome.attempts).toBe(2);
     expect(outcome.verdict).toBe("FAIL");
     expect(process.calls).toHaveLength(2);
-    expect(readExecutionEvents(root)).toHaveLength(1);
+    expect(eventRecords(root)).toHaveLength(1);
     expect(evidenceRecords(root)).toHaveLength(1);
     expect(evidenceRecords(root)[0]?.record.result).toBe("test-failed");
     expect(taskStatus(root)).toBe("halted");
@@ -328,7 +520,7 @@ describe("T6 policy, retry, evidence, verification, and state", () => {
     expect(outcome.kind).toBe("halted");
     expect(outcome.attempts).toBe(1);
     expect(process.calls).toHaveLength(1);
-    expect(readExecutionEvents(root)).toHaveLength(0);
+    expect(eventRecords(root)).toHaveLength(0);
     expect(evidenceRecords(root)[0]?.record.result).toBe(expectedResult);
   });
 

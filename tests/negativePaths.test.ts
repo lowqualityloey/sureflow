@@ -148,6 +148,11 @@ function terminalResult(root: string): string | null {
   const entry = readEvidence(root).find((candidate) => candidate.kind === "record");
   return entry?.kind === "record" ? entry.record.result : null;
 }
+
+function eventRecords(root: string): readonly Extract<ReturnType<typeof readExecutionEvents>[number], { kind: "record" }>[] {
+  return readExecutionEvents(root).filter((entry) => entry.kind === "record");
+}
+
 function appendValidEvidence(root: string, result = "ok"): void {
   mkdirSync(join(root, ".sureflow/evidence"), { recursive: true });
   writeFileSync(
@@ -185,7 +190,7 @@ describe("T9 AC-2/AC-3 policy denial and protected operations", () => {
 
     expect(result.code).toBe(2);
     expect(result.err).toContain("HALT");
-    expect(readExecutionEvents(root).map((event) => event.result)).toEqual(["policy-denied"]);
+    expect(eventRecords(root).map((entry) => entry.event.result)).toEqual(["policy-denied"]);
     expect(readEvidence(root).filter((entry) => entry.kind === "record")).toEqual([]);
     expect(taskStatus(root)).toBe("halted");
     expect(activeTaskId(root)).toBeNull();
@@ -205,7 +210,7 @@ describe("T9 AC-2/AC-3 policy denial and protected operations", () => {
 
     expect(result.code).toBe(2);
     expect(result.err).toContain("approval required");
-    expect(readExecutionEvents(root).map((event) => event.result)).toEqual([
+    expect(eventRecords(root).map((entry) => entry.event.result)).toEqual([
       "approval-required",
     ]);
     expect(readEvidence(root).filter((entry) => entry.kind === "record")).toEqual([]);

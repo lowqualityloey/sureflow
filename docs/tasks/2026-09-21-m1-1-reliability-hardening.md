@@ -11,18 +11,18 @@
 - **Specification**: [M1.1 Reliability Hardening](../specs/2026-09-21-m1-1-reliability-hardening.md)
 - **External Reference**: `N/A`
 - **Owner / Actor**: Human authority; Codex implements only explicitly authorized H tasks
-- **Execution Scope**: Sureflow M1.1: H1–H5 remain complete; H5 covers single-project execution.lock mutation exclusion, lock-aware status, focused tests, and remote acceptance evidence; H6–H7 remain gated.
+- **Execution Scope**: Sureflow M1.1: H1–H5 remain complete; H6 covers explicit event-log corruption surfacing, append preservation, and non-authority coverage; H7 remains gated.
 - **Approval Boundary**: Every H task, commit, push, and scope expansion require explicit human authorization
 - **Created**: 2026-09-21 06:50 UTC
 
 ## 2. Objective and Boundaries
 
 - **Objective**: Establish zero-cost reproducible CI, then conduct independently gated reliability hardening without reopening M1.
-- **In Scope**: H1–H5 are accepted; H5 is explicitly complete after remote CI; H6–H7 remain gated.
-- **Explicit Non-Goals**: Reopening M1; H6–H7 implementation; event corruption semantics, public installation/docs behavior, paid infrastructure, release, tag, deployment, publication, or repository-setting changes.
+- **In Scope**: H1–H5 are accepted; H6 is active / in progress under explicit authorization; H7 remains gated.
+- **Explicit Non-Goals**: Reopening M1; H7 implementation; event authority, event replay/recovery/repair, public installation/docs behavior, paid infrastructure, release, tag, deployment, publication, or repository-setting changes.
 - **Dependencies**: M1 complete and accepted at `74408a93f242b94e835af3417e266b8c77a00ce7`; public GitHub repository.
 - **Risk**: Medium — CI is an external public integration; use read-only permissions, one standard runner, and human-gated remote acceptance.
-- **Verification Condition**: H5 focused and canonical local gates pass; the exact pushed commit passes the GitHub Actions CI gates.
+- **Verification Condition**: H6 focused event-corruption tests and canonical local gates pass; no commit or push occurs without separate authorization.
 
 ## 3. Task Breakdown and Acceptance Criteria
 
@@ -34,7 +34,7 @@
 - [x] **H3**: runtime namespace symlink containment — accepted / complete; committed `d8932eb`, remotely verified by CI run `35577273766`; H4–H7 remain gated.
 - [x] **H4**: state interruption safety — accepted / complete at `ce4be6af2326cf8ab6c2237b0234406501a042e0`; GitHub Actions run `35579830623` passed.
 - [x] **H5**: mutation lock — accepted / complete at `adbd526617ec82326b3921a4a69e336198412149`; GitHub Actions run `35583342650` passed.
-- [ ] **H6**: event corruption surfacing — planned / gated / unauthorized.
+- [x] **H6**: event corruption surfacing — locally committed and verified; push/remote acceptance remain separately authorized.
 - [ ] **H7**: public source-install and `init --force` documentation truth — planned / gated / unauthorized.
 
 ## 4. Execution Policy
@@ -50,12 +50,12 @@
 
 ## 5. State and Active Ownership
 
-- **Execution State**: `accepted`
-- **Mapped `pk:tasks` Status**: `Complete`
-- **Active Task Pointer**: `H5 / TASK-2026-09-21-m1-1-reliability-hardening (accepted)`
-- **Start Time**: `2026-09-21 06:50 UTC; H5 authorized 2026-09-21`
-- **Current Actor**: `Codex, H5 remotely accepted under explicit authorization`
-- **Next Action**: `STOP. Do not begin H6.`
+- **Execution State**: `committed`
+- **Mapped `pk:tasks` Status**: `Committed`
+- **Active Task Pointer**: `H6 / TASK-2026-09-21-m1-1-reliability-hardening (committed)`
+- **Start Time**: `2026-09-21 06:50 UTC; H5 authorized 2026-09-21; H6 authorized 2026-09-21`
+- **Current Actor**: `Codex, H6 locally committed under explicit authorization; push/remote acceptance remain separate`
+- **Next Action**: `STOP. Do not push without separate authorization or begin H7.`
 
 ### Transition History
 
@@ -74,14 +74,16 @@
 | accepted | in_progress | 2026-09-21 | Human authority | H5 explicitly authorized; H6–H7 remain gated | User authorization for single-project mutation exclusion only |
 | in_progress | committed | 2026-09-21 | Codex | H5 local verification passed and the authorized ten-file commit was created | Commit `adbd526617ec82326b3921a4a69e336198412149`; push authorized separately |
 | committed | accepted | 2026-09-21 | Codex | GitHub Actions CI passed for the exact pushed H5 revision; H6–H7 remain gated | Run `35583342650` tested `adbd526617ec82326b3921a4a69e336198412149` and concluded `success` |
+| accepted | in_progress | 2026-09-21 | Human authority | H6 explicitly authorized; H7 remains gated | User authorization for event-corruption surfacing only |
+| in_progress | committed | 2026-09-21 | Codex | H6 local verification passed and the authorized six-file commit was created; push remains unauthorized | H6 commit created after focused 10-test, 25-test focused-file, full 133-test, typecheck, lint, build, diff, reference, harness, and guard gates passed |
 
 ## 6. Evidence and Completion Gate
 
-- **Changed Files**: H5 commit `adbd526617ec82326b3921a4a69e336198412149` contains exactly `src/mutationLock.ts`, `src/cli.ts`, `src/runTask.ts`, `src/verifyTask.ts`, `src/stateWriter.ts`, `src/statusReport.ts`, `tests/mutationLock.test.ts`, `tsconfig.json`, this Task Record, and `docs/STATE.md`; H3/H4 files remain unchanged.
-- **Scope Change Records**: `H3/H4 acceptance recorded previously; H5 authorization and remote acceptance recorded here and in docs/STATE.md; no H6–H7 scope expansion.`
+- **Changed Files**: `src/eventStore.ts`, `tests/runTask.test.ts`, `tests/negativePaths.test.ts`, `tests/t10Audit.test.ts`, this Task Record, and `docs/STATE.md`; H1–H5 runtime and test behavior remains unchanged except for adapting existing event-read assertions to the structured result shape.
+- **Scope Change Records**: `H3/H4/H5 acceptance recorded previously; H6 authorization and local implementation recorded here and in docs/STATE.md; no H7 scope expansion.`
 - **Checkpoint Records**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 remote acceptance boundary; `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-2.md` — H2 remote acceptance boundary
 - **Handoff Records**: `None`
-- **Verification Evidence**: `H1: npm run typecheck`, npm run lint, npm run build, git diff --check, and the tracked-tree cleanliness check passed locally on 2026-09-21; npm test passed 90 tests across 11 files outside the restricted command sandbox after its initial child-node EPERM. H2: npm ci, npm run typecheck, npm test (91 tests across 11 files), npm run lint, npm run build, git diff --check, npm ls @types/node --depth=0, PromptKit reference validation, and the bounded harness preflight all passed locally on 2026-09-21. H3 focused tests passed 26 tests across 4 files; the final full suite passed 100 tests across 12 files outside the restricted sandbox, with typecheck, lint, build, diff check, PromptKit reference validation, and harness/security checks passing. H4: focused init/status suite passed 32 tests across 2 files; GitHub Actions run 35579830623 tested ce4be6af2326cf8ab6c2237b0234406501a042e0 on ubuntu-latest and passed npm ci, typecheck, 112 tests across 12 files, lint, build, git diff --check, and git diff cleanliness; no skips were reported. H5: focused mutation-lock suite passed 11 tests; GitHub Actions run 35583342650 tested adbd526617ec82326b3921a4a69e336198412149 on ubuntu-latest and passed npm ci, typecheck, 123 tests across 13 files including tests/mutationLock.test.ts with 11 tests and no skips, lint, build, git diff --check, and git diff --exit-code cleanliness.`
+- **Verification Evidence**: `H1: npm run typecheck`, npm run lint, npm run build, git diff --check, and the tracked-tree cleanliness check passed locally on 2026-09-21; npm test passed 90 tests across 11 files outside the restricted command sandbox after its initial child-node EPERM. H2: npm ci, npm run typecheck, npm test (91 tests across 11 files), npm run lint, npm run build, git diff --check, npm ls @types/node --depth=0, PromptKit reference validation, and the bounded harness preflight all passed locally on 2026-09-21. H3 focused tests passed 26 tests across 4 files; the final full suite passed 100 tests across 12 files outside the restricted sandbox, with typecheck, lint, build, diff check, PromptKit reference validation, and harness/security checks passing. H4: focused init/status suite passed 32 tests across 2 files; GitHub Actions run 35579830623 tested ce4be6af2326cf8ab6c2237b0234406501a042e0 on ubuntu-latest and passed npm ci, typecheck, 112 tests across 12 files, lint, build, git diff --check, and git diff cleanliness; no skips were reported. H5: focused mutation-lock suite passed 11 tests; GitHub Actions run 35583342650 tested adbd526617ec82326b3921a4a69e336198412149 on ubuntu-latest and passed npm ci, typecheck, 123 tests across 13 files including tests/mutationLock.test.ts with 11 tests and no skips, lint, build, git diff --check, and git diff --exit-code cleanliness. H6: the focused H6 selection passed 10 tests in `tests/runTask.test.ts`; the full suite passed 133 tests across 13 files; npm run typecheck, npm run lint, npm run build, git diff --check, PromptKit reference validation, harness preflight, and scope/secret/debug/credential/runtime-artifact guards all passed.`
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
@@ -91,9 +93,9 @@
 - **Commit Evidence**: `H1: e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main. H2: 505daa10f43410a6eefb28a5b758af94227c1fbe (chore(toolchain): align Node typings with Node 24), pushed non-force to origin/main. H3: d8932eb (fix(paths): enforce runtime symlink containment) plus 1d0fed1 (docs(m1.1): record H3 commit completion), pushed non-force to origin/main; remote head `1d0fed15cb54f938d55115e4a2a75caa9578d8c4`.`
 - **Pull Request Evidence**: `N/A - direct main push explicitly authorized for H1`
 - **Release Evidence**: `N/A`
-- **Blocker and Resume Condition**: `H5 has no blocker; H6–H7 remain gated and unauthorized.`
-- **Completion State**: `accepted — pushed and remotely verified`
+- **Blocker and Resume Condition**: `H6 has no blocker; local verification and commit are complete, but push/remote acceptance remain separately authorized. H7 remains gated and unauthorized.`
+- **Completion State**: `committed — locally verified; push/remote acceptance pending`
 - **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 local and remote CI verification passed for the exact pushed revision. H3 focused 9-test coverage and full 100-test suite, typecheck, lint, build, diff check, PromptKit reference validation, harness/security checks, and GitHub Actions CI pass for `1d0fed15cb54f938d55115e4a2a75caa9578d8c4` all pass. H4 focused 32-test coverage passed locally; GitHub Actions run 35579830623 passed npm ci, typecheck, full 112-test suite, lint, build, diff check, and cleanliness for ce4be6af2326cf8ab6c2237b0234406501a042e0.`
-- **Changed-File Summary**: `H1–H4 remain unchanged and accepted. H5 commit adbd526617ec82326b3921a4a69e336198412149 contains exactly the authorized ten files: exclusive execution.lock ownership, orchestration-boundary coverage for init/run/verify/status, focused lock tests, the standalone test-project include, and linked bookkeeping. No dependency, scheduler, stale recovery, PID liveness, lease, H3, H4, H6, H7, or tracked runtime artifact changes.`
+- **Changed-File Summary**: `H1–H5 remain accepted. H6 commit contains exactly src/eventStore.ts, tests/runTask.test.ts, tests/negativePaths.test.ts, tests/t10Audit.test.ts, this Task Record, and docs/STATE.md; no dependency, CLI, state-authority, verifier, H3, H4, H5, CI, H7, or tracked runtime artifact changes.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success. H2 accepted 2026-09-21 07:51 UTC after CI run 35574889277 concluded success. H4 accepted 2026-09-21 after CI run 35579830623 concluded success. H5 accepted 2026-09-21 after CI run 35583342650 concluded success on adbd526617ec82326b3921a4a69e336198412149.`
+- **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success. H2 accepted 2026-09-21 07:51 UTC after CI run 35574889277 concluded success. H4 accepted 2026-09-21 after CI run 35579830623 concluded success. H5 accepted 2026-09-21 after CI run 35583342650 concluded success on adbd526617ec82326b3921a4a69e336198412149. H6 committed locally after explicit authorization and all local gates passed on 2026-09-21; push/remote acceptance pending.`
