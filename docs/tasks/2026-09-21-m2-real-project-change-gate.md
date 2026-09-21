@@ -15,7 +15,7 @@
 - **External Reference**: `N/A - local tracking remains authoritative`
 - **Owner / Actor**: Human authority owns approval; Codex may implement only separately authorized M2 tasks
 - **Execution Scope**: Sureflow M2 in this repository; one independent Node/TypeScript fixture target; one local worker/project/task
-- **Approval Boundary**: M2-T8 end-to-end and negative acceptance is authorized only for the independent acceptance harness, focused tests/helpers, the required test-project include, and this existing M2 Task Record/STATE projection. Commit, push, pull request, remote action, release, deployment, post-M2 work, or rollback require separate explicit human authorization.
+- **Approval Boundary**: M2-T8 end-to-end and negative acceptance was authorized for the independent acceptance harness, focused tests/helpers, the required test-project include, and this existing M2 Task Record/STATE projection. Its commit, push, and remote acceptance are complete. M3, release, deployment, and other post-M2 work remain separately unauthorized.
 - **Created**: 2026-09-21 10:38 UTC
 
 ## 2. Objective and Boundaries
@@ -46,7 +46,7 @@
   - changes to the independent fixture source or contract;
   - M2-T9 or any post-M2 implementation;
   - commits, pushes, pull requests, releases, or other remote side effects.
-- **Dependencies**: Accepted clean baseline `9fe350a256f2eb9f469e5e1e191e62acc5e98a29`; accepted M1/M1.1 contracts and M2-T1 through M2-T7; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T8 implementation authorization is active.
+- **Dependencies**: Accepted M2-T7 baseline `9fe350a256f2eb9f469e5e1e191e62acc5e98a29`; accepted M1/M1.1 contracts and M2-T1 through M2-T7; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T8 implementation, commit, and push authorizations were completed.
 - **Risk**: `High` — M2 expands from fixed verification to real source mutation. Mitigation: exact-path/preimage gates, default-deny policy, one closed adapter, clean Git baseline, post-run scope inspection, deterministic evidence, one-task authorization, and hard stop conditions.
 - **Verification Condition**: M2 is complete only when AC-M2.1–AC-M2.9 pass, N1–N16 pass, the independent temporary-repository acceptance reaches PASS/accepted, and the complete Sureflow typecheck/test/lint/build/hygiene gates pass without weakening existing tests.
 
@@ -67,7 +67,7 @@
   - Reuse append-only evidence and base verifier; require current contract, exact changed paths, compliant scope, and all required checks.
 - [x] **M2-T7 — Single orchestration integration** (`#priority/p0`, `area:backend`, `type:refactor`, 5–7 h; depends on T1–T6) — accepted / complete at `9fe350a256f2eb9f469e5e1e191e62acc5e98a29`; CI run `35621524786`
   - Generalize the one run/verify pipeline; preserve policy, lock, state, event, evidence, CLI, and T0 compatibility invariants.
-- [~] **M2-T8 — End-to-end and negative acceptance** (`#priority/p1`, `area:backend`, `type:test`, 4–6 h; depends on T7) — locally implemented and verified; commit authorization remains separate
+- [x] **M2-T8 — End-to-end and negative acceptance** (`#priority/p1`, `area:backend`, `type:test`, 4–6 h; depends on T7) — accepted / complete at `2b4d877ade0ff6be34b429e00966b0d3efd184e4`; GitHub Actions run `35630660962` passed
   - Execute the independent temp-repository flow, N1–N16, full regressions, hygiene/review, and acceptance evidence.
 
 No task may start merely because its predecessor is checked. Each task needs separate human authorization and an event-driven checkpoint before the next task.
@@ -96,10 +96,10 @@ No task may start merely because its predecessor is checked. Each task needs sep
   - **Result**: Passed locally, 35 negative test cases / 38 total T8 tests
   - **Evidence**: `tests/m2Acceptance.test.ts` maps N1, N2, N3 (4 cases), N4 (3 parameterized cases), N5 (9 cases), N6 (2), N7 single-target authority mismatch, N8, N9 (2), N10 post-write unauthorized path, N11, N12 (2), N13 (2), N14 (2), N15 (2), and N16.
 - [x] **AC-M2.8 — Independent acceptance**: The public CLI changes a disposable copy of `fixtures/m2-node-ts-project/`, never Sureflow's own source tree, and reaches accepted/PASS after real checks.
-  - **Result**: Passed locally on the permitted host
+  - **Result**: Passed locally and remotely; GitHub Actions run `35630660962` passed on `2b4d877ade0ff6be34b429e00966b0d3efd184e4`
   - **Evidence**: Public `init`, `run TASK-M2-FIXTURE-DISPLAY-NAME`, and `verify TASK-M2-FIXTURE-DISPLAY-NAME`; replacement bytes, accepted state, seven evidence records, Git-visible target scope, and read-only verify were asserted.
 - [x] **AC-M2.9 — Regression and scope**: Existing M1/M1.1 behavior remains green and no deferred post-M2 subsystem appears.
-  - **Result**: Passed locally, subject to final canonical gate rerun below
+  - **Result**: Passed locally and remotely; the full remote suite passed 348/348 across 21 files
   - **Evidence**: Public T0 run/verify regression, T1-T7 regressions, full suite, typecheck, lint, build, diff, reference, harness, hygiene, and exact changed-file scope checks.
 
 ## 4A. M2 Contract Authority Reconciliation
@@ -130,6 +130,29 @@ project mutation. N10 remains the post-write observation that verification or
 execution introduced some other Git-visible project path; that is a scope
 violation with changes preserved.
 
+## 4B. Final M2 Acceptance
+
+**M2 — Real Project Change Gate: ACCEPTED / COMPLETE**
+
+Accepted task chain:
+
+- T1 `b1014149684ab46ccd53a59bfa8155e086a600b2`
+- T2 `7f17028da00b817dd97545faa3f132cc922cee17`
+- T3 `9b94cfa205269bc75766fadde2f657fcad2275a2`
+- T4 `1db22b3df297af29f23890b094030e4a507fdc25`
+- T5 `a33651bb288e90d6628aaa87df96eaf5997eb635`
+- T6 `4b081037c43e954437ef92eac143bd87cd960f01`
+- T7 `9fe350a256f2eb9f469e5e1e191e62acc5e98a29`
+- T8 `2b4d877ade0ff6be34b429e00966b0d3efd184e4`
+
+T8 remote acceptance: GitHub Actions run `35630660962`, job `test` /
+`106435781923`, passed on the GitHub-hosted runner. `npm ci`, root typecheck,
+full tests (`348/348` across `21` files, including `38` T8 tests), lint, build,
+`git diff --check`, and tracked-tree cleanliness all passed. The working tree
+and `origin/main` are synchronized at the T8 commit.
+
+M3: **NOT STARTED / NOT AUTHORIZED**.
+
 ## 5. Execution Policy
 
 - **Mode**: `Gated Mode`
@@ -143,12 +166,12 @@ violation with changes preserved.
 
 ## 6. State and Active Ownership
 
-- **Execution State**: `awaiting_review`
-- **Mapped `pk:tasks` Status**: `In Review`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Done`
 - **Active Task Pointer**: `None`
 - **Start Time**: `2026-09-21`
-- **Current Actor**: Codex completed the authorized M2-T8 local implementation and verification; T8 commit/push and remote acceptance remain unauthorized
-- **Next Action**: Await separate M2-T8 commit authorization. Do not commit, push, or begin post-M2 work.
+- **Current Actor**: Codex completed M2-T1 through M2-T8; remote acceptance is recorded and no M3 work has started
+- **Next Action**: No M3 work has started. M3 remains not started / not authorized; no further M2 implementation is planned.
 
 ### Transition History
 
@@ -175,6 +198,7 @@ violation with changes preserved.
 | in_progress | awaiting_review | 2026-09-22 | Codex | T8 independent public acceptance and N1-N16 coverage completed; commit authorization remains separate | T8 focused file 38/38 on permitted host; restricted sandbox `spawnSync node EPERM` preserved as environment evidence |
 | awaiting_review | in_progress | 2026-09-22 | Human authority | Explicitly reconciled and approved the implemented T1 single-target M2 contract; richer path/capability/stop-policy fields are deferred to a future generalized milestone | This authorization |
 | in_progress | awaiting_review | 2026-09-22 | Codex | Reconciled the M2 specification and T8 acceptance mapping; retained the existing N7 behavior and clarified its boundary with N10 | Focused T8 acceptance and canonical gates rerun after reconciliation |
+| awaiting_review | completed | 2026-09-22 | Codex | M2-T8 committed and pushed after explicit authorization; GitHub Actions remote acceptance passed and M2 T1-T8 is complete | Commit `2b4d877ade0ff6be34b429e00966b0d3efd184e4`; run `35630660962`; 348/348 tests across 21 files |
 
 ## 7. Evidence and Completion Gate
 
@@ -208,18 +232,19 @@ violation with changes preserved.
 - **T7 Verification Evidence**: Focused M2-T7 integration suite: 33/33 passed. Permitted-host full Sureflow suite: 310/310 tests across 20 files, including the T0 path and T1-T6 regressions. Root typecheck, lint, and build passed. `git diff --check`, canonical PromptKit reference validation, fixed-scope harness/security preflight and regression, scope, secret, debug, credential-file, runtime-artifact, dependency/version, and CI guards passed. The restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`; the permitted-host full-suite result is the passing evidence. The repository-wide execution-control validator remains non-green at exactly 98 pre-M2 historical diagnostics; no current M2-T7 diagnostics apply and no legacy repair was attempted.
 - **T7 Remote Acceptance Evidence**: GitHub Actions run `35621524786` tested `9fe350a256f2eb9f469e5e1e191e62acc5e98a29` and passed; T7 is accepted / complete. No T8 changes were present in that tested SHA.
 - **T8 Verification Evidence**: `tests/m2Acceptance.test.ts` passed 38/38 after the contract reconciliation on the permitted host. The independent fixture’s pre-change `npm test` was exactly 0/1 as intentionally expected; its typecheck, lint, and build passed under explicit Node 24. AC-M2.8 exercised public `init`, `run`, and `verify` against a disposable copy of `fixtures/m2-node-ts-project/`; the real npm wrapper observed `run typecheck`, `test`, `run lint`, and `run build` in order. The test asserted the replacement bytes, accepted task state, seven persisted evidence records, expected Git-visible target path, and read-only public verify. AC-M2.9 preserved the public T0 run/verify path. N1-N16 passed with 35 negative cases: unsupported project; missing script; malformed/unknown/duplicate/invalid contract; DENY/REQUIRE_APPROVAL; absolute/traversal/control-plane/directory/missing/untracked/symlink targets; dirty/stale baseline; single-target authority mismatch; failed/spawn-error/terminated verification; unauthorized post-write path; missing/corrupt/stale/no-op/missing-target evidence; replay; existing lock/release-owner race; and mid-run contract integrity mismatch. The focused T1/T4/T5/T6/T7/T0 regression selection passed 192/192 across 7 files. The full permitted-host root suite passed 348/348 across 21 files. Root typecheck, lint, build, and `git diff --check` passed; fixture typecheck, lint, and build passed under explicit Node 24. Correct PromptKit reference validation and harness/security preflight passed. The restricted sandbox reproduced the known `spawnSync node EPERM` when the harness launches node; permitted-host execution is the passing evidence. The execution-control validator remained non-green only for pre-M2 records: this run observed 105 historical diagnostics, none for the current M2 record; the documented historical 98-count drift was not investigated. No T1-T7 runtime files, fixture source/contract, package, dependency, CI, or post-M2 files were changed.
+- **T8 Remote Acceptance Evidence**: GitHub Actions run `35630660962` tested `2b4d877ade0ff6be34b429e00966b0d3efd184e4` on the GitHub-hosted Ubuntu 24.04 runner; job `test` / `106435781923` passed. The remote `npm ci`, root typecheck, `npm test` (`348/348` across `21` files, including `tests/m2Acceptance.test.ts` with `38` tests), lint, build, `git diff --check`, and tracked-tree cleanliness steps all succeeded. `origin/main` and the working tree are synchronized at the T8 commit.
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Exception Verification**: `N/A - TDD Enforcement Mode disabled`
-- **CI Evidence**: `M2-T1 remote acceptance is recorded at b1014149684ab46ccd53a59bfa8155e086a600b2. M2-T2 remote acceptance is recorded at 7f17028da00b817dd97545faa3f132cc922cee17, GitHub Actions run 35599713727. M2-T3 remote acceptance is recorded at 9b94cfa205269bc75766fadde2f657fcad2275a2, GitHub Actions run 35603513806. M2-T4 remote acceptance is recorded at 1db22b3df297af29f23890b094030e4a507fdc25, GitHub Actions run 35607104678; npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness all succeeded. M2-T5 remote acceptance is recorded at a33651bb288e90d6628aaa87df96eaf5997eb635, GitHub Actions run 35610656688; npm ci, typecheck, 241 tests across 18 files, lint, build, diff check, and cleanliness all succeeded. M2-T6 remote acceptance is recorded at 4b081037c43e954437ef92eac143bd87cd960f01, GitHub Actions run 35614567881; npm ci, typecheck, 276 tests across 19 files including 35 project-change-verifier tests, lint, build, diff check, and cleanliness all succeeded.`
-- **Review Evidence**: `T7 is accepted remotely at 9fe350a256f2eb9f469e5e1e191e62acc5e98a29. Human authorized T8 only for the independent acceptance harness, focused tests/helpers, required test-project include, and canonical docs. Human authority subsequently reconciled the implemented T1 single-target contract for M2: targetPath is the sole authorized and expected project path; repo.read/repo.write/repo.verify are fixed orchestration capabilities; strict stopping is fixed control-plane behavior. Review confirms no T1-T7 runtime or fixture-source change, no dependency/package/CI change, no deferred post-M2 subsystem, and truthful preservation of the restricted-sandbox process limitation. T8 is locally complete and ready for separate commit authorization; remote T8 acceptance is not claimed.`
-- **Commit Evidence**: `T5 committed atomically with subject feat(m2): add git-visible scope inspection; pushed to origin/main as a33651bb288e90d6628aaa87df96eaf5997eb635. T6 committed atomically with subject feat(m2): add aggregate project change verifier; pushed to origin/main as 4b081037c43e954437ef92eac143bd87cd960f01. T7 committed/pushed as 9fe350a256f2eb9f469e5e1e191e62acc5e98a29 and accepted by GitHub Actions run 35621524786. T8 remains local and uncommitted; commit and push require separate authorization.`
+- **CI Evidence**: `M2-T1 remote acceptance is recorded at b1014149684ab46ccd53a59bfa8155e086a600b2. M2-T2 remote acceptance is recorded at 7f17028da00b817dd97545faa3f132cc922cee17, GitHub Actions run 35599713727. M2-T3 remote acceptance is recorded at 9b94cfa205269bc75766fadde2f657fcad2275a2, GitHub Actions run 35603513806. M2-T4 remote acceptance is recorded at 1db22b3df297af29f23890b094030e4a507fdc25, GitHub Actions run 35607104678; npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness all succeeded. M2-T5 remote acceptance is recorded at a33651bb288e90d6628aaa87df96eaf5997eb635, GitHub Actions run 35610656688; npm ci, typecheck, 241 tests across 18 files, lint, build, diff check, and cleanliness all succeeded. M2-T6 remote acceptance is recorded at 4b081037c43e954437ef92eac143bd87cd960f01, GitHub Actions run 35614567881; npm ci, typecheck, 276 tests across 19 files including 35 project-change-verifier tests, lint, build, diff check, and cleanliness all succeeded. M2-T7 remote acceptance is recorded at 9fe350a256f2eb9f469e5e1e191e62acc5e98a29, GitHub Actions run 35621524786. M2-T8 remote acceptance is recorded at 2b4d877ade0ff6be34b429e00966b0d3efd184e4, GitHub Actions run 35630660962; npm ci, typecheck, 348 tests across 21 files including 38 T8 tests, lint, build, diff check, and cleanliness all succeeded.`
+- **Review Evidence**: `T7 is accepted remotely at 9fe350a256f2eb9f469e5e1e191e62acc5e98a29. Human authorized T8 for the independent acceptance harness, focused tests/helpers, required test-project include, and canonical docs. Human authority reconciled the implemented T1 single-target contract for M2: targetPath is the sole authorized and expected project path; repo.read/repo.write/repo.verify are fixed orchestration capabilities; strict stopping is fixed control-plane behavior. Review confirms no T1-T7 runtime or fixture-source change, no dependency/package/CI change, no deferred post-M2 subsystem, and truthful preservation of the restricted-sandbox process limitation. T8 is accepted remotely at 2b4d877ade0ff6be34b429e00966b0d3efd184e4 after GitHub Actions run 35630660962 passed.`
+- **Commit Evidence**: `T5 committed atomically with subject feat(m2): add git-visible scope inspection; pushed to origin/main as a33651bb288e90d6628aaa87df96eaf5997eb635. T6 committed atomically with subject feat(m2): add aggregate project change verifier; pushed to origin/main as 4b081037c43e954437ef92eac143bd87cd960f01. T7 committed/pushed as 9fe350a256f2eb9f469e5e1e191e62acc5e98a29 and accepted by GitHub Actions run 35621524786. T8 committed atomically as 2b4d877ade0ff6be34b429e00966b0d3efd184e4 and pushed non-force to origin/main; GitHub Actions run 35630660962 passed.`
 - **Pull Request Evidence**: `N/A before PR; remote action is not authorized`
 - **Release Evidence**: `N/A - M2 planning is not a release`
-- **Blocker and Resume Condition**: `T1-T7 are accepted remotely. T8 local implementation and verification are complete; separate commit authorization is required before staging/commit, push, or remote acceptance. No post-M2 work is authorized.`
-- **Completion State**: `T1-T7 accepted / complete; T8 locally implemented and verified, awaiting separate commit authorization`
-- **Acceptance Results**: `AC-M2.1–AC-M2.9 passed locally; remote T8 acceptance pending`
+- **Blocker and Resume Condition**: `M2-T1 through M2-T8 are accepted remotely. No M3 work has started; M3 remains separately unauthorized.`
+- **Completion State**: `completed`
+- **Acceptance Results**: `AC-M2.1–AC-M2.9 passed locally and remotely; T8 remote suite passed 348/348 across 21 files`
 - **Changed-File Summary**: `T8 reconciliation changes are exactly docs/specs/2026-09-21-m2-real-project-change-gate.md, docs/STATE.md, docs/tasks/2026-09-21-m2-real-project-change-gate.md, tests/m2Acceptance.test.ts, and tsconfig.json. The tsconfig change adds only the T8 acceptance test to the explicit typecheck/project-service include list. No T1-T7 runtime file, fixture source/contract, package, dependency, CI, or post-M2 file changed.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `T7 remote acceptance recorded on 2026-09-22; M2-T8 implementation and local acceptance verification completed on 2026-09-22; T8 is awaiting separate commit authorization and must stop before commit/push or post-M2 work`
+- **Completion Decision and Timestamp**: `M2-T8 remote acceptance recorded on 2026-09-22 at commit 2b4d877ade0ff6be34b429e00966b0d3efd184e4 after GitHub Actions run 35630660962 passed; M2-T1 through M2-T8 are accepted / complete. M3 has not started and remains unauthorized.`
