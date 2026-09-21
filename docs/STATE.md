@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M2-T4 bounded existing-file replacement — locally committed; push unauthorized
-- **Overall Status**: M1 and M1.1 accepted / complete; M2-T1 through M2-T3 accepted / complete; M2-T4 locally committed and verified; M2-T5 through M2-T8 remain unauthorized
+- **Current Milestone / Epic**: M2-T5 Git-visible scope compliance — locally committed; push unauthorized
+- **Overall Status**: M1 and M1.1 accepted / complete; M2-T1 through M2-T5 locally complete; M2-T6 through M2-T8 remain unauthorized
 - **Target Release / Deadline**: M2 — no deadline recorded
-- **Current Working Branch**: `main` at the local M2-T4 commit based on accepted M2-T3 `9b94cfa205269bc75766fadde2f657fcad2275a2`; push unauthorized
+- **Current Working Branch**: `main` at the local M2-T5 commit based on accepted M2-T4 `1db22b3df297af29f23890b094030e4a507fdc25`; push unauthorized
 - **Last Updated**: 2026-09-22
 
 
@@ -28,7 +28,8 @@
 - [x] **M2-T1**: Contract + independent fixture — accepted / complete at `b1014149684ab46ccd53a59bfa8155e086a600b2`
 - [x] **M2-T2**: Project detection — accepted / complete at `7f17028da00b817dd97545faa3f132cc922cee17` after remote CI run `35599713727`
 - [x] **M2-T3**: Closed verification profile resolution and dispatch — accepted / complete at `9b94cfa205269bc75766fadde2f657fcad2275a2` after remote CI run `35603513806`
-- [x] **M2-T4**: Bounded existing-file replacement — locally committed; push/remote acceptance remain unauthorized
+- [x] **M2-T4**: Bounded existing-file replacement — accepted / complete at `1db22b3df297af29f23890b094030e4a507fdc25` after remote CI run `35607104678`
+- [x] **M2-T5**: Git-visible scope compliance — locally implemented, verified, and committed; push/remote acceptance remain unauthorized
 
 ### Active Milestone Task Breakdown
 
@@ -47,16 +48,16 @@
 - [x] T11: documentation and acceptance closeout complete
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
-- [~] TASK-2026-09-21-m2-real-project-change-gate: T3 accepted remotely; T4 committed locally; T5-T8 unauthorized
-- [!] Stop boundary: do not push T4 or begin M2-T5 without separate authorization
+- [~] TASK-2026-09-21-m2-real-project-change-gate: T4 accepted remotely; T5 locally complete and committed; T6-T8 unauthorized
+- [!] Stop boundary: do not push T5 or begin M2-T6 without separate authorization
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m2-real-project-change-gate.md` — approved M2 plan; T1-T3 accepted; T4 implementation authorized; T5-T8 unauthorized
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m2-real-project-change-gate.md` — approved M2 plan; T1-T4 accepted; T5 implementation authorized; T6-T8 unauthorized
 - **Active Task Spec**: `docs/tasks/2026-09-21-m2-real-project-change-gate.md`
-- **Key Files in Flight**: T4 bounded replacement source/test, required test-project include, and the existing M2 Task Record/STATE projection. T1-T3 implementation and fixture remain unchanged. No T5-T8 implementation, dependency, CI, or remote changes are authorized.
+- **Key Files in Flight**: T5 project-scope source/test, required test-project include, and the existing M2 Task Record/STATE projection. T1-T4 implementation and fixture remain unchanged. No T6-T8 implementation, dependency, CI, or remote changes are authorized.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -76,6 +77,8 @@
   - M2-T3 canonical gates: typecheck, lint, build, `git diff --check`, PromptKit reference validation, harness/security preflight, and scope/secret/debug/credential/runtime-artifact guards passed; restricted sandbox reproduced the known `spawnSync npx EPERM`, so the full-suite result above is the permitted host result (2026-09-22)
   - M2-T4 focused bounded-replacement suite: 29 tests passed; T3/T2/T1 regressions: 50 tests passed; full Sureflow suite: 215 tests passed across 17 files in the permitted Node 24 host environment. Root typecheck, lint, and build passed; the restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`, so the full-suite result is the permitted host result (2026-09-22)
   - M2-T4 `git diff --check`, PromptKit reference validation, harness preflight/regression, and scope/secret/debug/credential/runtime-artifact guards passed. The repository-wide execution-control validator remains non-green only for pre-M2 legacy records; no legacy repair was attempted and its raw diagnostic count is not an M2 quality metric (2026-09-22)
+  - M2-T5 focused project-scope suite: 26 tests passed; T1-T4 regressions: 79 tests passed; full Sureflow suite: 241 tests passed across 18 files in the permitted Node 24 host environment. Typecheck, lint, and build passed; the restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`, so the full-suite result is the permitted host result (2026-09-22)
+  - M2-T5 `git diff --check`, PromptKit reference validation, harness preflight/regression, exact-five-file scope, credential-shaped token, debug, credential-filename, and runtime-artifact guards passed. The repository-wide execution-control validator reports 98 diagnostics only from pre-M2 historical records; no current M2-T5 diagnostics remain and no legacy repair was attempted (2026-09-22)
 
 ---
 
@@ -89,20 +92,20 @@
 - **Execution State**: `awaiting_review`
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
-- **Owner / Current Actor**: `Codex after the authorized M2-T4 implementation, local verification, and atomic commit; push remains unauthorized`
+- **Owner / Current Actor**: `Codex after the authorized M2-T5 implementation, local verification, and atomic commit; push remains unauthorized`
 - **Start Time**: `2026-09-21`
 - **Current Branch**: `main`
-- **Current Revision**: `HEAD at the local M2-T4 commit; origin/main remains at accepted M2-T3 commit 9b94cfa205269bc75766fadde2f657fcad2275a2; push unauthorized`
+- **Current Revision**: `HEAD at the local M2-T5 commit; origin/main remains at accepted M2-T4 commit 1db22b3df297af29f23890b094030e4a507fdc25; push unauthorized`
 - **Checkpoint Policy**: `Human plan review; separate authorization for each M2-T task; checkpoint before every task transition, commit, push, scope expansion, or stop-condition response`
-- **Blockers and Resume Condition**: `T4 implementation, local verification, and atomic commit are complete; push remains separately unauthorized. M2-T5 requires separate task authorization.`
+- **Blockers and Resume Condition**: `T5 implementation, local verification, and atomic commit are complete; push remains separately unauthorized. M2-T6 requires separate task authorization.`
 - **Verification Status**: `T3 remote acceptance plus T4 focused suite, T3/T2/T1 regressions, permitted-host full suite, fixture checks, canonical Node 24 gates, diff hygiene, PromptKit validation, harness preflight, and scope/secret/debug/credential/runtime-artifact guards passed. The repository-wide execution-control validator command remains non-green due only to pre-M2 legacy Task Records; no diagnostics apply to the M2 Task Record or this STATE projection. No legacy repairs were attempted and its raw diagnostic count is not an M2 quality metric.`
-- **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed on e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) passed on 505daa10f43410a6eefb28a5b758af94227c1fbe; its test job and all steps concluded success. H4: GitHub Actions CI run 35579830623 (<https://github.com/lowqualityloey/sureflow/actions/runs/35579830623>) passed on ce4be6af2326cf8ab6c2237b0234406501a042e0; its test job and all required steps concluded success. H5: GitHub Actions CI run 35583342650 (<https://github.com/lowqualityloey/sureflow/actions/runs/35583342650>) passed on adbd526617ec82326b3921a4a69e336198412149; the test job and every required step concluded success. M2-T3: GitHub Actions CI run 35603513806 (<https://github.com/lowqualityloey/sureflow/actions/runs/35603513806>) passed on 9b94cfa205269bc75766fadde2f657fcad2275a2; T4 remains local-only.`
-- **Changed-File Summary**: `M2-T4 uncommitted scope: src/boundedReplacement.ts, tests/boundedReplacement.test.ts, tsconfig.json, and the existing M2 Task Record/STATE projection. T1-T3 implementation and fixture are unchanged; no T5-T8 implementation, dependency, CI, or remote state changed.`
-- **Latest Checkpoint**: `M2-T4 committed locally after local verification; push/remote acceptance unauthorized; T5-T8 unauthorized`
+- **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed on e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) passed on 505daa10f43410a6eefb28a5b758af94227c1fbe; its test job and all steps concluded success. H4: GitHub Actions CI run 35579830623 (<https://github.com/lowqualityloey/sureflow/actions/runs/35579830623>) passed on ce4be6af2326cf8ab6c2237b0234406501a042e0; its test job and all required steps concluded success. H5: GitHub Actions CI run 35583342650 (<https://github.com/lowqualityloey/sureflow/actions/runs/35583342650>) passed on adbd526617ec82326b3921a4a69e336198412149; the test job and every required step concluded success. M2-T3: GitHub Actions CI run 35603513806 (<https://github.com/lowqualityloey/sureflow/actions/runs/35603513806>) passed on 9b94cfa205269bc75766fadde2f657fcad2275a2. M2-T4: GitHub Actions CI run 35607104678 (<https://github.com/lowqualityloey/sureflow/actions/runs/35607104678>) passed on 1db22b3df297af29f23890b094030e4a507fdc25; npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness all succeeded.`
+- **Changed-File Summary**: `M2-T5 implementation scope: src/projectScope.ts, tests/projectScope.test.ts, tsconfig.json, and the existing M2 Task Record/STATE projection. T1-T4 implementation and fixture remain unchanged; no T6-T8 implementation, dependency, CI, or remote state changed.`
+- **Latest Checkpoint**: `M2-T5 locally implemented, verified, and committed after the accepted M2-T4 baseline; push/remote acceptance unauthorized; T6-T8 unauthorized`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `Report T4 commit and local evidence, then STOP. Do not push or begin M2-T5.`
+- **Next Action**: `Report T5 commit and local evidence, then STOP. Do not push or begin M2-T6.`
 
 ---
 
@@ -194,7 +197,8 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 | Codex | M2 planning baseline authorization | Human approved the planning baseline and authorized one atomic commit limited to the M2 specification, M2 Task Record, and STATE projection; no implementation or M2-T1 work started |
  | 2026-09-21 | Codex | M2-T1 local implementation | Added the closed task contract parser, hashed immutable ValidatedExecutionPlan snapshot, independent Node/TypeScript fixture with explicit before/after example, 18 focused tests, and the required test-project include; full local verification passed in the permitted host environment; commit unauthorized and T2-T8 remain gated |
 | 2026-09-22 | Codex | M2-T3 remote acceptance | Pushed `9b94cfa205269bc75766fadde2f657fcad2275a2` non-force to `origin/main`; GitHub Actions run `35603513806` passed; T3 accepted / complete and T4 authorization became the active boundary |
-| 2026-09-22 | Codex | M2-T4 local implementation and commit | Added bounded existing-file replacement and focused 29-test coverage; T3/T2/T1 regressions, full 215-test suite, typecheck, lint, build, diff, PromptKit, harness, scope, and hygiene gates passed; atomic local commit created; push unauthorized and T5-T8 remain gated |
+| 2026-09-22 | Codex | M2-T4 remote acceptance | Pushed `1db22b3df297af29f23890b094030e4a507fdc25` non-force to `origin/main`; GitHub Actions run `35607104678` passed with npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness; T4 accepted / complete; T5 authorization became the active boundary |
+| 2026-09-22 | Codex | M2-T5 authorization | Human authorized read-only Git-visible scope inspection within `src/projectScope.ts`, `tests/projectScope.test.ts`, `tsconfig.json`, and the existing M2 Task Record/STATE projection; T6-T8 remain gated |
 
 ---
 

@@ -15,7 +15,7 @@
 - **External Reference**: `N/A - local tracking remains authoritative`
 - **Owner / Actor**: Human authority owns approval; Codex may implement only separately authorized M2 tasks
 - **Execution Scope**: Sureflow M2 in this repository; one independent Node/TypeScript fixture target; one local worker/project/task
-- **Approval Boundary**: M2-T4 implementation and one atomic commit are authorized only within `src/boundedReplacement.ts`, `tests/boundedReplacement.test.ts`, `tsconfig.json`, and the existing M2 Task Record/STATE projection. Push, scope expansion, M2-T5 through M2-T8, pull request, remote action, release, deployment, or rollback require separate explicit human authorization.
+- **Approval Boundary**: M2-T5 implementation is authorized only within `src/projectScope.ts`, `tests/projectScope.test.ts`, `tsconfig.json`, and the existing M2 Task Record/STATE projection. Commit, push, scope expansion, M2-T6 through M2-T8, pull request, remote action, release, deployment, or rollback require separate explicit human authorization.
 - **Created**: 2026-09-21 10:38 UTC
 
 ## 2. Objective and Boundaries
@@ -29,6 +29,8 @@
   - T1 independent fixture files under `fixtures/m2-node-ts-project/**`;
   - T2 implementation file `src/projectDetection.ts`, focused test `tests/projectDetection.test.ts`, and the required test-project include;
   - T3 implementation file `src/verificationAdapter.ts`, focused test `tests/verificationAdapter.test.ts`, and the required test-project include;
+  - T4 implementation file `src/boundedReplacement.ts`, focused test `tests/boundedReplacement.test.ts`, and the required test-project include;
+  - T5 implementation file `src/projectScope.ts`, focused test `tests/projectScope.test.ts`, and the required test-project include;
   - human/control-plane-owned `.sureflow/task.json`, immutable run snapshot, and contract digest/provenance;
   - one Node/TypeScript+npm project adapter selected from repository evidence;
   - one existing tracked UTF-8 file replacement whose exact bytes come from the validated task snapshot, with exact path, containment, policy, and preimage checks;
@@ -39,10 +41,10 @@
   - independent fixture acceptance and the full negative-test matrix.
 - **Explicit Non-Goals**:
   - all items listed in the specification's Non-Goals and Deferred Post-M2 sections;
-  - M2-T5 through M2-T8 implementation during this T4;
-  - Git mutation-scope inspection, evidence aggregation, or orchestration;
+  - M2-T6 through M2-T8 implementation during this T5;
+  - evidence aggregation or orchestration;
   - commits, pushes, pull requests, releases, or other remote side effects.
-- **Dependencies**: Accepted clean baseline `9b94cfa205269bc75766fadde2f657fcad2275a2`; accepted M1/M1.1 contracts and M2-T1/T2/T3; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T4 implementation authorization is active; T5 remains separately gated.
+- **Dependencies**: Accepted clean baseline `1db22b3df297af29f23890b094030e4a507fdc25`; accepted M1/M1.1 contracts and M2-T1 through M2-T4; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T5 implementation authorization is active; T6 remains separately gated.
 - **Risk**: `High` — M2 expands from fixed verification to real source mutation. Mitigation: exact-path/preimage gates, default-deny policy, one closed adapter, clean Git baseline, post-run scope inspection, deterministic evidence, one-task authorization, and hard stop conditions.
 - **Verification Condition**: M2 is complete only when AC-M2.1–AC-M2.9 pass, N1–N16 pass, the independent temporary-repository acceptance reaches PASS/accepted, and the complete Sureflow typecheck/test/lint/build/hygiene gates pass without weakening existing tests.
 
@@ -55,9 +57,9 @@
   - Detect clean Git + Node/TypeScript/npm support from repository evidence with explicit unsupported outcomes.
 - [x] **M2-T3 — Verification profile resolution and dispatch** (`#priority/p1`, `area:backend`, `type:feature`, 4–5 h; depends on T2) — accepted / complete at `9b94cfa205269bc75766fadde2f657fcad2275a2` after remote CI run `35603513806`
   - Map snapshot-owned required checks to fixed npm argv in canonical order; reject worker-selected, missing, or unsupported checks; accept no caller executable/argv/shell; document npm-script host trust.
-- [x] **M2-T4 — Bounded replacement** (`#priority/p0`, `area:backend`, `type:feature`, 3–4 h; depends on T1–T2) — locally committed; push/remote acceptance remain unauthorized
+- [x] **M2-T4 — Bounded replacement** (`#priority/p0`, `area:backend`, `type:feature`, 3–4 h; depends on T1–T2) — accepted / complete at `1db22b3df297af29f23890b094030e4a507fdc25` after remote CI run `35607104678`
   - Apply only snapshot-owned bytes after proving tracked existing-file scope, preimage SHA-256, path/symlink containment, and policy; return before/after digests.
-- [ ] **M2-T5 — Scope compliance inspection** (`#priority/p0`, `area:backend`, `type:feature`, 3–4 h; depends on T2/T4)
+- [x] **M2-T5 — Scope compliance inspection** (`#priority/p0`, `area:backend`, `type:feature`, 3–4 h; depends on T2/T4) — locally implemented, verified, and committed; push/remote acceptance remain unauthorized
   - Require no pre-existing tracked or non-ignored untracked project changes outside `.sureflow/**`; classify every unexpected Git-visible path as a terminal violation without claiming ignored-file/outside-repository detection.
 - [ ] **M2-T6 — Aggregate evidence verifier** (`#priority/p0`, `area:backend`, `type:feature`, 4–5 h; depends on T1/T3–T5)
   - Reuse append-only evidence and base verifier; require current contract, exact changed paths, compliant scope, and all required checks.
@@ -115,8 +117,8 @@ No task may start merely because its predecessor is checked. Each task needs sep
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
 - **Start Time**: `2026-09-21`
-- **Current Actor**: Codex after the authorized M2-T4 implementation, local verification, and atomic commit; push remains unauthorized
-- **Next Action**: Report T4 commit and local evidence, then STOP. Do not push or begin M2-T5.
+- **Current Actor**: Codex after the authorized M2-T5 implementation, local verification, and atomic commit; push remains unauthorized
+- **Next Action**: Report T5 commit and local evidence, then STOP. Do not push or begin M2-T6.
 
 ### Transition History
 
@@ -130,9 +132,9 @@ No task may start merely because its predecessor is checked. Each task needs sep
 | in_progress | awaiting_review | 2026-09-22 | Codex | T2 implementation and local verification complete; atomic commit authorization received | Focused T2/T1 tests and canonical local gates |
 | awaiting_review | in_progress | 2026-09-22 | Human authority | M2-T3 verification profile resolution and dispatch implementation authorized; T4-T8 remain gated | This authorization |
 | in_progress | awaiting_review | 2026-09-22 | Codex | T3 implementation and local verification complete; commit authorization remains separate | Focused T3/T2/T1 tests and canonical local gates |
-| awaiting_review | accepted / complete | 2026-09-22 | Human authority / Codex | T3 pushed and accepted after GitHub Actions run `35603513806` passed on `9b94cfa205269bc75766fadde2f657fcad2275a2` | Remote CI test job and required steps passed |
-| accepted / complete | in_progress | 2026-09-22 | Human authority | M2-T4 bounded replacement implementation authorized; T5-T8 remain gated | This authorization |
 | in_progress | awaiting_review | 2026-09-22 | Codex | T4 implementation and local verification complete; atomic local commit created; push remains unauthorized | Focused T4 tests, regressions, full suite, and canonical local gates |
+| awaiting_review | in_progress | 2026-09-22 | Human authority | T4 remote acceptance recorded after GitHub Actions run `35607104678` passed on `1db22b3df297af29f23890b094030e4a507fdc25`; M2-T5 read-only Git-visible scope inspection authorized; T6-T8 remain gated | This authorization and remote CI test job evidence |
+| in_progress | awaiting_review | 2026-09-22 | Codex | T5 implementation and local verification complete; atomic local commit created; push remains unauthorized | Focused T5 tests, regressions, full suite, and canonical local gates |
 
 ## 7. Evidence and Completion Gate
 
@@ -149,22 +151,25 @@ No task may start merely because its predecessor is checked. Each task needs sep
   - `tests/verificationAdapter.test.ts` — focused fixed-dispatch, ordering, result, retry, and fixture coverage
   - `src/boundedReplacement.ts` — immutable-plan-authorized tracked-file replacement, containment, preimage, policy, and atomic mode-preserving write
   - `tests/boundedReplacement.test.ts` — focused T4 policy, trackedness, containment, digest, atomic-write, mode, cleanup, and no-orchestration coverage
+  - `src/projectScope.ts` — read-only porcelain-v1 Git-visible baseline and one-target scope classification
+  - `tests/projectScope.test.ts` — focused T5 baseline, parsing, failure, containment-of-scope, and no-mutation coverage
 - **Scope Change Records**: `None`
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
 - **Verification Evidence**: T4 focused bounded-replacement suite: 29/29 passed; T3/T2/T1 regressions: 50/50 passed; full Sureflow suite: 215/215 passed across 17 files in the permitted Node 24 host environment. Root typecheck, lint, and build passed. T4 covered plan/project consistency, ALLOW/DENY/REQUIRE_APPROVAL, fixed `git ls-files --error-unmatch -- <target>` trackedness outcomes, write-time containment and symlink escape refusal, symlinked-root canonicalization, missing/directory/non-UTF-8 targets, exact UTF-8 bytes, preimage SHA-256, mode preservation, same-directory exclusive temporary replacement, successful-temp cleanup, injected pre-rename cleanup, and no npm/whole-project Git-scope execution. `git diff --check`, PromptKit reference validation, harness/security preflight and regression, and scope/secret/debug/credential/runtime-artifact guards passed. The restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`; the full-suite result is the permitted host result. Repository-wide execution-control validation remains non-green due only to pre-M2 legacy records; no diagnostics apply to this M2 Task Record or the current STATE projection, no legacy repair was attempted, and the raw diagnostic count is not an M2 quality metric.
+- **T5 Verification Evidence**: Focused project-scope suite: 26/26 passed; T1-T4 regressions: 79/79 passed; full Sureflow suite: 241/241 passed across 18 files in the permitted Node 24 host environment. Typecheck, lint, build, and `git diff --check` passed. PromptKit reference validation, harness/security preflight and regression, exact-five-file scope, credential-shaped token, debug, credential-filename, and runtime-artifact guards passed. The restricted sandbox reproduced the known existing `spawnSync node EPERM` in `tests/toolchain.test.ts`; the full-suite result is the permitted host result. The repository-wide execution-control validator remains non-green only for pre-M2 historical records; no current M2-T5 diagnostics remain and no legacy repair was attempted.
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Exception Verification**: `N/A - TDD Enforcement Mode disabled`
-- **CI Evidence**: `M2-T1 remote acceptance is recorded at b1014149684ab46ccd53a59bfa8155e086a600b2. M2-T2 remote acceptance is recorded at 7f17028da00b817dd97545faa3f132cc922cee17, GitHub Actions run 35599713727. M2-T3 remote acceptance is recorded at 9b94cfa205269bc75766fadde2f657fcad2275a2, GitHub Actions run 35603513806. T4 is local-only and has no remote CI evidence.`
-- **Review Evidence**: `Human authorized M2-T4 implementation and one atomic commit within the five-file scope; push and T5-T8 remain unauthorized. T4 is locally complete, verified, and committed.`
-- **Commit Evidence**: `T4 committed atomically with subject feat(m2): add bounded tracked file replacement. No push or remote CI has occurred.`
+- **CI Evidence**: `M2-T1 remote acceptance is recorded at b1014149684ab46ccd53a59bfa8155e086a600b2. M2-T2 remote acceptance is recorded at 7f17028da00b817dd97545faa3f132cc922cee17, GitHub Actions run 35599713727. M2-T3 remote acceptance is recorded at 9b94cfa205269bc75766fadde2f657fcad2275a2, GitHub Actions run 35603513806. M2-T4 remote acceptance is recorded at 1db22b3df297af29f23890b094030e4a507fdc25, GitHub Actions run 35607104678; npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness all succeeded. T5 is local-only and has no remote CI evidence.`
+- **Review Evidence**: `Human authorized M2-T5 read-only Git-visible scope inspection only within the five-file scope; push and T6-T8 remain unauthorized. T5 is locally complete, verified, and committed.`
+- **Commit Evidence**: `T5 committed atomically with subject feat(m2): add git-visible scope inspection. No push or remote CI has occurred.`
 - **Pull Request Evidence**: `N/A before PR; remote action is not authorized`
 - **Release Evidence**: `N/A - M2 planning is not a release`
-- **Blocker and Resume Condition**: T4 implementation, local verification, and atomic commit are complete; push remains separately unauthorized. M2-T5 requires separate task authorization.
-- **Completion State**: `T4 locally implemented, verified, and committed; push/remote acceptance pending`
+- **Blocker and Resume Condition**: `T5 implementation, local verification, and atomic commit are complete; push remains separately unauthorized. M2-T6 requires separate task authorization.`
+- **Completion State**: `T4 accepted / complete; T5 locally implemented, verified, and committed; push/remote acceptance pending`
 - **Acceptance Results**: `AC-M2.1–AC-M2.9 pending`
-- **Changed-File Summary**: T4 bounded replacement source/test, required test-project include, and the existing M2 Task Record/STATE projection; T1-T3 implementation and fixture are unchanged; no T5-T8 implementation, dependency, CI, or remote state changed.
+- **Changed-File Summary**: T5 project-scope source/test, required test-project include, and the existing M2 Task Record/STATE projection; T1-T4 implementation and fixture remain unchanged; no T6-T8 implementation, dependency, CI, or remote state changed.
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `T3 remote acceptance recorded; T4 implementation/verification completed and committed locally on 2026-09-22; push remains separately unauthorized; M2-T5 through M2-T8 remain gated`
+- **Completion Decision and Timestamp**: `T4 remote acceptance recorded; T5 implementation/verification and atomic local commit completed on 2026-09-22; push remains separately unauthorized; T6-T8 remain gated`
