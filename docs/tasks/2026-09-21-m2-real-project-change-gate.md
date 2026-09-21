@@ -15,7 +15,7 @@
 - **External Reference**: `N/A - local tracking remains authoritative`
 - **Owner / Actor**: Human authority owns approval; Codex may implement only separately authorized M2 tasks
 - **Execution Scope**: Sureflow M2 in this repository; one independent Node/TypeScript fixture target; one local worker/project/task
-- **Approval Boundary**: Only the three planning files and this atomic planning-baseline commit are authorized in this turn. Each implementation task, scope change, push, pull request, remote action, release, deployment, or rollback requires separate explicit human authorization.
+- **Approval Boundary**: M2-T1 implementation and one atomic T1 commit are authorized only within the T1 files and existing M2 Task Record/STATE projection. Push, scope expansion, M2-T2 through M2-T8, pull request, remote action, release, deployment, or rollback require separate explicit human authorization.
 - **Created**: 2026-09-21 10:38 UTC
 
 ## 2. Objective and Boundaries
@@ -25,6 +25,8 @@
   - `docs/specs/2026-09-21-m2-real-project-change-gate.md` planning specification;
   - `docs/tasks/2026-09-21-m2-real-project-change-gate.md` canonical Task Record;
   - `docs/STATE.md` living planning projection;
+  - T1 implementation files `src/taskContract.ts`, `tests/taskContract.test.ts`, and `tsconfig.json`;
+  - T1 independent fixture files under `fixtures/m2-node-ts-project/**`;
   - human/control-plane-owned `.sureflow/task.json`, immutable run snapshot, and contract digest/provenance;
   - one Node/TypeScript+npm project adapter selected from repository evidence;
   - one existing tracked UTF-8 file replacement whose exact bytes come from the validated task snapshot, with exact path, containment, policy, and preimage checks;
@@ -35,9 +37,10 @@
   - independent fixture acceptance and the full negative-test matrix.
 - **Explicit Non-Goals**:
   - all items listed in the specification's Non-Goals and Deferred Post-M2 sections;
-  - any implementation during this planning turn;
+  - M2-T2 through M2-T8 implementation during this T1;
+  - Sureflow execution, project detection, npm dispatch, replacement, Git scope inspection, evidence aggregation, or orchestration;
   - commits, pushes, pull requests, releases, or other remote side effects.
-- **Dependencies**: Accepted clean baseline `0a1c503fb8a0bc5399b5a28c1cbb2418ab6c8108`; accepted M1/M1.1 contracts; Node 24/npm/Git available locally; approved M2 planning baseline; separate authorization for M2-T1.
+- **Dependencies**: Accepted clean baseline `a116a061b0e9cc05fdc55c6f2c8774f96ccd322f`; accepted M1/M1.1 contracts; Node 24/npm/Git available locally; approved M2 planning baseline; explicit M2-T1 implementation and commit authorization are active; T2 remains separately gated.
 - **Risk**: `High` — M2 expands from fixed verification to real source mutation. Mitigation: exact-path/preimage gates, default-deny policy, one closed adapter, clean Git baseline, post-run scope inspection, deterministic evidence, one-task authorization, and hard stop conditions.
 - **Verification Condition**: M2 is complete only when AC-M2.1–AC-M2.9 pass, N1–N16 pass, the independent temporary-repository acceptance reaches PASS/accepted, and the complete Sureflow typecheck/test/lint/build/hygiene gates pass without weakening existing tests.
 
@@ -106,41 +109,47 @@ No task may start merely because its predecessor is checked. Each task needs sep
 
 ## 6. State and Active Ownership
 
-- **Execution State**: `planned`
-- **Mapped `pk:tasks` Status**: `To Do`
+- **Execution State**: `awaiting_review`
+- **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
-- **Start Time**: `N/A - implementation not started`
-- **Current Actor**: Codex under explicit planning-baseline commit authorization; M2-T1 has not started
-- **Next Action**: Complete only the authorized three-file planning commit, then STOP. Await separate explicit authorization for M2-T1.
+- **Start Time**: `2026-09-21`
+- **Current Actor**: Codex under explicit M2-T1 implementation and commit authorization; push and T2 remain unauthorized
+- **Next Action**: Complete the one authorized T1 commit, then STOP. Do not push or begin T2.
 
 ### Transition History
 
 | Previous State | New State | Timestamp | Actor | Reason | Supporting Evidence |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | N/A | planned | 2026-09-21 10:38 UTC | Codex under planning authorization | Fresh M2 planning boundary requested; implementation explicitly prohibited | [M2 specification](../specs/2026-09-21-m2-real-project-change-gate.md) |
+| planned | ready | 2026-09-21 | Human authority | M2-T1 implementation authorized with T2-T8 still gated | This authorization |
+| ready | in_progress | 2026-09-21 | Codex | Started T1 contract and independent fixture implementation only | T1 files and focused test plan |
+| in_progress | awaiting_review | 2026-09-21 | Codex | T1 implementation and local verification complete; atomic commit authorization received | Focused T1 tests and canonical local gates |
 
 ## 7. Evidence and Completion Gate
 
 - **Changed Files**:
-  - `docs/specs/2026-09-21-m2-real-project-change-gate.md` — M2 architecture/specification
-  - `docs/tasks/2026-09-21-m2-real-project-change-gate.md` — canonical planned Task Record
-  - `docs/STATE.md` — living projection of the planning boundary
+  - `src/taskContract.ts` — strict closed M2 task parser, contract hash, and immutable validated plan loader
+  - `tests/taskContract.test.ts` — focused T1 contract, rejection, snapshot, and fixture-binding tests
+  - `fixtures/m2-node-ts-project/**` — independent dependency-free Node/TypeScript acceptance fixture and example contract
+  - `tsconfig.json` — canonical typecheck/project-service inclusion for the focused T1 test
+  - `docs/tasks/2026-09-21-m2-real-project-change-gate.md` — T1 progress projection
+  - `docs/STATE.md` — T1 progress projection
 - **Scope Change Records**: `None`
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
-- **Verification Evidence**: Planning-only checks for this turn: `git diff --check`; PromptKit reference validation; fixed-scope harness/security preflight; and scope, secret, debug, credential-file, and runtime-artifact guards. The repository-wide execution-control validator remains non-green because of pre-M2 legacy Task Records; no diagnostics apply to this M2 specification, this M2 Task Record, or the current `docs/STATE.md` projection. The raw diagnostic count is not a milestone-quality metric and no legacy repairs were attempted.
+- **Verification Evidence**: T1 focused contract suite: 18/18 passed. Independent fixture: typecheck, lint, and build passed; its one acceptance test intentionally fails before the planned replacement. Sureflow full suite: 154/154 passed across 14 files in the permitted host environment; restricted sandbox reproduced the known `spawnSync node EPERM` limitation. Typecheck, lint, build, `git diff --check`, PromptKit reference validation, harness/security preflight, and scope/secret/debug/credential/runtime-artifact guards passed. Repository-wide execution-control validation remains non-green due to pre-M2 legacy records; no legacy repair was attempted and the raw count is not an M2 quality metric.
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Exception Verification**: `N/A - planning work; no implementation`
-- **CI Evidence**: `N/A - planning only; no commit or remote action authorized`
-- **Review Evidence**: `Human approved the M2 planning baseline and requested the recorded contract clarifications; implementation remains unauthorized`
-- **Commit Evidence**: `This authorized planning-baseline commit contains exactly the three planning files; its exact SHA is reported by the commit result. No push is authorized.`
+- **CI Evidence**: `N/A - T1 remains local-only; no remote action is authorized`
+- **Review Evidence**: `Human authorized M2-T1 implementation and one atomic T1 commit; T2-T8 remain unauthorized. T1 is locally verified.`
+- **Commit Evidence**: `This authorized local T1 commit; exact SHA is reported after creation. Push is not authorized.`
 - **Pull Request Evidence**: `N/A before PR; remote action is not authorized`
 - **Release Evidence**: `N/A - M2 planning is not a release`
-- **Blocker and Resume Condition**: M2 implementation is intentionally gated. Resume only after separate explicit authorization for M2-T1.
-- **Completion State**: `Planning baseline complete after the authorized commit; implementation not started`
+- **Blocker and Resume Condition**: T1 implementation is complete locally and its atomic commit is authorized. Push is not authorized; T2 requires separate task authorization.
+- **Completion State**: `T1 locally complete; authorized local commit pending creation; remote acceptance pending`
 - **Acceptance Results**: `AC-M2.1–AC-M2.9 pending`
-- **Changed-File Summary**: Planning artifacts only; no source, test, fixture, package, runtime, CI, dependency, or remote state changed.
+- **Changed-File Summary**: T1 contract source, focused tests, independent fixture, test-project include, and the M2 Task Record/STATE projection; no T2-T8 implementation, dependency, CI, or remote state changed.
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `Planning baseline accepted for M2 task preparation on 2026-09-21; M2-T1 remains separately gated`
+- **Completion Decision and Timestamp**: `T1 local implementation accepted for the authorized commit on 2026-09-21; M2-T2 through M2-T8 remain gated`

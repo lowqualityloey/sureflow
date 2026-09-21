@@ -1,0 +1,17 @@
+{
+  "name": "m2-node-ts-project",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Independent M2 bounded-replacement acceptance fixture",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "node --experimental-strip-types --check src/displayName.ts",
+    "test": "node --experimental-strip-types --test test/displayName.test.ts",
+    "lint": "node scripts/lint.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}
