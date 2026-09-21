@@ -1,5 +1,11 @@
 /** T7 orchestration for deterministic verification of the approved T0 fixture. */
 import { readEvidence } from "./evidenceStore.js";
+import {
+  acquireMutationLock,
+  MutationLockBusyError,
+  MutationLockReleaseError,
+  releaseMutationLock,
+} from "./mutationLock.js";
 import { readRuntimeState } from "./stateReader.js";
 import { transitionTask } from "./taskStateStore.js";
 import { loadT0TaskFixture, type T0TaskFixture } from "./t0Fixture.js";
@@ -47,7 +53,7 @@ function loadFixture(rootDir: string): T0TaskFixture | VerifyT0TaskOutcome {
   }
 }
 
-export function verifyT0Task(
+function verifyT0TaskUnlocked(
   request: VerifyT0TaskRequest,
   dependencies: VerifyT0TaskDependencies = {},
 ): VerifyT0TaskOutcome {
@@ -131,4 +137,46 @@ export function verifyT0Task(
     verdict: verification.verdict,
     stateStatus: task.status,
   });
+}
+
+export function verifyT0Task(
+  request: VerifyT0TaskRequest,
+  dependencies: VerifyT0TaskDependencies = {},
+): VerifyT0TaskOutcome {
+  let lock;
+  try {
+    lock = acquireMutationLock(request.rootDir, "verify");
+  } catch (error: unknown) {
+    if (error instanceof MutationLockBusyError) {
+      return halted("mutation already in progress; execution.lock is held");
+    }
+    return halted("could not acquire execution.lock for verify");
+  }
+
+  let outcome: VerifyT0TaskOutcome;
+  try {
+    outcome = verifyT0TaskUnlocked(request, dependencies);
+  } catch {
+    outcome = halted("verify halted after an unexpected mutation failure");
+  }
+
+  try {
+    releaseMutationLock(lock);
+  } catch (error: unknown) {
+    if (error instanceof MutationLockReleaseError) {
+      return halted(error.message, {
+        taskId: outcome.taskId,
+        verdict: outcome.verdict,
+        stateStatus: outcome.stateStatus,
+        stateTransition: outcome.stateTransition,
+      });
+    }
+    return halted("execution.lock release integrity failure", {
+      taskId: outcome.taskId,
+      verdict: outcome.verdict,
+      stateStatus: outcome.stateStatus,
+      stateTransition: outcome.stateTransition,
+    });
+  }
+  return outcome;
 }

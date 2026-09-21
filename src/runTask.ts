@@ -4,6 +4,12 @@ import { dirname, join } from "node:path";
 import { appendEvidence, readEvidence, type EvidenceReadEntry } from "./evidenceStore.js";
 import { defaultEvidencePath } from "./evidencePaths.js";
 import { appendExecutionEvent } from "./eventStore.js";
+import {
+  acquireMutationLock,
+  MutationLockBusyError,
+  MutationLockReleaseError,
+  releaseMutationLock,
+} from "./mutationLock.js";
 import { decidePolicy, type PolicyDecision } from "./policy.js";
 import { loadPolicy } from "./policyStore.js";
 import { readRuntimeState } from "./stateReader.js";
@@ -96,7 +102,7 @@ function persistEvent(
   });
 }
 
-export function runT0Task(
+function runT0TaskUnlocked(
   request: RunT0TaskRequest,
   dependencies: RunT0TaskDependencies = {},
 ): RunT0TaskOutcome {
@@ -267,4 +273,50 @@ export function runT0Task(
     transitions,
     reason: "terminal evidence passed deterministic verification",
   };
+}
+
+export function runT0Task(
+  request: RunT0TaskRequest,
+  dependencies: RunT0TaskDependencies = {},
+): RunT0TaskOutcome {
+  let lock;
+  try {
+    lock = acquireMutationLock(request.rootDir, "run");
+  } catch (error: unknown) {
+    if (error instanceof MutationLockBusyError) {
+      return halted("mutation already in progress; execution.lock is held");
+    }
+    return halted("could not acquire execution.lock for run");
+  }
+
+  let outcome: RunT0TaskOutcome;
+  try {
+    outcome = runT0TaskUnlocked(request, dependencies);
+  } catch {
+    outcome = halted("run halted after an unexpected mutation failure");
+  }
+
+  try {
+    releaseMutationLock(lock);
+  } catch (error: unknown) {
+    if (error instanceof MutationLockReleaseError) {
+      return halted(error.message, {
+        taskId: outcome.taskId,
+        policyDecision: outcome.policyDecision,
+        verdict: outcome.verdict,
+        result: outcome.result,
+        attempts: outcome.attempts,
+        transitions: outcome.transitions,
+      });
+    }
+    return halted("execution.lock release integrity failure", {
+      taskId: outcome.taskId,
+      policyDecision: outcome.policyDecision,
+      verdict: outcome.verdict,
+      result: outcome.result,
+      attempts: outcome.attempts,
+      transitions: outcome.transitions,
+    });
+  }
+  return outcome;
 }

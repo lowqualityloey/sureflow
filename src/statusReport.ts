@@ -46,3 +46,13 @@ export function formatStatusLines(outcome: StateReadOutcome): readonly string[] 
     "Human: inspect .sureflow/state/ manually, then re-run `sureflow init --force` if it should be reset",
   ];
 }
+
+export function formatMutationInProgressLines(): readonly string[] {
+  return [
+    "Sureflow status (read-only)",
+    "Happened: mutation in progress; stable snapshot unavailable",
+    "Verified: nothing (authoritative state was not read while execution.lock exists)",
+    "Uncertain: the current mutation outcome is not yet available",
+    "Human: wait for the mutation to finish or confirm manual stale-lock recovery",
+  ];
+}

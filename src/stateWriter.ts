@@ -12,6 +12,13 @@ import { existsSync, mkdirSync } from "node:fs";
 import { atomicReplaceTextFile } from "./atomicStateWrite.js";
 import { DEFAULT_M1_POLICY } from "./policy.js";
 import {
+  acquireMutationLock,
+  ensureExecutionLockParent,
+  releaseMutationLock,
+  MutationLockBusyError,
+  MutationLockReleaseError,
+} from "./mutationLock.js";
+import {
   POLICY_RELATIVE_PATH,
   RUNTIME_SUBDIRECTORIES,
   resolveSureflowPath,
@@ -35,6 +42,8 @@ export interface InitRequest {
   readonly projectName: string;
   readonly nowIso: string;
   readonly force: boolean;
+  /** Test seam: observe the lock boundary before authoritative writes begin. */
+  readonly onLockAcquired?: () => void;
 }
 
 export type InitOutcome =
@@ -43,13 +52,14 @@ export type InitOutcome =
       readonly createdPaths: readonly string[];
       readonly verified: string;
     }
-  | { readonly kind: "already-initialized"; readonly existingPath: string };
+  | { readonly kind: "already-initialized"; readonly existingPath: string }
+  | { readonly kind: "blocked"; readonly reason: string };
 
 function writeJson(absPath: string, value: unknown): void {
   atomicReplaceTextFile(absPath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-export function initRuntimeState(request: InitRequest): InitOutcome {
+function initRuntimeStateUnlocked(request: InitRequest): InitOutcome {
   const { rootDir, force } = request;
   // State paths go through the T2 authoritative resolver (AC-6 boundary).
   const projectPath = resolveStatePath(rootDir, PROJECT_RELATIVE_PATH);
@@ -109,4 +119,48 @@ export function initRuntimeState(request: InitRequest): InitOutcome {
       : "state validation could not be confirmed";
 
   return { kind: "initialized", createdPaths, verified };
+}
+
+export function initRuntimeState(request: InitRequest): InitOutcome {
+  // First init may create only the lock-hosting ancestry before exclusion.
+  ensureExecutionLockParent(request.rootDir);
+
+  let lock;
+  try {
+    lock = acquireMutationLock(request.rootDir, "init");
+  } catch (error: unknown) {
+    if (error instanceof MutationLockBusyError) {
+      return {
+        kind: "blocked",
+        reason: "mutation already in progress; execution.lock is held",
+      };
+    }
+    throw error;
+  }
+
+  let outcome: InitOutcome;
+  try {
+    request.onLockAcquired?.();
+    outcome = initRuntimeStateUnlocked(request);
+  } catch (error: unknown) {
+    try {
+      releaseMutationLock(lock);
+    } catch (releaseError: unknown) {
+      if (releaseError instanceof MutationLockReleaseError) {
+        return { kind: "blocked", reason: releaseError.message };
+      }
+      throw releaseError;
+    }
+    throw error;
+  }
+
+  try {
+    releaseMutationLock(lock);
+  } catch (error: unknown) {
+    if (error instanceof MutationLockReleaseError) {
+      return { kind: "blocked", reason: error.message };
+    }
+    throw error;
+  }
+  return outcome;
 }

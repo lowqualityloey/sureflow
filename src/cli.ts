@@ -10,6 +10,7 @@
  */
 import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mutationLockExists } from "./mutationLock.js";
 import { readRuntimeState } from "./stateReader.js";
 import { initRuntimeState } from "./stateWriter.js";
 import { runT0Task } from "./runTask.js";
@@ -18,6 +19,7 @@ import {
   EXIT_ACCEPTED,
   EXIT_CONTROLLED_HALT,
   formatStatusLines,
+  formatMutationInProgressLines,
   statusExitCode,
 } from "./statusReport.js";
 
@@ -57,6 +59,10 @@ function runInit(argv: readonly string[], cwd: string, io: CliIo): number {
     io.err("Human: pass --force to reset the runtime state, or leave it unchanged.");
     return EXIT_CONTROLLED_HALT;
   }
+  if (outcome.kind === "blocked") {
+    io.err(`Sureflow init: HALT — ${outcome.reason}`);
+    return EXIT_CONTROLLED_HALT;
+  }
   io.out("Sureflow init");
   io.out(`Created: ${outcome.createdPaths.join(", ")}`);
   io.out(`Verified: ${outcome.verified}`);
@@ -68,6 +74,12 @@ function runStatus(argv: readonly string[], cwd: string, io: CliIo): number {
   const extra = argv.slice(1);
   if (extra.length > 0) {
     io.err(`sureflow status: unsupported argument(s): ${extra.join(", ")}`);
+    return EXIT_CONTROLLED_HALT;
+  }
+  if (mutationLockExists(cwd)) {
+    for (const line of formatMutationInProgressLines()) {
+      io.out(line);
+    }
     return EXIT_CONTROLLED_HALT;
   }
   const outcome = readRuntimeState(cwd);
