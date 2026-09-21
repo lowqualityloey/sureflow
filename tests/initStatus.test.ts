@@ -182,18 +182,22 @@ describe("H4 authoritative state consistency", () => {
     expect(snapshot(root)).toBe(before);
   });
 
-  it("refuses --force before detaching a non-terminal task", () => {
-    const root = tempRoot();
-    cli(["init"], root);
-    writeTaskState(root, "TASK-PENDING", "pending");
-    writeActiveState(root, "TASK-PENDING");
-    const before = snapshot(root);
+  it.each(["pending", "running"] as const)(
+    "refuses --force before detaching a %s task",
+    (status) => {
+      const root = tempRoot();
+      cli(["init"], root);
+      writeTaskState(root, "TASK-NONTERMINAL", status);
+      writeActiveState(root, "TASK-NONTERMINAL");
+      const before = snapshot(root);
 
-    const result = cli(["init", "--force"], root);
-    expect(result.code).toBe(2);
-    expect(result.err).toContain("refused");
-    expect(snapshot(root)).toBe(before);
-  });
+      const result = cli(["init", "--force"], root);
+      expect(result.code).toBe(2);
+      expect(result.err).toContain("refused");
+      expect(result.err).not.toContain("reset");
+      expect(snapshot(root)).toBe(before);
+    },
+  );
 });
 
 describe("T5 init", () => {
@@ -228,9 +232,44 @@ describe("T5 init", () => {
     const second = cli(["init"], root);
     expect(second.code).toBe(2);
     expect(second.err).toContain("refused");
+    expect(second.err).toContain("partial core-state reinitialization");
+    expect(second.err).toContain("task history, evidence, and events are preserved");
+    expect(second.err).not.toContain("reset");
     expect(snapshot(root)).toBe(before);
 
     expect(cli(["init", "--force"], root).code).toBe(0);
+  });
+
+  it("reinitializes only core state with --force and preserves history, evidence, and events", () => {
+    const root = tempRoot();
+    cli(["init"], root);
+    writeTaskState(root, "TASK-TERMINAL", "accepted");
+    const evidence = "{\"taskId\":\"TASK-TERMINAL\",\"bytes\":\"keep\"}\n";
+    const events = "{\"event\":\"completed\",\"bytes\":\"keep\"}\n";
+    writeFileSync(join(root, ".sureflow/evidence/evidence.jsonl"), evidence, "utf8");
+    writeFileSync(join(root, ".sureflow/events/events.jsonl"), events, "utf8");
+
+    const result = cli(["init", "--force"], root);
+
+    expect(result.code).toBe(0);
+    expect(readFileSync(join(root, ".sureflow/state/tasks/TASK-TERMINAL.json"), "utf8"))
+      .toContain('"status": "accepted"');
+    expect(readFileSync(join(root, ".sureflow/evidence/evidence.jsonl"), "utf8")).toBe(evidence);
+    expect(readFileSync(join(root, ".sureflow/events/events.jsonl"), "utf8")).toBe(events);
+  });
+
+  it("refuses --force before mutating malformed authoritative state", () => {
+    const root = tempRoot();
+    cli(["init"], root);
+    writeFileSync(join(root, ".sureflow/state/project.json"), "{malformed\n", "utf8");
+    const before = snapshot(root);
+
+    const result = cli(["init", "--force"], root);
+
+    expect(result.code).toBe(2);
+    expect(result.err).toContain("refused");
+    expect(result.err).not.toContain("reset");
+    expect(snapshot(root)).toBe(before);
   });
 });
 

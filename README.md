@@ -415,13 +415,23 @@ Detailed orchestration information remains available when needed.
 
 ---
 
-## Installation
+## Installation and current source use
+
+No released npm implementation package exists yet. To use the current source
+repository:
 
 ```bash
-npx sureflow init
+git clone https://github.com/lowqualityloey/sureflow.git
+cd sureflow
+npm ci
+npm run build
+node dist/src/cli.js init
 ```
 
-The target installation is intentionally small.
+The repository requires Node `^24` and npm `>=11`. `npx sureflow init` is a
+future/target package workflow, not a currently available installation path.
+
+The current source workflow is intentionally small.
 
 Sureflow should not require:
 
@@ -444,6 +454,11 @@ sureflow run TASK-T0-BASIC
 sureflow status
 sureflow verify TASK-T0-BASIC
 ```
+
+`init --force` performs a partial core-state reinitialization. It may replace
+project metadata, the active pointer, and the default policy, but it does not
+delete task history, evidence, or events. It refuses malformed or inconsistent
+authoritative state and pending/running tasks before mutation.
 
 Normal `--help` / `-h` behavior is available. Unknown commands return the
 controlled exit code `2`. Review, diff, checkpoint, commit, approval, stop,
@@ -545,8 +560,10 @@ M1 implementation and acceptance are complete for the bounded local task gate.
 The executed closeout evidence covers the four-command surface, policy
 halts, bounded execution/retry, evidence cardinality, deterministic
 verification, runtime-state authority, and known security limitations.
-Future architecture remains intentionally unimplemented until separately
-authorized.
+M1.1 reliability hardening is being completed. Sureflow remains experimental
+v0.x, and no released npm implementation version exists yet. Broader
+architecture remains future design, not implemented functionality, until
+separately authorized.
 
 > **Every subsystem must justify its complexity.**
 

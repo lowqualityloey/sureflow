@@ -56,7 +56,10 @@ function runInit(argv: readonly string[], cwd: string, io: CliIo): number {
   });
   if (outcome.kind === "already-initialized") {
     io.err(`Sureflow init: refused — ${outcome.existingPath} already exists.`);
-    io.err("Human: pass --force to reset the runtime state, or leave it unchanged.");
+    io.err(
+      "Human: pass --force for partial core-state reinitialization; " +
+        "task history, evidence, and events are preserved.",
+    );
     return EXIT_CONTROLLED_HALT;
   }
   if (outcome.kind === "blocked") {
