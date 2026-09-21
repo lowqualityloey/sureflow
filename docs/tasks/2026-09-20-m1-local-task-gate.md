@@ -10,11 +10,11 @@
 - **Work Type**: `Code Work`
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **External Reference (Optional)**: `N/A`
-- **Owner / Actor**: `Human authority; implementation history through T5; Codex T8 implementation`
+- **Owner / Actor**: `Human authority; implementation history through T8; Codex T6 preflight contract reconciliation`
 - **Execution Scope**: `Sureflow repo: M1 control-plane slice only (init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/). No other subsystems.`
-- **Approval Boundary**: `T1–T5 and the T6 preflight contracts are committed repository history. T8 implementation was explicitly authorized, accepted, locally verified, and authorized for this commit. T6, T7, and T9–T11 remain gated and NOT authorized. Human authorization remains required before further implementation, push/tag, or scope expansion beyond the 4 commands. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
+- **Approval Boundary**: `T1–T5 and T8 are committed repository history. The second T6 preflight STOP was accepted; only this six-document reconciliation commit was authorized. T6, T7, and T9–T11 remain gated and NOT authorized. Human authorization remains required before implementation, any further commit/push/tag, or scope expansion beyond the 4 commands. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
 - **Created**: `2026-09-20 UTC`
-- **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5) and `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D9)
+- **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5) and `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D13)
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
 ## 2. Objective and Boundaries (M1 task record)
 
@@ -23,14 +23,15 @@
   boundaries.
 - **In Scope**: M1 T1–T11 as defined in
   `docs/tasks/2026-09-20-m1-task-breakdown.md`. T1–T5 are
-  complete and committed; T8 is implemented, accepted, and included in
-  this commit; T6, T7, and T9–T11 remain gated.
+  complete and committed; T8 is committed at `a66fccc`; the second T6
+  preflight contract correction is documentation-only; T6, T7, and
+  T9–T11 remain gated.
 - **Explicit Non-Goals**: No multi-agent execution, MCP, skills,
   providers, scheduler, telemetry platform, cloud infrastructure,
   remote tracking, generalized approval machinery, or other
   deferred-subsystem design.
 - **Dependencies**: `ADR-2026-09-20 (M-D1..M-D5)`,
-  `ADR-2026-09-21 (M-D6..M-D9)`, Scope Change 1, and M0
+  `ADR-2026-09-21 (M-D6..M-D13)`, Scope Change 1, and M0
   discovery spec.
 - **Risk**: `Medium — implementation must remain inside the approved
   M1 boundary and preserve fail-safe authorization and verification
@@ -40,13 +41,14 @@
 ## 3. Execution Policy (M1 task record)
 
 - **Execution Mode**: `Gated Mode`
-- **Checkpoint Policy**: `T8 implementation was separately authorized,
-  accepted, and committed. Stop before T6; T6 remains gated until it is
-  separately authorized.`
+- **Checkpoint Policy**: `The second T6 preflight STOP is accepted. This
+  turn authorizes documentation/spec correction only. Stop before T6; after
+  the correction is committed, T6 still requires separate authorization.`
 - **Stop Conditions**: `Stop before T6 or any later task without separate
   explicit authorization; terminally halt on DENY or REQUIRE_APPROVAL
   with zero execution and zero retry; stop on scope expansion without a
-  scope-change record; maximum one automatic retry for eligible FAIL only.`
+  scope-change record; retry only an initial started-process nonzero numeric
+  exit, at most once, and never run verification before retry resolution.`
 - **TDD Enforcement Mode**: `disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
@@ -66,7 +68,7 @@
 - [x] T3 complete and committed — `a4f16aff1a83a13041c5c442a3010b4455c1f25e`
 - [x] T4 complete and committed — `7c70622e4a568e78953891ca5bd9ed45dace5253`
 - [x] T5 complete and committed — `e035cdeb0bbf60973e8dd842154d9dcf4d7ce0fd`
-- [x] T8 minimal fixture contract — complete / accepted / committed in this changeset
+- [x] T8 minimal fixture contract — complete / accepted / committed `a66fccc`
 - [ ] T6 run + worker — depends on T8 / gated / NOT authorized
 - [ ] T7 and T9–T11 planned / gated / not started
 
@@ -87,32 +89,41 @@
 - `repo.test` accepts only `testProfile: "npm-test"` and
   uses fixed npm/`["test"]` dispatch with `shell: false`.
   No caller-controlled executable or argv is accepted.
+- The `npm-test` profile maps process outcomes independently:
+  exit `0` -> `"ok"`; nonzero numeric exit -> `"test-failed"`;
+  spawn failure -> `"spawn-error"`; signal termination ->
+  `"test-terminated"`.
 - cwd containment is not an OS sandbox; hard subprocess isolation is not
   claimed or authorized for M1.
 - `UNKNOWN` never becomes `PASS`.
-- Retry and intermediate observations belong in events.
+- Only an initial started-process nonzero numeric exit is retryable. Its
+  observation belongs in events; every other failure category has zero retry.
+  A retry is the second and final attempt.
 - Exactly one terminal verification-applicable evidence record is
   permitted per `(taskId, capability, target)`.
+- T4 verification runs once, only after retry resolution and the terminal
+  evidence write. It never runs after the initial retryable nonzero exit.
 - `expectedResult` originates from the approved
   acceptance/fixture contract, never from evidence itself.
 - The T0 fixture is the approved source of `target` and
   `expectedResult` for the M1 acceptance path. T4 supplies neither;
   it consumes both through `VerificationRequest`. Runtime evidence
   must never become the source of `expectedResult`.
-- Maximum one automatic retry.
+- The T0 `expectedResult: "ok"` and profile exit-0 result `"ok"` are
+  independently defined approved values; neither is derived from the other.
 
 ## 5. State and Ownership (M1 task record)
 
 - **Execution State**: `checkpoint_due`
-- **Mapped pk:tasks Status**: `T8 complete and committed — T6 and T7 gated`
+- **Mapped pk:tasks Status**: `T6 preflight contract correction committed in this changeset — T6 and T7 gated`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Blockers and Resume Condition**: `T6 requires separate explicit implementation authorization. T6 and T7 remain gated.`
+- **Blockers and Resume Condition**: `Obtain separate explicit T6 implementation authorization. T6 and T7 remain gated.`
 - **Verification Status**: `T8 focused suite: 16 passing tests. Full suite: 50 passing tests across 7 files. Typecheck, lint, build, git diff check, and scope/secret/debug/runtime-artifact guards pass.`
 - **CI Evidence**: `N/A`
-- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 T6 preflight contracts; T8 committed in this changeset (hash reported after creation)`
-- **Changed-File Summary**: `T8 adds fixtures/t0-basic/task.json, a fixture-specific strict parser/loader, focused tests, and TypeScript test inclusion; this Task Record and the task breakdown record the authorized uncommitted state. No T6/T7 implementation or runtime artifacts.`
-- **Next Action**: `STOP. T6 and T7 remain gated; await separate explicit T6 authorization.`
+- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 first T6 preflight contracts; a66fccc T8 fixture contract; second T6 preflight reconciliation committed in this changeset (hash reported after creation)`
+- **Changed-File Summary**: `Documentation/spec reconciliation only: fixed npm-test result mapping, execution-outcome retry eligibility, terminal evidence/verification ordering, and expectation independence. No source, tests, config, package, fixture, or runtime artifacts changed.`
+- **Next Action**: `STOP. Await separate explicit T6 implementation authorization; T6 and T7 remain gated.`
 - **Completion State**: `checkpoint_due`
 - **Acceptance Results**: `Spec acceptance complete; M1 AC-1..AC-8 remain pending final implementation and verification.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `T8 accepted and authorized for commit 2026-09-21; committed in this changeset`
+- **Completion Decision and Timestamp**: `Second T6 preflight STOP accepted; documentation correction authorized and committed in this changeset 2026-09-21`

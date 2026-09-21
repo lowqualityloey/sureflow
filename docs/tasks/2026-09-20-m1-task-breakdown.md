@@ -4,9 +4,10 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1–T5 complete and committed; T8 is complete, accepted, and
-  committed in this changeset; T6 remains gated; T7 and T9–T11 remain
-  gated/not started; PromptKit state `checkpoint_due`
+- **Status**: T1–T5 and T8 complete and committed (`a66fccc` baseline);
+  second T6 preflight contract correction is committed in this changeset;
+  T6, T7, and T9–T11 remain gated/not started; PromptKit state
+  `checkpoint_due`
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
   executed post-implementation with `tsc` + test + lint evidence )
@@ -28,7 +29,7 @@
   `init` (no-overwrite default),
   `status` read-only 4-line view. AC-1/AC-8 seams.
 - [x] T8 Minimal T0 fixture contract (p0) — **COMPLETE + ACCEPTED +
-  COMMITTED IN THIS CHANGESET**: establish `taskId`, `capability`,
+  COMMITTED `a66fccc`**: establish `taskId`, `capability`,
   `target`, `expectedResult`, and conditional
   `testProfile: "npm-test"`. No command or argv fields. This
   The T0 fixture—not T4 or runtime evidence—is the approved source of
@@ -37,8 +38,10 @@
   separate authorization.
 - [ ] T6 CLI run + worker jail (p0) — **DEPENDS ON T8 / GATED / NOT
   AUTHORIZED**: consume the approved T8 contract; policy load, task record,
-  allowlist pre-check, fixture-jailed step, evidence append,
-  max-1-retry then HALT. AC-1/AC-2/AC-5 seams.
+  allowlist pre-check, fixture-jailed step, minimal events, one terminal
+  evidence append, and verification after retry resolution. Only an initial
+  started-process nonzero numeric exit retries, exactly once. AC-1/AC-2/AC-5
+  seams.
 - [ ] T7 CLI verify (p0) — **PLANNED / NOT STARTED**: re-emit verdict from stored evidence;
   stale ACCEPT -> HALT. AC-1/AC-4/AC-7 seams.
 - [ ] T9 Negative tests (p0) — **PLANNED / NOT STARTED**: AC-2/AC-3/AC-4/AC-5/AC-6 cases with
@@ -53,8 +56,10 @@ telemetry/cloud/remote tracking. Scope change needs a record.
 
 ## Authorization Boundary and Locked Invariants
 
-- T8 implementation and commit were separately authorized. T6 requires
-  separate explicit implementation authorization; T7 remains gated.
+- T8 implementation and commit were separately authorized. The second T6
+  preflight STOP is accepted, but only its documentation correction is
+  authorized. T6 requires separate explicit implementation authorization;
+  T7 remains gated.
 - M1 public surface remains `init` / `run` /
   `status` / `verify`.
 - `.sureflow/state/` is authoritative runtime state;
@@ -70,12 +75,18 @@ telemetry/cloud/remote tracking. Scope change needs a record.
   internally mapped to executable `npm` and fixed
   `["test"]` argv with
   `shell: false` and bounded-worker-root cwd.
+- The profile-owned result mapping is fixed: exit `0` -> `"ok"`;
+  nonzero numeric exit -> `"test-failed"`; spawn failure ->
+  `"spawn-error"`; signal termination -> `"test-terminated"`.
 - Path jail and closed dispatch are not an OS sandbox; M1 makes no hard
   subprocess-isolation claim.
 - `UNKNOWN` never becomes `PASS`.
 - Retry/intermediate observations belong in events; exactly one
   terminal verification-applicable evidence record is permitted per
   `(taskId, capability, target)`.
+- Only an initial started-process nonzero numeric exit retries. Verification
+  runs once after the terminal attempt/outcome and terminal evidence write.
 - `expectedResult` originates from the approved
   acceptance/fixture contract, never from evidence.
-- Maximum one automatic retry.
+- The fixture's `expectedResult: "ok"` and the profile's exit-0 result
+  `"ok"` are independent approved contract values, never runtime-derived.

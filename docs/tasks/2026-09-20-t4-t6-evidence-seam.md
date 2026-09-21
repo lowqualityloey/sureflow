@@ -10,6 +10,7 @@
 - **Resolution**: `(taskId, capability, target)` selector + terminal
   evidence cardinality, no ordering semantics (see below)
 - **Related T6/T8 Correction**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md` — T8 now precedes T6 and owns the acceptance contract
+- **Related second T6 preflight correction**: `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D10..M-D13) — fixed process results, retry eligibility, and terminal verification order
 
 ## Resolution (approved, applied in T4)
 
@@ -47,6 +48,14 @@ cardinality.
 - Verification: interprets evidence only; never infers
   `expectedResult` from evidence.
 
+**`npm-test` terminal mapping and ordering (binding).** The profile maps
+exit `0` to `"ok"`, nonzero numeric exit to `"test-failed"`, spawn failure
+to `"spawn-error"`, and signal termination to `"test-terminated"`. Only an
+initial started-process nonzero exit retries. That first failure is an event,
+not evidence. After the terminal attempt/outcome, T6 writes exactly one
+terminal record and invokes T4 exactly once. The fixture independently owns
+`expectedResult`; neither expectation nor evidence is derived from the other.
+
 **Explicitly not authorized (unchanged):** run IDs, attempt IDs,
 sequence numbers, latest-record semantics, reducers, event sourcing,
 generic event framework, generalized evidence selectors. If T6 needs
@@ -66,6 +75,10 @@ verification-applicable `EvidenceRecord` per `taskId`, so that rule
 was unsafe for T6/T7.
 
 ## Evidence from the approved documents
+
+The numbered evidence below records the historical conflict analysis. Its
+earlier assumption that attempts could each be evidence is superseded by the
+binding event/evidence distinction and M-D10..M-D13 above.
 
 1. `docs/specs/2026-09-20-m1-local-task-gate.md` §4 (lines 53–57):
    each evidence record carries `capability` and `policyDecision` —

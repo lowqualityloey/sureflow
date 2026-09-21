@@ -8,13 +8,17 @@
 
 ## Context
 
-T6 preflight found two missing contracts before implementation:
+T6 preflight found missing contracts before implementation:
 
 1. `REQUIRE_APPROVAL` required explicit approval evidence, but M1
    defined no approval-delivery or validation mechanism.
 2. T6 required fixture-owned acceptance data and `repo.test`, while
    the minimal T0 fixture contract was scheduled later as T8 and described
    a free-form verify command.
+3. After T8 was committed, a second T6 preflight found no deterministic
+   mapping from the fixed `npm-test` process outcome to terminal
+   `EvidenceRecord.result`, and retry eligibility was still described in
+   terms of verifier `FAIL` rather than execution outcome.
 
 No T6 implementation was started. These decisions correct the approved M1
 contract without adding implementation scope.
@@ -67,6 +71,49 @@ remain gated and require separate authorization. T7 remains gated.
 - Hard subprocess isolation requires separately approved sandbox/container
   machinery and is outside M1.
 
+### M-D10: `npm-test` has a fixed process-result mapping
+
+The closed M1 profile maps outcomes to terminal evidence independently of
+fixture expectations:
+
+| Process outcome | `EvidenceRecord.result` |
+|---|---|
+| ordinary exit code `0` | `"ok"` |
+| any nonzero numeric exit code | `"test-failed"` |
+| process creation/spawn failure | `"spawn-error"` |
+| signal termination | `"test-terminated"` |
+
+These strings belong to the profile. They are never derived from
+`fixture.expectedResult`, persisted evidence, model output, or caller input.
+
+### M-D11: only an initial started-process nonzero exit is retryable
+
+- The single automatic retry is driven by execution outcome, never by a
+  `VerificationVerdict`.
+- If the initial process starts and exits with a nonzero numeric code, its
+  failed observation is appended to events and the same bounded step retries
+  exactly once.
+- Initial exit `0`, spawn failure, and signal termination do not retry.
+- `DENY`, `REQUIRE_APPROVAL`, invalid fixture/request, unsupported profile,
+  jail/path violation, and policy/authority failure do not retry.
+- A retry exit `0` maps to `"ok"`; a retry nonzero exit maps to
+  `"test-failed"`. There is never a third attempt.
+
+### M-D12: verification follows terminal retry resolution
+
+The first retryable nonzero outcome is intermediate history in
+`.sureflow/events/events.jsonl`; it is not terminal evidence. Only after the
+operation reaches its terminal attempt/outcome may T6 write the single
+verification-applicable `EvidenceRecord` for `(taskId, capability, target)`.
+T4 verification then runs exactly once against that terminal evidence.
+
+### M-D13: evidence and expectation remain independent
+
+The T0 fixture remains the sole source of `expectedResult`, which is `"ok"`.
+The `npm-test` profile independently maps exit code `0` to evidence result
+`"ok"`. Their equality is approved contract data, never a runtime derivation
+from evidence to expectation or expectation to evidence.
+
 ## Minimal T0 Fixture Contract
 
 The fixture contract contains only:
@@ -82,8 +129,12 @@ provider metadata, or generalized execution profile.
 
 ## Consequences
 
-- T6 cannot start until the T8 fixture contract is implemented and approved.
+- T8 is committed at `a66fccc`. T6 remains gated after the second preflight
+  until this documentation correction is committed and T6 is separately
+  authorized again.
 - Protected operations always stop at the policy layer in M1.
 - `repo.test` is deterministic at the Sureflow dispatch boundary,
   but its child process is not hard-sandboxed.
+- Retry resolution precedes the single terminal evidence write and the one
+  T4 verification call.
 - T7 and later tasks remain gated.
