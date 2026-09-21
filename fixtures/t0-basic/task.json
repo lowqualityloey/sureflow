@@ -1,0 +1,7 @@
+{
+  "taskId": "TASK-T0-BASIC",
+  "capability": "repo.test",
+  "target": "fixtures/t0-basic/output.txt",
+  "expectedResult": "ok",
+  "testProfile": "npm-test"
+}

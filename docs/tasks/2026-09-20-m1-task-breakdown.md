@@ -4,9 +4,9 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1–T5 complete and committed; T8 is the next dependency
-  but remains gated; T6 depends on T8 and remains gated; T7 and T9–T11
-  remain gated/not started; PromptKit state `checkpoint_due`
+- **Status**: T1–T5 complete and committed; T8 is complete, accepted, and
+  committed in this changeset; T6 remains gated; T7 and T9–T11 remain
+  gated/not started; PromptKit state `checkpoint_due`
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
   executed post-implementation with `tsc` + test + lint evidence )
@@ -27,12 +27,14 @@
 - [x] T5 CLI init/status (p1): done + committed e035cde.
   `init` (no-overwrite default),
   `status` read-only 4-line view. AC-1/AC-8 seams.
-- [ ] T8 Minimal T0 fixture contract (p0) — **PREREQUISITE / GATED /
-  NOT AUTHORIZED**: establish `taskId`, `capability`,
+- [x] T8 Minimal T0 fixture contract (p0) — **COMPLETE + ACCEPTED +
+  COMMITTED IN THIS CHANGESET**: establish `taskId`, `capability`,
   `target`, `expectedResult`, and conditional
   `testProfile: "npm-test"`. No command or argv fields. This
-  contract must be approved, implemented, verified, and committed before
-  T6.
+  The T0 fixture—not T4 or runtime evidence—is the approved source of
+  `target` and `expectedResult` for this M1 acceptance path. T4
+  consumes both through `VerificationRequest`. T6 still requires
+  separate authorization.
 - [ ] T6 CLI run + worker jail (p0) — **DEPENDS ON T8 / GATED / NOT
   AUTHORIZED**: consume the approved T8 contract; policy load, task record,
   allowlist pre-check, fixture-jailed step, evidence append,
@@ -51,9 +53,8 @@ telemetry/cloud/remote tracking. Scope change needs a record.
 
 ## Authorization Boundary and Locked Invariants
 
-- The T6 preflight correction authorizes documentation only. T8 and T6
-  each require separate explicit implementation authorization; T7 remains
-  gated.
+- T8 implementation and commit were separately authorized. T6 requires
+  separate explicit implementation authorization; T7 remains gated.
 - M1 public surface remains `init` / `run` /
   `status` / `verify`.
 - `.sureflow/state/` is authoritative runtime state;

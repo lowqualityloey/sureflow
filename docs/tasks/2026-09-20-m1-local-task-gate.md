@@ -10,9 +10,9 @@
 - **Work Type**: `Code Work`
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **External Reference (Optional)**: `N/A`
-- **Owner / Actor**: `Human authority; implementation history through T5; Codex record reconciliation`
+- **Owner / Actor**: `Human authority; implementation history through T5; Codex T8 implementation`
 - **Execution Scope**: `Sureflow repo: M1 control-plane slice only (init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/). No other subsystems.`
-- **Approval Boundary**: `T1–T5 are committed repository history. T8 is the next prerequisite but is NOT authorized. T6 depends on T8 and is NOT authorized. T7 and T9–T11 remain gated. Human authorization remains required before implementation, any commit/push/tag, or scope expansion beyond the 4 commands. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
+- **Approval Boundary**: `T1–T5 and the T6 preflight contracts are committed repository history. T8 implementation was explicitly authorized, accepted, locally verified, and authorized for this commit. T6, T7, and T9–T11 remain gated and NOT authorized. Human authorization remains required before further implementation, push/tag, or scope expansion beyond the 4 commands. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
 - **Created**: `2026-09-20 UTC`
 - **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5) and `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D9)
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
@@ -23,8 +23,8 @@
   boundaries.
 - **In Scope**: M1 T1–T11 as defined in
   `docs/tasks/2026-09-20-m1-task-breakdown.md`. T1–T5 are
-  complete and committed; T8 is now the gated prerequisite to T6;
-  T6, T7, and T9–T11 remain gated.
+  complete and committed; T8 is implemented, accepted, and included in
+  this commit; T6, T7, and T9–T11 remain gated.
 - **Explicit Non-Goals**: No multi-agent execution, MCP, skills,
   providers, scheduler, telemetry platform, cloud infrastructure,
   remote tracking, generalized approval machinery, or other
@@ -40,12 +40,11 @@
 ## 3. Execution Policy (M1 task record)
 
 - **Execution Mode**: `Gated Mode`
-- **Checkpoint Policy**: `Current state checkpoint_due. This
-  documentation correction authorizes no implementation. T8 requires
-  separate authorization; T6 remains gated until T8 is completed and
-  T6 is separately reauthorized.`
-- **Stop Conditions**: `Stop before T8 or T6 without their separate
-  explicit authorizations; terminally halt on DENY or REQUIRE_APPROVAL
+- **Checkpoint Policy**: `T8 implementation was separately authorized,
+  accepted, and committed. Stop before T6; T6 remains gated until it is
+  separately authorized.`
+- **Stop Conditions**: `Stop before T6 or any later task without separate
+  explicit authorization; terminally halt on DENY or REQUIRE_APPROVAL
   with zero execution and zero retry; stop on scope expansion without a
   scope-change record; maximum one automatic retry for eligible FAIL only.`
 - **TDD Enforcement Mode**: `disabled`
@@ -67,7 +66,7 @@
 - [x] T3 complete and committed — `a4f16aff1a83a13041c5c442a3010b4455c1f25e`
 - [x] T4 complete and committed — `7c70622e4a568e78953891ca5bd9ed45dace5253`
 - [x] T5 complete and committed — `e035cdeb0bbf60973e8dd842154d9dcf4d7ce0fd`
-- [ ] T8 minimal fixture contract — prerequisite / gated / NOT authorized
+- [x] T8 minimal fixture contract — complete / accepted / committed in this changeset
 - [ ] T6 run + worker — depends on T8 / gated / NOT authorized
 - [ ] T7 and T9–T11 planned / gated / not started
 
@@ -96,20 +95,24 @@
   permitted per `(taskId, capability, target)`.
 - `expectedResult` originates from the approved
   acceptance/fixture contract, never from evidence itself.
+- The T0 fixture is the approved source of `target` and
+  `expectedResult` for the M1 acceptance path. T4 supplies neither;
+  it consumes both through `VerificationRequest`. Runtime evidence
+  must never become the source of `expectedResult`.
 - Maximum one automatic retry.
 
 ## 5. State and Ownership (M1 task record)
 
 - **Execution State**: `checkpoint_due`
-- **Mapped pk:tasks Status**: `Checkpoint due — T8, T6, and T7 gated`
+- **Mapped pk:tasks Status**: `T8 complete and committed — T6 and T7 gated`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Blockers and Resume Condition**: `T6 preflight contract correction is documentation-only. T8 must be separately authorized, implemented, verified, and committed before T6 may be separately reauthorized. T7 remains gated.`
-- **Verification Status**: `T1–T5 commit history verified through e035cde; documentation reconciliation committed at d5e7bcb; checkpoint evidence records 34 passing tests plus clean typecheck and lint.`
+- **Blockers and Resume Condition**: `T6 requires separate explicit implementation authorization. T6 and T7 remain gated.`
+- **Verification Status**: `T8 focused suite: 16 passing tests. Full suite: 50 passing tests across 7 files. Typecheck, lint, build, git diff check, and scope/secret/debug/runtime-artifact guards pass.`
 - **CI Evidence**: `N/A`
-- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation/current baseline`
-- **Changed-File Summary**: `T1–T5 implementation committed; current changes reconcile M1 approval, fixture, test-profile, dependency, and isolation contracts only.`
-- **Next Action**: `STOP. Await separate explicit T8 authorization; T6 and T7 remain gated.`
-- **Completion State**: `in_progress_checkpoint_due`
+- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 T6 preflight contracts; T8 committed in this changeset (hash reported after creation)`
+- **Changed-File Summary**: `T8 adds fixtures/t0-basic/task.json, a fixture-specific strict parser/loader, focused tests, and TypeScript test inclusion; this Task Record and the task breakdown record the authorized uncommitted state. No T6/T7 implementation or runtime artifacts.`
+- **Next Action**: `STOP. T6 and T7 remain gated; await separate explicit T6 authorization.`
+- **Completion State**: `checkpoint_due`
 - **Acceptance Results**: `Spec acceptance complete; M1 AC-1..AC-8 remain pending final implementation and verification.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `Pending — records reconciled 2026-09-21`
+- **Completion Decision and Timestamp**: `T8 accepted and authorized for commit 2026-09-21; committed in this changeset`
