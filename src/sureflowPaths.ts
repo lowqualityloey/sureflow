@@ -7,6 +7,7 @@
  * refusal), and `evidencePaths.ts` remains the evidence resolver.
  * This module only adds the layout that `init` must create.
  */
+import { assertRuntimePathContained } from "./runtimeContainment.js";
 
 export const SUREFLOW_DIRECTORY = ".sureflow" as const;
 
@@ -40,6 +41,7 @@ export function resolveSureflowPath(rootDir: string, relativePath: string): stri
   if (segments.includes("..")) {
     throw new Error(`refused: ${relativePath} escapes ${SUREFLOW_DIRECTORY}/`);
   }
+  assertRuntimePathContained(rootDir, segments.join("/"), SUREFLOW_DIRECTORY);
   const cleanRoot = rootDir.replace(/\/+$/, "");
   return `${cleanRoot}/${segments.join("/")}`;
 }

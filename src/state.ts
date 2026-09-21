@@ -12,6 +12,7 @@
  * `schemaVersion: 1` exists only so future readers can detect
  * incompatible state — it is not a migration framework.
  */
+import { assertRuntimePathContained } from "./runtimeContainment.js";
 
 export const STATE_SCHEMA_VERSION = 1 as const;
 
@@ -59,6 +60,7 @@ export function resolveStatePath(rootDir: string, relativePath: string): string 
   if (segments.includes("..")) {
     throw new Error(`refused: ${relativePath} escapes .sureflow/state/`);
   }
+  assertRuntimePathContained(rootDir, segments.join("/"), ".sureflow/state");
   const cleanRoot = rootDir.replace(/\/+$/, "");
   return `${cleanRoot}/${segments.join("/")}`;
 }

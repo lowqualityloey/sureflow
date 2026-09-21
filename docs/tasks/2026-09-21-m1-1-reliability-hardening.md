@@ -11,15 +11,15 @@
 - **Specification**: [M1.1 Reliability Hardening](../specs/2026-09-21-m1-1-reliability-hardening.md)
 - **External Reference**: `N/A`
 - **Owner / Actor**: Human authority; Codex implements only explicitly authorized H tasks
-- **Execution Scope**: Sureflow M1.1: H1 remains complete; H2 is limited to `package.json`, `package-lock.json`, `tests/toolchain.test.ts`, and linked bookkeeping records.
+- **Execution Scope**: Sureflow M1.1: H1 and H2 remain complete; H3 is limited to runtime containment resolvers, one shared containment helper, focused tests, and linked bookkeeping records.
 - **Approval Boundary**: Every H task, commit, push, and scope expansion require explicit human authorization
 - **Created**: 2026-09-21 06:50 UTC
 
 ## 2. Objective and Boundaries
 
 - **Objective**: Establish zero-cost reproducible CI, then conduct independently gated reliability hardening without reopening M1.
-- **In Scope**: H1–H7 as planned in the linked specification; H1 only is active and implementation-ready.
-- **Explicit Non-Goals**: Reopening M1; runtime/product changes in H1; H2–H7 implementation; paid infrastructure; release, tag, deployment, publication, or repository-setting changes.
+- **In Scope**: H1 and H2 are accepted; H3 is explicitly authorized and active; H4–H7 remain gated.
+- **Explicit Non-Goals**: Reopening M1; H4–H7 implementation; state atomicity, mutation locking, event corruption semantics, public installation/docs behavior, paid infrastructure, release, tag, deployment, publication, or repository-setting changes.
 - **Dependencies**: M1 complete and accepted at `74408a93f242b94e835af3417e266b8c77a00ce7`; public GitHub repository.
 - **Risk**: Medium — CI is an external public integration; use read-only permissions, one standard runner, and human-gated remote acceptance.
 - **Verification Condition**: Local canonical gates pass; H1 is committed and pushed; its GitHub Actions run is green.
@@ -31,7 +31,7 @@
   - **AC-H1.2**: Workflow has `contents: read`, no persisted checkout credentials, no cache, artifacts, matrix, write operations, secrets, paid service, or nonstandard runner.
   - **AC-H1.3**: The actual remote GitHub Actions run against the committed H1 revision is green.
 - [x] **H2**: Node 24 type alignment — accepted / complete at `505daa10f43410a6eefb28a5b758af94227c1fbe`.
-- [ ] **H3**: runtime namespace symlink containment — planned / gated / unauthorized.
+- [ ] **H3**: runtime namespace symlink containment — active / in progress under explicit authorization; not committed or accepted.
 - [ ] **H4**: state interruption safety — planned / gated / unauthorized.
 - [ ] **H5**: mutation lock — planned / gated / unauthorized.
 - [ ] **H6**: event corruption surfacing — planned / gated / unauthorized.
@@ -50,12 +50,12 @@
 
 ## 5. State and Active Ownership
 
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Complete — H1 and H2 accepted; H3–H7 gated`
-- **Active Task Pointer**: `H2 / TASK-2026-09-21-m1-1-reliability-hardening`
+- **Execution State**: `in_progress`
+- **Mapped `pk:tasks` Status**: `In progress — H3 active; H1 and H2 accepted; H4–H7 gated`
+- **Active Task Pointer**: `H3 / TASK-2026-09-21-m1-1-reliability-hardening`
 - **Start Time**: `2026-09-21 06:50 UTC`
-- **Current Actor**: `Codex, under explicit H2 authorization`
-- **Next Action**: `STOP. Do not begin H3 without separate human authorization.`
+- **Current Actor**: `Codex, under explicit H3 authorization`
+- **Next Action**: `Complete H3 local verification, report readiness, and stop without commit or H4 work.`
 
 ### Transition History
 
@@ -65,14 +65,15 @@
 | in_progress | completed | 2026-09-21 07:24 UTC | Codex | H1 commit pushed and remote CI passed | `origin/main` = `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`; CI run `35572778970` concluded `success` |
 | completed | in_progress | 2026-09-21 | Human authority | H2 explicitly authorized; H3–H7 remain gated | User authorization for Node 24 type alignment only |
 | in_progress | completed | 2026-09-21 07:51 UTC | Codex | H2 commit pushed and remote CI passed | `origin/main` = `505daa10f43410a6eefb28a5b758af94227c1fbe`; CI run `35574889277` concluded `success` |
+| completed | in_progress | 2026-09-21 | Human authority | H3 explicitly authorized; H4–H7 remain gated | User authorization: `Authorize H3 only` |
 
 ## 6. Evidence and Completion Gate
 
-- **Changed Files**: `.github/workflows/ci.yml`; this task record; linked M1.1 specification; `docs/STATE.md`.
-- **Scope Change Records**: `None`
+- **Changed Files**: `src/runtimeContainment.ts`, `src/sureflowPaths.ts`, `src/state.ts`, `src/evidencePaths.ts`, `src/evidenceStore.ts`, `tests/runtimeContainment.test.ts`, `tsconfig.json`, this Task Record, and `docs/STATE.md`.
+- **Scope Change Records**: `H3 authorization recorded here and in docs/STATE.md; no H4–H7 scope expansion.`
 - **Checkpoint Records**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 remote acceptance boundary; `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-2.md` — H2 remote acceptance boundary
 - **Handoff Records**: `None`
-- **Verification Evidence**: `H1: npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and the tracked-tree cleanliness check passed locally on 2026-09-21; `npm test` passed 90 tests across 11 files outside the restricted command sandbox after its initial child-node EPERM. `H2: npm ci`, `npm run typecheck`, `npm test` (91 tests across 11 files), `npm run lint`, `npm run build`, `git diff --check`, `npm ls @types/node --depth=0`, PromptKit reference validation, and the bounded harness preflight all passed locally on 2026-09-21.`
+- **Verification Evidence**: `H1: npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and the tracked-tree cleanliness check passed locally on 2026-09-21; `npm test` passed 90 tests across 11 files outside the restricted command sandbox after its initial child-node EPERM. `H2: npm ci`, `npm run typecheck`, `npm test` (91 tests across 11 files), `npm run lint`, `npm run build`, `git diff --check`, `npm ls @types/node --depth=0`, PromptKit reference validation, and the bounded harness preflight all passed locally on 2026-09-21. H3 focused tests passed 26 tests across 4 files; the final full suite passed 100 tests across 12 files outside the restricted sandbox, with typecheck, lint, build, diff check, PromptKit reference validation, and harness/security checks passing.`
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
@@ -82,9 +83,9 @@
 - **Commit Evidence**: `H1: e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main. H2: 505daa10f43410a6eefb28a5b758af94227c1fbe (chore(toolchain): align Node typings with Node 24), pushed non-force to origin/main.`
 - **Pull Request Evidence**: `N/A - direct main push explicitly authorized for H1`
 - **Release Evidence**: `N/A`
-- **Blocker and Resume Condition**: `H2 has no blocker. H3–H7 remain unauthorized and require separate human authorization.`
-- **Completion State**: `accepted`
-- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 local and remote CI verification passed for the exact pushed revision.`
-- **Changed-File Summary**: `H1 remains unchanged. H2 changes only package.json, package-lock.json, tests/toolchain.test.ts, this Task Record, and docs/STATE.md. No runtime source, CLI behavior, CI workflow, configuration, H3–H7 implementation, or tracked dist/node_modules artifact changed.`
+- **Blocker and Resume Condition**: `H3 has no blocker and is ready for separate commit authorization. H4–H7 remain gated and unauthorized.`
+- **Completion State**: `in_progress — ready for commit review; not committed or accepted`
+- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 local and remote CI verification passed for the exact pushed revision. H3 focused and full tests, typecheck, lint, build, diff check, PromptKit reference validation, and harness/security checks pass.`
+- **Changed-File Summary**: `H1 and H2 remain unchanged. H3 changes only the shared runtime containment helper, approved runtime resolvers, evidence-store path handling, focused tests, the required TypeScript test include, this Task Record, and docs/STATE.md. No CLI, policy semantics, verifier semantics, H4/H5 behavior, dependency, CI, or tracked runtime artifact changes.`
 - **Completion Exception**: `None`
 - **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success. H2 accepted 2026-09-21 07:51 UTC after CI run 35574889277 concluded success.`

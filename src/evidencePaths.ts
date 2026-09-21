@@ -4,6 +4,7 @@
  * `..` escapes, and non-`.jsonl` files.
  */
 import { EVIDENCE_RELATIVE_PATH } from "./evidenceConstants.js";
+import { assertRuntimePathContained } from "./runtimeContainment.js";
 
 export function resolveEvidencePath(rootDir: string, relativePath: string): string {
   const normalized = relativePath.replace(/\\/g, "/");
@@ -21,6 +22,7 @@ export function resolveEvidencePath(rootDir: string, relativePath: string): stri
   if (!file.endsWith(".jsonl")) {
     throw new Error(`refused: ${relativePath} is not a .jsonl evidence file`);
   }
+  assertRuntimePathContained(rootDir, segments.join("/"), ".sureflow/evidence");
   const cleanRoot = rootDir.replace(/\/+$/, "");
   return `${cleanRoot}/${segments.join("/")}`;
 }

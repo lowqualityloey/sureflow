@@ -8,7 +8,7 @@
  *   and never interpreted as a verification verdict (T4 owns that).
  */
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { type EvidenceDraft, type EvidenceRecord, isEvidenceRecord } from "./evidence.js";
 import { defaultEvidencePath, resolveEvidencePath } from "./evidencePaths.js";
 import { toPersistedRecord } from "./redaction.js";
@@ -17,13 +17,27 @@ export type EvidenceReadEntry =
   | { readonly kind: "record"; readonly line: number; readonly record: EvidenceRecord }
   | { readonly kind: "corrupt"; readonly line: number; readonly raw: string; readonly error: string };
 
+function resolveEvidenceFilePath(rootDir: string, filePath?: string): string {
+  if (filePath === undefined) return defaultEvidencePath(rootDir);
+  if (filePath.replace(/\\/g, "/").split("/").includes("..")) {
+    throw new Error(`refused: ${filePath} escapes .sureflow/evidence/`);
+  }
+  if (!isAbsolute(filePath)) return resolveEvidencePath(rootDir, filePath);
+
+  const relativePath = relative(resolve(rootDir), resolve(filePath)).replace(/\\/g, "/");
+  if (relativePath === "" || relativePath === ".." || relativePath.startsWith("../")) {
+    throw new Error(`refused: ${filePath} is outside .sureflow/evidence/`);
+  }
+  return resolveEvidencePath(rootDir, relativePath);
+}
+
 /** Append one redacted record. Creates parent dirs; never truncates. */
 export function appendEvidence(
   rootDir: string,
   draft: EvidenceDraft,
   filePath?: string,
 ): EvidenceRecord {
-  const absolute = filePath ?? defaultEvidencePath(rootDir);
+  const absolute = resolveEvidenceFilePath(rootDir, filePath);
   mkdirSync(dirname(absolute), { recursive: true });
   const record = toPersistedRecord(draft);
   appendFileSync(absolute, `${JSON.stringify(record)}\n`, { encoding: "utf8" });
@@ -36,7 +50,7 @@ export function appendEvidence(
  * with its line number, raw text, and parse/validation error.
  */
 export function readEvidence(rootDir: string, filePath?: string): readonly EvidenceReadEntry[] {
-  const absolute = filePath ?? defaultEvidencePath(rootDir);
+  const absolute = resolveEvidenceFilePath(rootDir, filePath);
   let text: string;
   try {
     text = readFileSync(absolute, { encoding: "utf8" });
