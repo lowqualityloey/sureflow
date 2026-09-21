@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1.1 reliability hardening — H1–H7 accepted / complete; M2 gated
-- **Overall Status**: M1.1 implementation accepted / complete after H7 remote CI; M2 remains unauthorized
-- **Target Release / Deadline**: M1.1 — no deadline recorded
-- **Current Working Branch**: `main` at `9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0`; H1–H7 accepted / complete; M2 gated
+- **Current Milestone / Epic**: M2 real project change gate — planning baseline approved; implementation unauthorized
+- **Overall Status**: M1 and M1.1 accepted / complete; M2 task-authority, immutable-snapshot, verification-trust, and Git-scope rules approved for planning; T1 remains unauthorized
+- **Target Release / Deadline**: M2 — no deadline recorded
+- **Current Working Branch**: `main` at accepted remote baseline `0a1c503fb8a0bc5399b5a28c1cbb2418ab6c8108`; M2 planning changes uncommitted
 - **Last Updated**: 2026-09-21
 
 
@@ -24,6 +24,7 @@
 - [x] **M1.1-H5**: Single-project mutation exclusion — accepted after GitHub Actions run `35583342650` passed on `adbd526617ec82326b3921a4a69e336198412149`
 - [x] **M1.1-H6**: Event corruption surfacing — accepted after GitHub Actions run `35585861754` passed on `99b2e340ceec288982788b16ebaa8620ddb891ed`
 - [x] **M1.1-H7**: Public source-install and `init --force` documentation truth — accepted after GitHub Actions run `35588373963` passed on `9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0`
+- [x] **M2-plan**: Real Project Change Gate planning baseline approved with contract clarification complete; implementation unauthorized
 
 ### Active Milestone Task Breakdown
 
@@ -42,15 +43,16 @@
 - [x] T11: documentation and acceptance closeout complete
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
-- [!] Stop boundary: M1.1 is accepted / complete; do not begin M2
+- [ ] TASK-2026-09-21-m2-real-project-change-gate: planning baseline approved / planned; T1 unauthorized
+- [!] Stop boundary: do not implement M2 or begin M2-T1 without separate authorization
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1–H7 accepted / complete; M2 gated
-- **Active Task Spec**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Key Files in Flight**: Final M1.1 H7 acceptance is recorded in the existing state tracker and Task Record; M2 remains out of scope.
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m2-real-project-change-gate.md` — planning baseline approved; contract clarification complete; implementation unauthorized
+- **Active Task Spec**: `docs/tasks/2026-09-21-m2-real-project-change-gate.md`
+- **Key Files in Flight**: M2 specification, canonical planned Task Record, and this state projection only. No source, test, fixture, package, runtime, CI, dependency, or remote changes are authorized.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -66,28 +68,28 @@
 
 ## 3A. Execution-Control Projection (Optional)
 
-- **Local Task Source**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Task ID**: `TASK-2026-09-21-m1-1-reliability-hardening`
-- **Task Record**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Specification**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md`
-- **Execution Scope**: `M1.1 final H7 acceptance: truthful source installation and init --force UX; H1–H7 accepted; M2 gated`
-- **Execution State**: `accepted`
-- **Mapped `pk:tasks` Status**: `Complete`
-- **Active Task Pointer**: `H7 / TASK-2026-09-21-m1-1-reliability-hardening (accepted)`
-- **Owner / Current Actor**: `Codex, H7 remotely accepted under explicit authorization; H1–H6 accepted; M2 remains gated`
-- **Start Time**: `2026-09-21 06:50 UTC`
+- **Local Task Source**: `docs/tasks/2026-09-21-m2-real-project-change-gate.md`
+- **Task ID**: `TASK-2026-09-21-m2-real-project-change-gate`
+- **Task Record**: `docs/tasks/2026-09-21-m2-real-project-change-gate.md`
+- **Specification**: `docs/specs/2026-09-21-m2-real-project-change-gate.md`
+- **Execution Scope**: `Planning only: one local worker/project/task; Node/TypeScript+npm adapter; one bounded existing-file replacement; deterministic evidence and verification`
+- **Execution State**: `planned`
+- **Mapped `pk:tasks` Status**: `To Do`
+- **Active Task Pointer**: `None`
+- **Owner / Current Actor**: `Codex under explicit planning-baseline commit authorization; M2-T1 has not started`
+- **Start Time**: `N/A - implementation not started`
 - **Current Branch**: `main`
-- **Current Revision**: `9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0; H1–H7 accepted / complete; origin/main matches`
-- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; stop before M2 work`
-- **Blockers and Resume Condition**: `M1.1 has no blocker; H1–H7 are accepted / complete. M2 remains gated and unauthorized.`
-- **Verification Status**: `H7-focused init/status suite: 25 passed; GitHub Actions run 35588373963 passed the full 136-test suite across 13 files; npm ci, typecheck, lint, build, git diff --check, and tracked-tree cleanliness all passed. No H7 tests were skipped.`
+- **Current Revision**: `0a1c503fb8a0bc5399b5a28c1cbb2418ab6c8108; matches origin/main before uncommitted M2 planning artifacts`
+- **Checkpoint Policy**: `Human plan review; separate authorization for each M2-T task; checkpoint before every task transition, commit, push, scope expansion, or stop-condition response`
+- **Blockers and Resume Condition**: `Intentional planning gate: implementation resumes only after separate explicit M2-T1 authorization.`
+- **Verification Status**: `Planning-only checks passed: git diff --check, PromptKit reference validation, and fixed-scope harness preflight. The execution-control validator reports 98 diagnostics confined to three pre-M2 legacy Task Records and none for the M2 Task Record or this STATE projection; no legacy repairs or implementation quality/acceptance claim are made.`
 - **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed on e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) passed on 505daa10f43410a6eefb28a5b758af94227c1fbe; its test job and all steps concluded success. H4: GitHub Actions CI run 35579830623 (<https://github.com/lowqualityloey/sureflow/actions/runs/35579830623>) passed on ce4be6af2326cf8ab6c2237b0234406501a042e0; its test job and all required steps concluded success. H5: GitHub Actions CI run 35583342650 (<https://github.com/lowqualityloey/sureflow/actions/runs/35583342650>) passed on adbd526617ec82326b3921a4a69e336198412149; the test job and every required step concluded success.`
-- **Changed-File Summary**: `H7 commit 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 contains exactly README.md, src/cli.ts, tests/initStatus.test.ts, docs/STATE.md, and the M1.1 Task Record; no dependency, package version, CI, state schema, state-writer behavior, event/evidence behavior, lock behavior, release machinery, or M2 changes.`
-- **Latest Checkpoint**: `H7 remote acceptance recorded in this state tracker and the M1.1 Task Record; run 35588373963 passed on the exact pushed revision`
+- **Changed-File Summary**: `Uncommitted planning-only changes: the new M2 specification, new M2 Task Record, and docs/STATE.md. No implementation or remote state changed.`
+- **Latest Checkpoint**: `M1/M1.1 accepted at the user-supplied remote baseline 0a1c503fb8a0bc5399b5a28c1cbb2418ab6c8108; M2 planning baseline approved 2026-09-21; T1 not started`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `STOP. M1.1 is complete. Do not begin M2.`
+- **Next Action**: `STOP after the authorized three-file planning commit. M2-T1 requires separate explicit authorization; do not push.`
 
 ---
 
@@ -121,16 +123,16 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 | Date | Proposed Rule | Source / Evidence | Scope | Status | Human Decision (approver, date, destination) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 2026-09-20 (M0 discovery) | ~15 | host telemetry unavailable | ~150k tok total (~8k-15k tok/turn heuristic) | Discovery reads of 8 docs + Task Record + spec + STATE.md sync; heuristic per checkpoint protocol, not billing telemetry |
+| 2026-09-20 (M0 discovery) | ~15 | host telemetry unavailable | ~150k tok total (~8k-15k tok/turn heuristic) | Discovery reads of 8 docs + Task Record + spec + STATE.md sync; heuristic per checkpoint protocol, not billing telemetry | not tracked |
 | 2026-09-20 (M1 spec) | ~14 | host telemetry unavailable | ~140k tok total (~8k-15k tok/turn heuristic) | ADR + M1 spec + M1 Task Record + STATE/PROMPTKIT sync; heuristic, not billing telemetry | not tracked |
 
 ---
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - M1 implementation, integration acceptance, verification, negative acceptance, determinism audit, and T11 documentation closeout are complete. Future milestones remain gated.
+  - No technical planning blocker. M2 implementation is intentionally gated pending separate explicit M2-T1 authorization.
 - **Architectural Questions**:
-  - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M1); C7 capability-filter before MCP (deferred post-M1); C8 stack-agnostic verify-adapter interface (M1 avoids via fixture-local verify). C2/C3/C5 closed by M-D4/M-D3. Full text: `docs/specs/2026-09-20-sureflow-discovery-intake.md` §5.
+  - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
   - R1 stack-by-default — CLOSED by explicit human M-D1 (+ ADR). R2 full-core-at-once — mitigated by binding M1 non-goals. R3/R4/R5 standing. npm emitted an `ignore-workspace-root-check` user-config deprecation warning during all three verification commands; it did not fail a gate.
 
@@ -145,12 +147,9 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. H2 accepted: commit `505daa10f43410a6eefb28a5b758af94227c1fbe` is on `origin/main`; CI run `35574889277` passed.
-2. H3 commits `d8932eb` and `1d0fed1` pushed; GitHub Actions run `35577273766` passed.
-3. H4 commit `ce4be6af2326cf8ab6c2237b0234406501a042e0` pushed; GitHub Actions run `35579830623` passed; H4 accepted / complete.
-4. H5 commit `adbd526617ec82326b3921a4a69e336198412149` pushed; GitHub Actions run `35583342650` passed with 123 tests and no skips; H5 accepted / complete.
-5. H6 commit `99b2e340ceec288982788b16ebaa8620ddb891ed` pushed; GitHub Actions run `35585861754` passed with 133 tests across 13 files; H6 accepted / complete.
-6. H7 commit `9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0` pushed; GitHub Actions run `35588373963` passed with 136 tests across 13 files and 25 init/status tests; H7 accepted / complete; M1.1 accepted / complete; do not begin M2.
+1. Planning baseline approved: task authority, immutable snapshot, replacement origin, npm trust, and Git scope are explicit.
+2. Complete only the authorized three-file planning commit.
+3. STOP. M2-T1 requires separate explicit authorization; do not push or implement.
 
 ---
 
@@ -177,6 +176,9 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 | Codex | M1.1 H6 remote acceptance | Pushed `99b2e340ceec288982788b16ebaa8620ddb891ed` non-force to `origin/main`; GitHub Actions run `35585861754` passed on `ubuntu-latest` with npm ci, typecheck, 133 tests across 13 files, lint, build, diff check, and cleanliness; H6 accepted / complete; H7 remains gated |
 | 2026-09-21 | Codex | M1.1 H7 local implementation | Human authorized H7 only; corrected source-install and `init --force` truth without changing runtime semantics, added minimal regression coverage, and passed the focused 25-test and full 136-test suites plus typecheck, lint, and build; commit/push/remote acceptance remain pending; M2 remains gated |
 | 2026-09-21 | Codex | M1.1 H7 remote acceptance | Pushed `9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0` non-force to `origin/main`; GitHub Actions run `35588373963` passed on `ubuntu-latest` with npm ci, typecheck, 136 tests across 13 files including 25 `tests/initStatus.test.ts` tests, lint, build, diff check, and cleanliness; H7 and M1.1 accepted / complete; M2 remains gated |
+| 2026-09-21 | Codex | M2 planning boundary | Inspected accepted baseline `0a1c503fb8a0bc5399b5a28c1cbb2418ab6c8108`; drafted the M2 real-project change-gate specification and planned Task Record; no implementation, commit, push, dependency, fixture, runtime, or remote change |
+| 2026-09-21 | Codex | M2 contract clarification | Recorded control-plane ownership of `.sureflow/task.json`, immutable per-run plan snapshot/hash, task-owned replacement bytes, trusted-profile/npm-script boundary, deterministic clean-baseline semantics, and exact Git-visible scope claim; task order and estimates unchanged; T1 remains unauthorized |
+| 2026-09-21 | Codex | M2 planning baseline authorization | Human approved the planning baseline and authorized one atomic commit limited to the M2 specification, M2 Task Record, and STATE projection; no implementation or M2-T1 work started |
 
 ---
 
