@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1.1 reliability hardening — H1 and H2 accepted; H3 active; H4–H7 gated
-- **Overall Status**: H3 IN PROGRESS — explicitly authorized; H4–H7 remain unauthorized
+- **Current Milestone / Epic**: M1.1 reliability hardening — H1–H3 accepted; H4–H7 gated
+- **Overall Status**: H3 COMPLETE LOCALLY — committed; H4–H7 remain unauthorized
 - **Target Release / Deadline**: M1.1 — no deadline recorded
-- **Current Working Branch**: `main` at `2a983b629777ff1bd90b3d19f60d373a0db06793`; H1 and H2 accepted; H3 uncommitted
+- **Current Working Branch**: `main` at `d8932eb`; H1–H3 accepted locally; H3 not pushed
 - **Last Updated**: 2026-09-21
 
 
@@ -19,7 +19,7 @@
 - [x] **M1-build**: T1–T11 closeout complete; future milestones gated
 - [x] **M1.1-H1**: Zero-cost Node 24 public CI — accepted after green remote CI run `35572778970` on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] **M1.1-H2**: Node 24 type alignment — accepted after green remote CI run `35574889277` on `505daa10f43410a6eefb28a5b758af94227c1fbe`
-- [ ] **M1.1-H3**: Runtime namespace symlink containment — active / in progress under explicit authorization; not committed or accepted
+- [x] **M1.1-H3**: Runtime namespace symlink containment — committed `d8932eb`; local verification accepted; not pushed
 
 ### Active Milestone Task Breakdown
 
@@ -38,15 +38,15 @@
 - [x] T11: documentation and acceptance closeout complete
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
-- [!] Stop boundary: H3 is the only active authorization; H4–H7 remain unauthorized
+- [!] Stop boundary: H3 is complete locally; H4–H7 remain unauthorized
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1 and H2 accepted; H3 active; H4–H7 gated
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1–H3 accepted; H4–H7 gated
 - **Active Task Spec**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Key Files in Flight**: H3 runtime containment source, focused tests, required TypeScript test include, the Task Record, and `docs/STATE.md`; H4–H7 remain out of scope.
+- **Key Files in Flight**: None; H3 is committed locally. H4–H7 remain out of scope.
 - **Verification Commands (Scoped)**:
   - Unit Tests: `npm test` → 90 passed across 11 files on unchanged retry outside the restricted command sandbox; first attempt's child `node` process was denied with `EPERM` (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -54,7 +54,7 @@
   - Build: `npm run build` → exit 0 (2026-09-21)
   - Repository checks: `git diff --check` and the tracked-tree cleanliness check → exit 0 (2026-09-21)
   - Harness preflight: bounded fixed-scope scan reported no findings (2026-09-21)
-  - H3 focused tests: 26 passed across 4 files; full-suite run was blocked by the existing restricted-sandbox child-node `EPERM` in the CLI subprocess test
+  - H3 focused tests: 9 passed; final full suite: 100 passed across 12 files
 
 ---
 
@@ -65,21 +65,21 @@
 - **Task Record**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
 - **Specification**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md`
 - **Execution Scope**: `M1.1 H3 only: runtime containment resolvers, one shared helper, focused tests, required TypeScript test include, and linked bookkeeping records`
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `In progress — H3 active; H1 and H2 accepted; H4–H7 gated`
-- **Active Task Pointer**: `H3 / TASK-2026-09-21-m1-1-reliability-hardening (active)`
-- **Owner / Current Actor**: `Codex under explicit H3 authorization; H4–H7 remain gated`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Complete — H1–H3 accepted; H4–H7 gated`
+- **Active Task Pointer**: `H3 / TASK-2026-09-21-m1-1-reliability-hardening (accepted)`
+- **Owner / Current Actor**: `Codex; H3 committed locally; H4–H7 remain gated`
 - **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `2a983b629777ff1bd90b3d19f60d373a0db06793; H1 and H2 accepted; H3 changes uncommitted`
-- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; stop after H3 report and before any commit or H4 work`
-- **Blockers and Resume Condition**: `H3 has no code blocker; rerun the full suite outside the restricted sandbox if needed. H4–H7 require separate authorization.`
-- **Verification Status**: `H3 focused suite: 26 tests across 4 files passed; final full suite: 100 tests across 12 files passed outside the restricted sandbox; typecheck, lint, build, git diff check, PromptKit reference validation, and harness/security checks pass. H3 is ready for separate commit authorization.`
+- **Current Revision**: `d8932eb; H1–H3 accepted locally; H3 is not pushed`
+- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; stop before push or H4 work`
+- **Blockers and Resume Condition**: `H3 has no blocker. Push requires separate authorization; H4–H7 require separate authorization.`
+- **Verification Status**: `H3 focused suite: 9 tests passed; final full suite: 100 tests across 12 files passed outside the restricted sandbox; typecheck, lint, build, git diff check, PromptKit reference validation, and harness/security checks pass.`
 - **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed on e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) passed on 505daa10f43410a6eefb28a5b758af94227c1fbe; its test job and all steps concluded success.`
-- **Changed-File Summary**: `H3 uncommitted changes are limited to src/runtimeContainment.ts, approved runtime resolvers, src/evidenceStore.ts, tests/runtimeContainment.test.ts, tsconfig.json, Task Record, and docs/STATE.md. No CLI, dependency, CI, H4–H7, or tracked runtime artifact changes.`
-- **Latest Checkpoint**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-2.md` — H2 accepted; H3 authorization recorded in the active Task Record and this state tracker
+- **Changed-File Summary**: `H3 commit d8932eb contains exactly the nine authorized files: approved runtime containment source, focused tests, tsconfig.json, Task Record, and docs/STATE.md. No CLI, dependency, CI, H4–H7, or tracked runtime artifact changes.`
+- **Latest Checkpoint**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-2.md` — H2 accepted; H3 completion recorded in the Task Record and this state tracker
 - **Latest Handoff**: `N/A`
-- **Next Action**: `Complete/report H3 local verification, then stop. Do not commit or begin H4.`
+- **Next Action**: `STOP. Do not push or begin H4.`
 
 ---
 
@@ -138,7 +138,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 7. Next Immediate Actions (Queued)
 1. H2 accepted: commit `505daa10f43410a6eefb28a5b758af94227c1fbe` is on `origin/main`; CI run `35574889277` passed.
-2. H3 explicitly authorized and active; finish local verification and report readiness without commit.
+2. H3 committed locally as `d8932eb`; do not push or begin H4 without separate authorization.
 
 ---
 
@@ -156,7 +156,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 | Codex | M1.1 H1 public CI | Added the bounded Node 24 GitHub Actions workflow; locally verified typecheck, 90 tests, lint, build, diff/cleanliness checks, and fixed-scope harness preflight; H2–H7 remain gated |
 | 2026-09-21 | Codex | M1.1 H1 remote acceptance | Pushed `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c` non-force to `origin/main`; GitHub Actions CI run `35572778970` passed; H1 accepted and H2–H7 remain gated |
 | 2026-09-21 | Codex | M1.1 H2 Node 24 type alignment | Aligned `@types/node` to Node 24, verified 91 local tests and canonical gates, pushed `505daa10f43410a6eefb28a5b758af94227c1fbe`, and accepted H2 after CI run `35574889277` passed; H3–H7 remain gated |
-| 2026-09-21 | Codex | M1.1 H3 runtime path containment | H3 explicitly authorized; added narrow physical ancestry validation for state, evidence, events, and policy runtime paths plus evidence override enforcement; focused H3 tests and static gates pass; no commit or H4 work authorized |
+| 2026-09-21 | Codex | M1.1 H3 runtime path containment | Added narrow physical ancestry validation for state, evidence, events, and policy runtime paths plus evidence override enforcement; focused H3 tests and static gates pass; committed locally as `d8932eb`; do not push or begin H4 |
 
 ---
 
