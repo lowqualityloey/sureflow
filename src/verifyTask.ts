@@ -1,4 +1,4 @@
-/** T7 orchestration for deterministic verification of the approved T0 fixture. */
+/** T0 compatibility verification for the original fixed fixture. */
 import { readEvidence } from "./evidenceStore.js";
 import {
   acquireMutationLock,
@@ -180,3 +180,10 @@ export function verifyT0Task(
   }
   return outcome;
 }
+
+export {
+  verifyM2Task,
+  type M2VerifyTaskDependencies,
+  type M2VerifyTaskOutcome,
+  type M2VerifyTaskRequest,
+} from "./m2Orchestration.js";

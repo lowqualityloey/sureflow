@@ -13,14 +13,17 @@ export const POLICY_DECISIONS: readonly PolicyDecision[] = [
   "REQUIRE_APPROVAL",
 ] as const;
 
-/**
- * Allowlisted M1 capabilities. Everything else is denied by default.
- * `repo.write` is fixture-scoped (see worker jail, T6).
- */
+/** The original closed T0 fixture capability surface. */
 export const M1_CAPABILITY_ALLOWLIST: readonly string[] = [
   "repo.read",
   "repo.write",
   "repo.test",
+] as const;
+
+/** The current closed capability surface used by M2 real-project execution. */
+export const CURRENT_CAPABILITY_ALLOWLIST: readonly string[] = [
+  ...M1_CAPABILITY_ALLOWLIST,
+  "repo.verify",
 ] as const;
 
 /**
@@ -41,7 +44,7 @@ export interface PolicyConfig {
 }
 
 export const DEFAULT_M1_POLICY: PolicyConfig = {
-  allowlist: M1_CAPABILITY_ALLOWLIST,
+  allowlist: CURRENT_CAPABILITY_ALLOWLIST,
   protectedOperations: M1_PROTECTED_OPERATIONS,
 };
 

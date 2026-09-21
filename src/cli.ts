@@ -1,9 +1,9 @@
 /**
- * Sureflow CLI (M1 surface: init, run, status, verify).
+ * Sureflow CLI (M1/M2 surface: init, run, status, verify).
  *
- * T6 implements `run` for the single approved T0 fixture. T7 implements `verify`
- * from the fixture-owned contract and stored evidence;
- * no additional public commands exist.
+ * The public command set is unchanged. A canonical `.sureflow/task.json`
+ * routes `run` and `verify` to the M2 control-plane path; absent that file,
+ * the original T0 compatibility path remains in place.
  *
  * Exit codes are the approved §9 contract: 0 = accepted/pass,
  * 2 = controlled halt/blocked/failure.
@@ -15,6 +15,8 @@ import { readRuntimeState } from "./stateReader.js";
 import { initRuntimeState } from "./stateWriter.js";
 import { runT0Task } from "./runTask.js";
 import { verifyT0Task } from "./verifyTask.js";
+import { hasM2TaskContract, runM2Task } from "./m2Orchestration.js";
+import { verifyM2Task } from "./m2Orchestration.js";
 import {
   EXIT_ACCEPTED,
   EXIT_CONTROLLED_HALT,
@@ -32,11 +34,11 @@ export interface CliIo {
 
 function helpLines(): readonly string[] {
   return [
-    "sureflow (M1) — approved commands: init, run, status, verify",
+    "sureflow — approved commands: init, run, status, verify",
     "  sureflow init [--force]   create .sureflow/ runtime state (refuses to overwrite)",
     "  sureflow status           read-only runtime status from .sureflow/state/",
-    "  sureflow run <taskId>     run the approved T0 fixture",
-    "  sureflow verify <taskId>   re-run deterministic verification from stored evidence",
+    "  sureflow run <taskId>     run the canonical task (M2 contract or T0 compatibility path)",
+    "  sureflow verify <taskId>   verify the canonical task from persisted evidence",
     "Exit codes: 0 = accepted/pass, 2 = controlled halt/blocked/failure",
   ];
 }
@@ -135,6 +137,43 @@ function runVerify(argv: readonly string[], cwd: string, io: CliIo): number {
   return EXIT_CONTROLLED_HALT;
 }
 
+async function runTaskAsync(argv: readonly string[], cwd: string, io: CliIo): Promise<number> {
+  const taskId = argv[1];
+  if (taskId === undefined || argv.length !== 2) {
+    io.err("sureflow run: requires exactly one taskId");
+    return EXIT_CONTROLLED_HALT;
+  }
+  if (!hasM2TaskContract(cwd)) return runTask(argv, cwd, io);
+
+  const outcome = await runM2Task({ rootDir: cwd, requestedTaskId: taskId });
+  if (outcome.kind === "accepted") {
+    io.out(`Sureflow run: ACCEPT — ${outcome.taskId ?? "unknown task"} (${outcome.verdict ?? "PASS"})`);
+    return EXIT_ACCEPTED;
+  }
+  io.err(`Sureflow run: HALT — ${outcome.reason}`);
+  return EXIT_CONTROLLED_HALT;
+}
+
+function runVerifyAsync(argv: readonly string[], cwd: string, io: CliIo): number {
+  const taskId = argv[1];
+  if (taskId === undefined || argv.length !== 2) {
+    io.err("sureflow verify: requires exactly one taskId");
+    return EXIT_CONTROLLED_HALT;
+  }
+  if (!hasM2TaskContract(cwd)) return runVerify(argv, cwd, io);
+
+  const outcome = verifyM2Task({ rootDir: cwd, requestedTaskId: taskId });
+  if (outcome.kind === "verified") {
+    io.out(`Sureflow verify: ${String(outcome.verdict)} — ${outcome.taskId ?? "unknown task"}`);
+    return EXIT_ACCEPTED;
+  }
+  const verdict = outcome.verdict === null ? "HALT" : `HALT — ${outcome.verdict}`;
+  io.err(
+    `Sureflow verify: ${verdict} — ${outcome.taskId ?? "unknown task"}: ${outcome.reason}`,
+  );
+  return EXIT_CONTROLLED_HALT;
+}
+
 export function runCli(argv: readonly string[], cwd: string, io: CliIo): number {
   const command = argv[0];
   if (command === undefined || command === "--help" || command === "-h") {
@@ -151,6 +190,18 @@ export function runCli(argv: readonly string[], cwd: string, io: CliIo): number 
   return EXIT_CONTROLLED_HALT;
 }
 
+/** Async public entrypoint used by the direct CLI for T3's process seam. */
+export async function runCliAsync(
+  argv: readonly string[],
+  cwd: string,
+  io: CliIo,
+): Promise<number> {
+  const command = argv[0];
+  if (command === "run") return runTaskAsync(argv, cwd, io);
+  if (command === "verify") return runVerifyAsync(argv, cwd, io);
+  return runCli(argv, cwd, io);
+}
+
 /** True only when this module is the process entrypoint (not when imported by tests). */
 function invokedDirectly(): boolean {
   const entry = process.argv[1];
@@ -158,14 +209,13 @@ function invokedDirectly(): boolean {
 }
 
 if (invokedDirectly()) {
-  process.exit(
-    runCli(process.argv.slice(2), process.cwd(), {
+  const exitCode = await runCliAsync(process.argv.slice(2), process.cwd(), {
       out: (line) => {
         console.log(line);
       },
       err: (line) => {
         console.error(line);
       },
-    }),
-  );
+    });
+  process.exit(exitCode);
 }

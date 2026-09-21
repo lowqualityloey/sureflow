@@ -1,4 +1,4 @@
-/** T6 orchestration for the single approved T0 fixture. */
+/** T0 compatibility orchestration for the original fixed fixture. */
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { appendEvidence, readEvidence, type EvidenceReadEntry } from "./evidenceStore.js";
@@ -320,3 +320,12 @@ export function runT0Task(
   }
   return outcome;
 }
+
+export {
+  hasM2TaskContract,
+  runM2Task,
+  type M2RunPhase,
+  type M2RunTaskDependencies,
+  type M2RunTaskOutcome,
+  type M2RunTaskRequest,
+} from "./m2Orchestration.js";

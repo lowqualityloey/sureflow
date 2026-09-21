@@ -63,6 +63,13 @@ export interface BoundedReplacementDependencies {
   readonly atomicRename?: AtomicRename;
 }
 
+export interface ReplacementPreflight {
+  readonly kind: "ready";
+  readonly path: string;
+  readonly beforeSha256: string;
+  readonly afterSha256: string;
+}
+
 interface ContainedTarget {
   readonly path: string;
   readonly mode: number;
@@ -70,6 +77,10 @@ interface ContainedTarget {
 
 interface TargetInspection extends ContainedTarget {
   readonly bytes: Buffer;
+}
+
+interface ValidatedCurrentTarget extends ContainedTarget {
+  readonly beforeSha256: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -279,6 +290,80 @@ function replaceFileAtomically(
   }
 }
 
+function validateCurrentTarget(
+  project: DetectedNodeTypeScriptProject,
+  plan: ValidatedExecutionPlan,
+  dependencies: BoundedReplacementDependencies,
+): ValidatedCurrentTarget | RefusedReplacement {
+  const root = canonicalRoot(project.root);
+  if (root === null) return refused("project root cannot be resolved");
+
+  const targetGuard = resolveContainedTarget(root, plan.targetPath);
+  if ("kind" in targetGuard) return targetGuard;
+
+  const trackedTargetProbe = dependencies.trackedTargetProbe ?? defaultTrackedTargetProbe;
+  let trackedResult: TrackedTargetProbeResult;
+  try {
+    trackedResult = trackedTargetProbe(root, plan.targetPath);
+  } catch {
+    return refused("Git trackedness could not be established");
+  }
+  if (
+    trackedResult.error !== undefined ||
+    trackedResult.signal !== null ||
+    trackedResult.status !== 0
+  ) {
+    return refused("target is not an established Git-tracked file");
+  }
+
+  const currentTarget = inspectTarget(root, plan.targetPath);
+  if ("kind" in currentTarget) return currentTarget;
+
+  const beforeSha256 = sha256(currentTarget.bytes);
+  if (beforeSha256 !== plan.expectedBeforeSha256) {
+    return refused("target preimage does not match the task plan");
+  }
+
+  return {
+    path: currentTarget.path,
+    mode: currentTarget.mode,
+    beforeSha256,
+  };
+}
+
+/**
+ * Prove the current T4 write prerequisites without mutating the target.
+ * `applyBoundedReplacement` repeats these checks immediately before its write;
+ * this preflight exists so orchestration can reject stale or unsafe work before
+ * creating authoritative task state.
+ */
+export function validateBoundedReplacement(
+  project: DetectedNodeTypeScriptProject,
+  plan: ValidatedExecutionPlan,
+  dependencies: BoundedReplacementDependencies = {},
+): ReplacementPreflight | RefusedReplacement {
+  if (!validProject(project) || !validPlan(plan)) {
+    return refused("task or detected project is invalid");
+  }
+  if (readField(project, "adapter") !== readField(plan, "adapter")) {
+    return refused("task and project adapters differ");
+  }
+  if (readField(project, "targetPath") !== readField(plan, "targetPath")) {
+    return refused("task and project targets differ");
+  }
+
+  const currentTarget = validateCurrentTarget(project, plan, dependencies);
+  if ("kind" in currentTarget) return currentTarget;
+
+  const replacementBytes = Buffer.from(plan.replacementContent, "utf8");
+  return Object.freeze({
+    kind: "ready" as const,
+    path: plan.targetPath,
+    beforeSha256: currentTarget.beforeSha256,
+    afterSha256: sha256(replacementBytes),
+  });
+}
+
 /**
  * Apply exactly the replacement authorized by the validated execution plan.
  * Refusals never create a target or mutate the project target.
@@ -310,35 +395,8 @@ export function applyBoundedReplacement(
     return refused("repo.write requires approval before the replacement");
   }
 
-  const root = canonicalRoot(project.root);
-  if (root === null) return refused("project root cannot be resolved");
-
-  const targetGuard = resolveContainedTarget(root, plan.targetPath);
-  if ("kind" in targetGuard) return targetGuard;
-
-  const trackedTargetProbe = dependencies.trackedTargetProbe ?? defaultTrackedTargetProbe;
-  let trackedResult: TrackedTargetProbeResult;
-  try {
-    trackedResult = trackedTargetProbe(root, plan.targetPath);
-  } catch {
-    return refused("Git trackedness could not be established");
-  }
-  if (
-    trackedResult.error !== undefined ||
-    trackedResult.signal !== null ||
-    trackedResult.status !== 0
-  ) {
-    return refused("target is not an established Git-tracked file");
-  }
-
-  const currentTarget = inspectTarget(root, plan.targetPath);
+  const currentTarget = validateCurrentTarget(project, plan, dependencies);
   if ("kind" in currentTarget) return currentTarget;
-
-  const beforeSha256 = sha256(currentTarget.bytes);
-  if (beforeSha256 !== plan.expectedBeforeSha256) {
-    return refused("target preimage does not match the task plan");
-  }
-
   const replacementBytes = Buffer.from(plan.replacementContent, "utf8");
   try {
     replaceFileAtomically(
@@ -354,7 +412,7 @@ export function applyBoundedReplacement(
   return Object.freeze({
     kind: "applied" as const,
     path: plan.targetPath,
-    beforeSha256,
+    beforeSha256: currentTarget.beforeSha256,
     afterSha256: sha256(replacementBytes),
   });
 }

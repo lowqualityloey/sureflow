@@ -16,6 +16,7 @@ import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   applyBoundedReplacement,
+  validateBoundedReplacement,
   type BoundedReplacementDependencies,
   type TrackedTargetProbe,
 } from "../src/boundedReplacement.js";
@@ -167,6 +168,28 @@ describe("M2-T4 bounded replacement", () => {
     expect(result.kind).toBe("refused");
     if (result.kind === "refused") expect(result.reason).toContain("preimage");
     expect(targetBytes(root, targetPath)).toEqual(before);
+  });
+
+  it("revalidates the preimage after a successful preflight", () => {
+    const { root, plan, project, targetPath } = temporaryProject();
+    const replacementPlan = planWith(plan, { replacementContent });
+    const preflight = validateBoundedReplacement(project, replacementPlan, dependencies());
+    expect(preflight.kind).toBe("ready");
+
+    const externalBytes = Buffer.from("export const external = true;\n", "utf8");
+    writeFileSync(join(root, targetPath), externalBytes);
+
+    const result = applyBoundedReplacement(
+      project,
+      replacementPlan,
+      DEFAULT_M1_POLICY,
+      dependencies(),
+    );
+
+    expect(result.kind).toBe("refused");
+    if (result.kind === "refused") expect(result.reason).toContain("preimage");
+    expect(targetBytes(root, targetPath)).toEqual(externalBytes);
+    expect(targetTemporaryFiles(root)).toEqual([]);
   });
 
   it.each([
