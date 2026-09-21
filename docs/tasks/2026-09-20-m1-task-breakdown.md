@@ -4,9 +4,9 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1–T5 and T8 complete and committed; T6 contract corrections
-  committed through `ee3b66d`; T6 implementation and integration acceptance complete from the runnable T0 path; T7
-  and T9–T11 remain gated/not started; PromptKit state
+- **Status**: T1–T7 and T8 complete and committed; T6 contract corrections
+  committed through `ee3b66d`; T7 verification complete; T9–T11
+  remain gated/not started; PromptKit state
   `in_progress`
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
@@ -41,8 +41,7 @@
   evidence append, and verification after retry resolution. Only an initial
   started-process nonzero numeric exit retries, exactly once. AC-1/AC-2/AC-5
   seams.
-- [ ] T7 CLI verify (p0) — **PLANNED / NOT STARTED**: re-emit verdict from stored evidence;
-  stale ACCEPT -> HALT. AC-1/AC-4/AC-7 seams.
+- [x] T7 CLI verify (p0) — **COMPLETE + ACCEPTED**: re-emits T4 verdict from stored evidence; stale ACCEPT -> HALT. AC-1/AC-4/AC-7 seams.
 - [ ] T9 Negative tests (p0) — **PLANNED / NOT STARTED**: AC-2/AC-3/AC-4/AC-5/AC-6 cases with
   exact commands + expected exit codes (0 vs 2).
 - [ ] T10 Determinism + surface audit (p1) — **PLANNED / NOT STARTED**: AC-7 double-run +
@@ -57,7 +56,7 @@ telemetry/cloud/remote tracking. Scope change needs a record.
 
 - T8 implementation and commit were separately authorized. T6 implementation
   was subsequently authorized, accepted, and committed.
-  T6 integration acceptance is complete from the runnable T0 path. T7 remains gated / not started.
+  T6 integration acceptance and T7 verification are complete. T9–T11 remain gated / not started.
 - M1 public surface remains `init` / `run` /
   `status` / `verify`.
 - `.sureflow/state/` is authoritative runtime state;

@@ -1,8 +1,8 @@
 /**
  * Sureflow CLI (M1 surface: init, run, status, verify).
  *
- * T6 implements `run` for the single approved T0 fixture. `verify`
- * (T7) remains an explicit stub that halts with the approved exit code;
+ * T6 implements `run` for the single approved T0 fixture. T7 implements `verify`
+ * from the fixture-owned contract and stored evidence;
  * no additional public commands exist.
  *
  * Exit codes are the approved §9 contract: 0 = accepted/pass,
@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { readRuntimeState } from "./stateReader.js";
 import { initRuntimeState } from "./stateWriter.js";
 import { runT0Task } from "./runTask.js";
+import { verifyT0Task } from "./verifyTask.js";
 import {
   EXIT_ACCEPTED,
   EXIT_CONTROLLED_HALT,
@@ -33,7 +34,7 @@ function helpLines(): readonly string[] {
     "  sureflow init [--force]   create .sureflow/ runtime state (refuses to overwrite)",
     "  sureflow status           read-only runtime status from .sureflow/state/",
     "  sureflow run <taskId>     run the approved T0 fixture",
-    "  sureflow verify ...       not implemented in M1 yet (T7)",
+    "  sureflow verify <taskId>   re-run deterministic verification from stored evidence",
     "Exit codes: 0 = accepted/pass, 2 = controlled halt/blocked/failure",
   ];
 }
@@ -91,6 +92,34 @@ function runTask(argv: readonly string[], cwd: string, io: CliIo): number {
   return EXIT_CONTROLLED_HALT;
 }
 
+function runVerify(argv: readonly string[], cwd: string, io: CliIo): number {
+  const taskId = argv[1];
+  if (taskId === undefined || argv.length !== 2) {
+    io.err("sureflow verify: requires exactly one fixture taskId");
+    return EXIT_CONTROLLED_HALT;
+  }
+  const outcome = verifyT0Task({ rootDir: cwd, requestedTaskId: taskId });
+  if (outcome.kind === "verified") {
+    io.out(
+      "Sureflow verify: " +
+        (String(outcome.verdict)) +
+        " — " +
+        (outcome.taskId ?? "unknown task"),
+    );
+    return EXIT_ACCEPTED;
+  }
+  const verdict = outcome.verdict === null ? "HALT" : "HALT — " + outcome.verdict;
+  io.err(
+    "Sureflow verify: " +
+      verdict +
+      " — " +
+      (outcome.taskId ?? "unknown task") +
+      ": " +
+      outcome.reason,
+  );
+  return EXIT_CONTROLLED_HALT;
+}
+
 export function runCli(argv: readonly string[], cwd: string, io: CliIo): number {
   const command = argv[0];
   if (command === undefined || command === "--help" || command === "-h") {
@@ -102,10 +131,7 @@ export function runCli(argv: readonly string[], cwd: string, io: CliIo): number 
   if (command === "init") return runInit(argv, cwd, io);
   if (command === "run") return runTask(argv, cwd, io);
   if (command === "status") return runStatus(argv, cwd, io);
-  if (command === "verify") {
-    io.err("sureflow verify: not implemented in M1 yet (T7).");
-    return EXIT_CONTROLLED_HALT;
-  }
+  if (command === "verify") return runVerify(argv, cwd, io);
   io.err(`sureflow: unknown command '${command}'. Approved: ${APPROVED_COMMANDS.join(", ")}`);
   return EXIT_CONTROLLED_HALT;
 }
