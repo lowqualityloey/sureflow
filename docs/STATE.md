@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T11 closeout complete; future milestones remain gated
-- **Overall Status**: COMPLETED — M1 implementation, acceptance, and documentation closeout complete; future milestones remain gated
-- **Target Release / Deadline**: M1 implementation — no deadline recorded
-- **Current Working Branch**: `main` at T11 documentation/acceptance closeout changeset pending pk:commit
+- **Current Milestone / Epic**: M1.1 reliability hardening — H1 zero-cost public CI active; H2–H7 gated
+- **Overall Status**: IN PROGRESS — H1 local gates pass; commit and remote CI acceptance remain pending
+- **Target Release / Deadline**: M1.1 — no deadline recorded
+- **Current Working Branch**: `main` at `74408a9`; H1 workflow and bookkeeping pending atomic commit
 - **Last Updated**: 2026-09-21
 
 
@@ -17,6 +17,7 @@
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
 - [x] **M1-build**: T1–T11 closeout complete; future milestones gated
+- [ ] **M1.1-H1**: Zero-cost Node 24 public CI — local verification complete; commit and green remote run pending
 
 ### Active Milestone Task Breakdown
 
@@ -33,47 +34,48 @@
 - [x] T9: negative acceptance coverage complete
 - [x] T10: determinism and public-surface audit complete
 - [x] T11: documentation and acceptance closeout complete
-- [!] Stop boundary: M1 closeout is complete; do not begin future milestones
+- [ ] H1: zero-cost Node 24 verification workflow — active; local gates pass; commit and green remote run pending
+- [!] Stop boundary: H2–H7 remain unauthorized; do not begin H2
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md` (approved 2026-09-20; §9 addendum records toolchain decisions)
-- **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` plus `docs/tasks/2026-09-20-m1-task-breakdown.md` and linked Scope Change 1
-- **Key Files in Flight**: T11 documentation closeout in `docs/STATE.md`, the M1 Task Record/breakdown/spec, README, ARCHITECTURE, SECURITY, CHANGELOG, and linked ADR/seam/scope records. No source, tests, fixtures, packages, or runtime artifacts are in flight.
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — approved for H1 only
+- **Active Task Spec**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
+- **Key Files in Flight**: `.github/workflows/ci.yml`, the linked M1.1 specification and Task Record, and `docs/STATE.md`. No runtime, test, fixture, package, or H2–H7 implementation files are in flight.
 - **Verification Commands (Scoped)**:
-  - Unit Tests: `npm test` → 90 passed across 11 files (2026-09-21)
-  - Focused T10: `npx vitest run tests/t10Audit.test.ts` → 4 passed (2026-09-21)
-  - Bounded pre-commit checks: task-identity mismatch, event redaction-before-append, and fixed production dispatch → 3 passed (2026-09-21)
+  - Unit Tests: `npm test` → 90 passed across 11 files on unchanged retry outside the restricted command sandbox; first attempt's child `node` process was denied with `EPERM` (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
-  - Linter: clean-checkout and final working-tree `npm run lint` → exit 0 (2026-09-21); an earlier ignored `.kilo/worktrees/` auxiliary path caused a local-only traversal error
+  - Linter: `npm run lint` → exit 0 (2026-09-21)
   - Build: `npm run build` → exit 0 (2026-09-21)
+  - Repository checks: `git diff --check` and the tracked-tree cleanliness check → exit 0 (2026-09-21)
+  - Harness preflight: bounded fixed-scope scan reported no findings (2026-09-21)
 
 ---
 
 ## 3A. Execution-Control Projection (Optional)
 
-- **Local Task Source**: `docs/tasks/2026-09-20-m1-local-task-gate.md`
-- **Task ID**: `TASK-2026-09-20-m1-local-task-gate`
-- **Task Record**: `docs/tasks/2026-09-20-m1-local-task-gate.md`
-- **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Execution Scope**: `M1 control-plane slice only: init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/`
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Done — T1–T11 implementation, acceptance, and documentation closeout complete`
-- **Active Task Pointer**: `None (M1 closeout complete)`
-- **Owner / Current Actor**: `Human authority — T11 closeout accepted; pk:commit authorization requested`
-- **Start Time**: `2026-09-20 23:55 UTC`
+- **Local Task Source**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
+- **Task ID**: `TASK-2026-09-21-m1-1-reliability-hardening`
+- **Task Record**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
+- **Specification**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md`
+- **Execution Scope**: `M1.1 H1 only: .github/workflows/ci.yml plus linked bookkeeping records`
+- **Execution State**: `in_progress`
+- **Mapped `pk:tasks` Status**: `In Progress — H1 local verification complete; remote acceptance pending`
+- **Active Task Pointer**: `H1 / TASK-2026-09-21-m1-1-reliability-hardening`
+- **Owner / Current Actor**: `Codex, under explicit H1 authorization; H2–H7 remain gated`
+- **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `T11 documentation/acceptance closeout changeset pending pk:commit`
-- **Checkpoint Policy**: `T11 documentation/acceptance closeout complete; stop before future milestones`
-- **Blockers and Resume Condition**: `No M1 implementation or closeout blocker. Future milestones remain separately gated.`
-- **Verification Status**: `T11 closeout maps AC-1..AC-8 to executed T6–T10 evidence. Full suite: 90 passing tests across 11 files. Typecheck, build, git diff check, fixed-scope harness, changed-file scope, secret-pattern, debug-probe, credential filename, and runtime-artifact guards pass. Clean-checkout and final-working-tree canonical npm run lint pass; an earlier ignored .kilo/worktrees/ auxiliary path was local-only and required no tooling change. No runtime artifacts exist in the repository.`
-- **CI Evidence**: `N/A — no host-project CI`
-- **Changed-File Summary**: `T11 documentation-only closeout updates README.md, ARCHITECTURE.md, SECURITY.md, CHANGELOG.md, the M1 spec, canonical Task Record/breakdown, ADR/seam/scope records, and STATE.md. No source, tests, fixtures, package files, runtime behavior, or .sureflow artifacts changed.`
-- **Latest Checkpoint**: `docs/tasks/2026-09-20-m1-local-task-gate.checkpoint-1.md`
-- **Latest Handoff**: `docs/tasks/2026-09-20-m1-local-task-gate.handoff-1.md`
-- **Next Action**: `M1 closeout complete; request pk:commit, then stop. Do not begin future milestones.`
+- **Current Revision**: `74408a9; H1 atomic commit pending`
+- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; hard stop before H2 authorization`
+- **Blockers and Resume Condition**: `Remote CI pending; accept H1 only after its committed revision is pushed and the GitHub Actions run is green.`
+- **Verification Status**: `H1 workflow structure matches AC-H1.1 and AC-H1.2. Typecheck, 90 tests across 11 files, lint, build, git diff check, tracked-tree cleanliness, and bounded harness preflight pass locally. The initial sandboxed test attempt denied one child node process with EPERM; the unchanged suite passed outside the restricted command sandbox.`
+- **CI Evidence**: `Pending — GitHub Actions run after the H1 commit is pushed`
+- **Changed-File Summary**: `.github/workflows/ci.yml` plus the existing M1.1 specification, Task Record, and `docs/STATE.md`. No runtime, test, fixture, package, or H2–H7 implementation files changed.
+- **Latest Checkpoint**: `N/A - H1 is a bounded configuration task`
+- **Latest Handoff**: `N/A`
+- **Next Action**: `Commit the verified H1 workflow and bookkeeping atomically; push requires explicit remote authorization. Do not begin H2.`
 
 ---
 
@@ -131,7 +133,9 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. M1 closeout is complete. Request `pk:commit` for the authorized documentation scope, then stop; do not begin future milestones.
+1. Commit the verified H1 workflow and bookkeeping records atomically.
+2. With explicit remote authorization, push only the H1 commit and require a green GitHub Actions run before accepting H1.
+3. Stop; do not begin H2 without separate authorization.
 
 ---
 
@@ -146,6 +150,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 | Codex | M1 T1–T5 checkpoint | Verified commits through T5 and 34 passing tests plus clean typecheck/lint; found canonical record drift; wrote checkpoint + handoff and stopped at `checkpoint_due` |
 | 2026-09-21 | Codex | T6 second preflight contract correction | Accepted preflight STOP; recorded fixed npm-test result mapping, execution-outcome retry eligibility, terminal evidence/verification ordering, and fixture/evidence independence; documentation only |
 | 2026-09-21 | Codex | T6 implementation | Implemented policy-gated T0 run orchestration, bounded worker primitives, fixed npm-test dispatch/result mapping, max-one retry, minimal events, one terminal evidence write, deterministic verification/state transitions, and focused tests; stopped before T9 and commit |
+| 2026-09-21 | Codex | M1.1 H1 public CI | Added the bounded Node 24 GitHub Actions workflow; locally verified typecheck, 90 tests, lint, build, diff/cleanliness checks, and fixed-scope harness preflight; H2–H7 remain gated |
 
 ---
 
