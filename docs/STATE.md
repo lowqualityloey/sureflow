@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T7 and T8 committed; T5 status observability amendment, T6 integration acceptance, and T7 verification complete
-- **Overall Status**: IN_PROGRESS — T5 status amendment, T6 integration acceptance, and T7 verification complete; T9–T11 remain gated
+- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T9 and T8 committed; T5 status observability amendment, T6 integration acceptance, T7 verification, and T9 negative acceptance complete
+- **Overall Status**: IN_PROGRESS — T5 status amendment, T6 integration acceptance, T7 verification, and T9 negative acceptance complete; T10–T11 remain gated
 - **Target Release / Deadline**: M1 implementation — no deadline recorded
-- **Current Working Branch**: `main` at T7 verification commit (exact amended hash reported after creation)
+- **Current Working Branch**: `main` at T9 negative acceptance commit (exact hash reported after creation)
 - **Last Updated**: 2026-09-21
 
 
@@ -16,7 +16,7 @@
 ### Milestone Roadmap
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
-- [/] **M1-build**: T1–T7 and T8 committed; T9–T11 gated
+- [/] **M1-build**: T1–T9 and T8 committed; T10–T11 gated
 
 ### Active Milestone Task Breakdown
 
@@ -30,8 +30,9 @@
 - [x] T8: minimal T0 fixture contract — committed `a66fccc`
 - [x] T6: implementation and integration acceptance complete — real T0 path reached ACCEPT/PASS with one attempt and zero retries
 - [x] T7: verify CLI and stale-ACCEPT reconciliation complete
-- [ ] T9–T11: gated / not started
-- [!] Stop boundary: T7 closeout is committed; do not begin T9
+- [x] T9: negative acceptance coverage complete
+- [ ] T10–T11: gated / not started
+- [!] Stop boundary: T9 closeout is committed; do not begin T10
 
 ---
 
@@ -39,10 +40,10 @@
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md` (approved 2026-09-20; §9 addendum records toolchain decisions)
 - **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` plus `docs/tasks/2026-09-20-m1-task-breakdown.md` and linked Scope Change 1
-- **Key Source Files in Flight**: `src/cli.ts`, `src/verifyTask.ts`, `tests/verify.test.ts`, and `tsconfig.json`; T7 canonical status reconciliation is also uncommitted.
+- **Key Source Files in Flight**: `tests/negativePaths.test.ts` and `tsconfig.json`; T9 canonical status reconciliation is included in this changeset.
 - **Verification Commands (Scoped)**:
-  - Unit Tests: `npm test` → 74 passed across 9 files (2026-09-21)
-  - Focused T7: `npx vitest run tests/verify.test.ts` → 6 passed (2026-09-21)
+  - Unit Tests: `npm test` → 86 passed across 10 files (2026-09-21)
+  - Focused T9: `npx vitest run tests/negativePaths.test.ts` → 12 passed (2026-09-21)
   - Bounded pre-commit checks: task-identity mismatch, event redaction-before-append, and fixed production dispatch → 3 passed (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
   - Linter: `npm run lint` → exit 0 (2026-09-21)
@@ -58,20 +59,20 @@
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **Execution Scope**: `M1 control-plane slice only: init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/`
 - **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 verification complete; T9–T11 gated / not started`
+- **Mapped `pk:tasks` Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 verification complete; T9 negative acceptance complete; T10–T11 gated / not started`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Owner / Current Actor**: `Codex T7 verification + human authority`
+- **Owner / Current Actor**: `Codex T9 negative acceptance + human authority`
 - **Start Time**: `2026-09-20 23:55 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `T7 verification commit (exact hash reported after creation)`
-- **Checkpoint Policy**: `T7 verification complete; stop before T9`
-- **Blockers and Resume Condition**: `No M1 T7 closeout blocker. T9–T11 remain gated / not started.`
-- **Verification Status**: `Focused T7 suite: 6 passing tests. Full suite: 74 passing tests across 9 files. Typecheck, lint, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Isolated T0 path: ALLOW, npm test exit 0, terminal evidence ok, T4 PASS, TaskState accepted, one attempt, zero retries, one terminal evidence record; status reports TASK-T0-BASIC: accepted and leaves evidence unchanged.`
+- **Current Revision**: `T9 negative acceptance commit (exact hash reported after creation)`
+- **Checkpoint Policy**: `T9 negative acceptance complete; stop before T10`
+- **Blockers and Resume Condition**: `No M1 T9 closeout blocker. T10–T11 remain gated / not started.`
+- **Verification Status**: `Focused T9 suite: 12 passing tests. Full suite: 86 passing tests across 10 files. Typecheck, lint, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Isolated T0 path: ALLOW, npm test exit 0, terminal evidence ok, T4 PASS, TaskState accepted, one attempt, zero retries, one terminal evidence record; status reports TASK-T0-BASIC: accepted and leaves evidence unchanged.`
 - **CI Evidence**: `N/A — no host-project CI`
-- **Changed-File Summary**: `T7 verify CLI and stale-ACCEPT reconciliation in src/cli.ts, src/verifyTask.ts, tests/verify.test.ts, and tsconfig.json. No runtime artifacts leaked.`
+- **Changed-File Summary**: `T9 negative acceptance coverage in tests/negativePaths.test.ts and tsconfig.json. No production changes or runtime artifacts leaked.`
 - **Latest Checkpoint**: `docs/tasks/2026-09-20-m1-local-task-gate.checkpoint-1.md`
 - **Latest Handoff**: `docs/tasks/2026-09-20-m1-local-task-gate.handoff-1.md`
-- **Next Action**: `STOP. Do not begin T9 without separate authorization.`
+- **Next Action**: `STOP. Do not begin T10 without separate authorization.`
 
 ---
 
@@ -112,7 +113,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - T6 integration acceptance and T7 verification are complete. T9–T11 remain gated / not started.
+  - T6 integration acceptance, T7 verification, and T9 negative acceptance are complete. T10–T11 remain gated / not started.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M1); C7 capability-filter before MCP (deferred post-M1); C8 stack-agnostic verify-adapter interface (M1 avoids via fixture-local verify). C2/C3/C5 closed by M-D4/M-D3. Full text: `docs/specs/2026-09-20-sureflow-discovery-intake.md` §5.
 - **Technical Debt & Risks**:
@@ -129,7 +130,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. STOP. T5 status observability, T6 integration acceptance, and T7 verification are complete; do not begin T9.
+1. STOP. T5 status observability, T6 integration acceptance, T7 verification, and T9 negative acceptance are complete; do not begin T10.
 
 ---
 
