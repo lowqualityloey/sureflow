@@ -26,7 +26,7 @@
 
 ## 3. Task Breakdown and Acceptance Criteria
 
-- [ ] **H1**: zero-cost Node 24 verification workflow — active / implementation ready for commit.
+- [x] **H1**: zero-cost Node 24 verification workflow — accepted / complete at `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`.
   - **AC-H1.1**: One `ubuntu-latest` job runs Node 24 canonical gates on push to `main` and pull requests targeting `main`.
   - **AC-H1.2**: Workflow has `contents: read`, no persisted checkout credentials, no cache, artifacts, matrix, write operations, secrets, paid service, or nonstandard runner.
   - **AC-H1.3**: The actual remote GitHub Actions run against the committed H1 revision is green.
@@ -50,38 +50,39 @@
 
 ## 5. State and Active Ownership
 
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `In Progress`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Complete — H1 accepted; H2–H7 remain gated`
 - **Active Task Pointer**: `H1 / TASK-2026-09-21-m1-1-reliability-hardening`
 - **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Actor**: `Codex, under explicit H1 authorization`
-- **Next Action**: `Commit the verified H1 workflow and bookkeeping records atomically, then push only that commit.`
+- **Next Action**: `STOP. Do not begin H2 without separate human authorization.`
 
 ### Transition History
 
 | Previous State | New State | Timestamp | Actor | Reason | Supporting Evidence |
 |---|---|---|---|---|---|
 | planned | in_progress | 2026-09-21 06:50 UTC | Human authority | H1 explicitly authorized; H2–H7 remain gated | User authorization and local H1 implementation evidence |
+| in_progress | completed | 2026-09-21 07:24 UTC | Codex | H1 commit pushed and remote CI passed | `origin/main` = `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`; CI run `35572778970` concluded `success` |
 
 ## 6. Evidence and Completion Gate
 
 - **Changed Files**: `.github/workflows/ci.yml`; this task record; linked M1.1 specification; `docs/STATE.md`.
 - **Scope Change Records**: `None`
-- **Checkpoint Records**: `None`
+- **Checkpoint Records**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 remote acceptance boundary
 - **Handoff Records**: `None`
 - **Verification Evidence**: `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and the tracked-tree cleanliness check passed locally on 2026-09-21. `npm test` passed 90 tests across 11 files on an unchanged retry outside the restricted command sandbox after the first attempt's child `node` process was denied with `EPERM`. The bounded PromptKit harness preflight reported no findings in its fixed scope. Remote GitHub Actions remains pending commit/push.
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Exception Verification**: `N/A - exception work type`
-- **CI Evidence**: `Pending — GitHub Actions run after H1 push`
+- **CI Evidence**: `GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) triggered by push and tested e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. The test job and all steps concluded success.`
 - **Review Evidence**: `Human accepted H1 local implementation`
-- **Commit Evidence**: `Pending`
+- **Commit Evidence**: `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main.`
 - **Pull Request Evidence**: `N/A - direct main push explicitly authorized for H1`
 - **Release Evidence**: `N/A`
-- **Blocker and Resume Condition**: `Remote CI pending; accept H1 only if the run is green.`
-- **Completion State**: `awaiting_review`
-- **Acceptance Results**: `AC-H1.1 and AC-H1.2 locally verified; AC-H1.3 pending remote CI.`
+- **Blocker and Resume Condition**: `H1 has no blocker. H2–H7 remain unauthorized and require separate human authorization.`
+- **Completion State**: `accepted`
+- **Acceptance Results**: `AC-H1.1, AC-H1.2, and AC-H1.3 passed. The remote CI run was green for the exact pushed H1 revision.`
 - **Changed-File Summary**: `.github/workflows/ci.yml` adds the bounded H1 workflow; the linked M1.1 specification, this Task Record, and `docs/STATE.md` record its approved scope and execution evidence. No runtime, test, fixture, package, or H2-H7 implementation files changed.
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `Pending remote CI result`
+- **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success.`

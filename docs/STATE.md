@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1.1 reliability hardening — H1 zero-cost public CI active; H2–H7 gated
-- **Overall Status**: IN PROGRESS — H1 local gates pass; commit and remote CI acceptance remain pending
+- **Current Milestone / Epic**: M1.1 reliability hardening — H1 zero-cost public CI accepted; H2–H7 gated
+- **Overall Status**: H1 COMPLETE — remote CI passed; H2–H7 remain unauthorized
 - **Target Release / Deadline**: M1.1 — no deadline recorded
-- **Current Working Branch**: `main` at `74408a9`; H1 workflow and bookkeeping pending atomic commit
+- **Current Working Branch**: `main` at `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`; H1 accepted
 - **Last Updated**: 2026-09-21
 
 
@@ -17,7 +17,7 @@
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
 - [x] **M1-build**: T1–T11 closeout complete; future milestones gated
-- [ ] **M1.1-H1**: Zero-cost Node 24 public CI — local verification complete; commit and green remote run pending
+- [x] **M1.1-H1**: Zero-cost Node 24 public CI — accepted after green remote CI run `35572778970` on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 
 ### Active Milestone Task Breakdown
 
@@ -34,16 +34,16 @@
 - [x] T9: negative acceptance coverage complete
 - [x] T10: determinism and public-surface audit complete
 - [x] T11: documentation and acceptance closeout complete
-- [ ] H1: zero-cost Node 24 verification workflow — active; local gates pass; commit and green remote run pending
+- [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [!] Stop boundary: H2–H7 remain unauthorized; do not begin H2
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — approved for H1 only
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1 accepted; H2–H7 gated
 - **Active Task Spec**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Key Files in Flight**: `.github/workflows/ci.yml`, the linked M1.1 specification and Task Record, and `docs/STATE.md`. No runtime, test, fixture, package, or H2–H7 implementation files are in flight.
+- **Key Files in Flight**: H1 acceptance bookkeeping only: the Task Record, its checkpoint record, and `docs/STATE.md`. No runtime, test, fixture, package, workflow, or H2–H7 implementation files are in flight.
 - **Verification Commands (Scoped)**:
   - Unit Tests: `npm test` → 90 passed across 11 files on unchanged retry outside the restricted command sandbox; first attempt's child `node` process was denied with `EPERM` (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -61,21 +61,21 @@
 - **Task Record**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
 - **Specification**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md`
 - **Execution Scope**: `M1.1 H1 only: .github/workflows/ci.yml plus linked bookkeeping records`
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `In Progress — H1 local verification complete; remote acceptance pending`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Complete — H1 accepted; H2–H7 gated`
 - **Active Task Pointer**: `H1 / TASK-2026-09-21-m1-1-reliability-hardening`
 - **Owner / Current Actor**: `Codex, under explicit H1 authorization; H2–H7 remain gated`
 - **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `74408a9; H1 atomic commit pending`
+- **Current Revision**: `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c; H1 accepted`
 - **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; hard stop before H2 authorization`
-- **Blockers and Resume Condition**: `Remote CI pending; accept H1 only after its committed revision is pushed and the GitHub Actions run is green.`
+- **Blockers and Resume Condition**: `H1 accepted. STOP before H2; separate human authorization is required to resume.`
 - **Verification Status**: `H1 workflow structure matches AC-H1.1 and AC-H1.2. Typecheck, 90 tests across 11 files, lint, build, git diff check, tracked-tree cleanliness, and bounded harness preflight pass locally. The initial sandboxed test attempt denied one child node process with EPERM; the unchanged suite passed outside the restricted command sandbox.`
-- **CI Evidence**: `Pending — GitHub Actions run after the H1 commit is pushed`
+- **CI Evidence**: `GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed after push; its head SHA was e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. The test job and all its steps concluded success.`
 - **Changed-File Summary**: `.github/workflows/ci.yml` plus the existing M1.1 specification, Task Record, and `docs/STATE.md`. No runtime, test, fixture, package, or H2–H7 implementation files changed.
-- **Latest Checkpoint**: `N/A - H1 is a bounded configuration task`
+- **Latest Checkpoint**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 accepted; hard stop before H2
 - **Latest Handoff**: `N/A`
-- **Next Action**: `Commit the verified H1 workflow and bookkeeping atomically; push requires explicit remote authorization. Do not begin H2.`
+- **Next Action**: `STOP. Do not begin H2 without separate human authorization.`
 
 ---
 
@@ -133,9 +133,8 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. Commit the verified H1 workflow and bookkeeping records atomically.
-2. With explicit remote authorization, push only the H1 commit and require a green GitHub Actions run before accepting H1.
-3. Stop; do not begin H2 without separate authorization.
+1. H1 accepted: commit `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c` is on `origin/main`; CI run `35572778970` passed.
+2. Stop; do not begin H2 without separate authorization.
 
 ---
 
@@ -151,6 +150,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 | Codex | T6 second preflight contract correction | Accepted preflight STOP; recorded fixed npm-test result mapping, execution-outcome retry eligibility, terminal evidence/verification ordering, and fixture/evidence independence; documentation only |
 | 2026-09-21 | Codex | T6 implementation | Implemented policy-gated T0 run orchestration, bounded worker primitives, fixed npm-test dispatch/result mapping, max-one retry, minimal events, one terminal evidence write, deterministic verification/state transitions, and focused tests; stopped before T9 and commit |
 | 2026-09-21 | Codex | M1.1 H1 public CI | Added the bounded Node 24 GitHub Actions workflow; locally verified typecheck, 90 tests, lint, build, diff/cleanliness checks, and fixed-scope harness preflight; H2–H7 remain gated |
+| 2026-09-21 | Codex | M1.1 H1 remote acceptance | Pushed `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c` non-force to `origin/main`; GitHub Actions CI run `35572778970` passed; H1 accepted and H2–H7 remain gated |
 
 ---
 
@@ -162,8 +162,9 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-20 (M0 discovery) | ~15 | host telemetry unavailable | ~150k tok total (~8k-15k tok/turn heuristic) | Discovery reads of 8 docs + Task Record + spec + STATE.md sync; heuristic per checkpoint protocol, not billing telemetry |
 | 2026-09-20 (M1 spec) | ~14 | host telemetry unavailable | ~140k tok total (~8k-15k tok/turn heuristic) | ADR + M1 spec + M1 Task Record + STATE/PROMPTKIT sync; heuristic, not billing telemetry |
 | 2026-09-21 (sync, status, checkpoint) | ~3 | host telemetry unavailable | ~30k tok total (~8k-15k tok/turn heuristic) | Disk sync, CLI status, repository audit, verification, and durable checkpoint; heuristic, not billing telemetry |
+| 2026-09-21 (M1.1 H1 remote acceptance) | ~6 | host telemetry unavailable | ~60k tok total (~8k-15k tok/turn heuristic) | Approved H1 push, remote SHA verification, GitHub Actions monitoring, and M1.1 boundary checkpoint; heuristic, not billing telemetry |
 
-- **Running total**: ~32 turns (3 sessions) · ~320k tokens estimated cumulative spend
+- **Running total**: ~38 turns (4 sessions) · ~380k tokens estimated cumulative spend
 
 ## Project Closeout (Definition of Done)
 - **Completed**: 2026-09-21 · **Scope delivered**: M1 deterministic local task gate, T1–T11 implementation, acceptance, and documentation closeout
