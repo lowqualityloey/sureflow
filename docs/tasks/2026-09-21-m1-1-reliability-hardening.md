@@ -30,7 +30,7 @@
   - **AC-H1.1**: One `ubuntu-latest` job runs Node 24 canonical gates on push to `main` and pull requests targeting `main`.
   - **AC-H1.2**: Workflow has `contents: read`, no persisted checkout credentials, no cache, artifacts, matrix, write operations, secrets, paid service, or nonstandard runner.
   - **AC-H1.3**: The actual remote GitHub Actions run against the committed H1 revision is green.
-- [ ] **H2**: Node 24 type alignment — active / in progress / explicitly authorized.
+- [x] **H2**: Node 24 type alignment — accepted / complete at `505daa10f43410a6eefb28a5b758af94227c1fbe`.
 - [ ] **H3**: runtime namespace symlink containment — planned / gated / unauthorized.
 - [ ] **H4**: state interruption safety — planned / gated / unauthorized.
 - [ ] **H5**: mutation lock — planned / gated / unauthorized.
@@ -50,12 +50,12 @@
 
 ## 5. State and Active Ownership
 
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `In Progress — H1 accepted; H2 authorized; H3–H7 gated`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Complete — H1 and H2 accepted; H3–H7 gated`
 - **Active Task Pointer**: `H2 / TASK-2026-09-21-m1-1-reliability-hardening`
 - **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Actor**: `Codex, under explicit H2 authorization`
-- **Next Action**: `Await separate authorization to push the locally verified H2 commit. Do not begin H3.`
+- **Next Action**: `STOP. Do not begin H3 without separate human authorization.`
 
 ### Transition History
 
@@ -64,26 +64,27 @@
 | planned | in_progress | 2026-09-21 06:50 UTC | Human authority | H1 explicitly authorized; H2–H7 remain gated | User authorization and local H1 implementation evidence |
 | in_progress | completed | 2026-09-21 07:24 UTC | Codex | H1 commit pushed and remote CI passed | `origin/main` = `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`; CI run `35572778970` concluded `success` |
 | completed | in_progress | 2026-09-21 | Human authority | H2 explicitly authorized; H3–H7 remain gated | User authorization for Node 24 type alignment only |
+| in_progress | completed | 2026-09-21 07:51 UTC | Codex | H2 commit pushed and remote CI passed | `origin/main` = `505daa10f43410a6eefb28a5b758af94227c1fbe`; CI run `35574889277` concluded `success` |
 
 ## 6. Evidence and Completion Gate
 
 - **Changed Files**: `.github/workflows/ci.yml`; this task record; linked M1.1 specification; `docs/STATE.md`.
 - **Scope Change Records**: `None`
-- **Checkpoint Records**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 remote acceptance boundary
+- **Checkpoint Records**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 remote acceptance boundary; `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-2.md` — H2 remote acceptance boundary
 - **Handoff Records**: `None`
 - **Verification Evidence**: `H1: npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and the tracked-tree cleanliness check passed locally on 2026-09-21; `npm test` passed 90 tests across 11 files outside the restricted command sandbox after its initial child-node EPERM. `H2: npm ci`, `npm run typecheck`, `npm test` (91 tests across 11 files), `npm run lint`, `npm run build`, `git diff --check`, `npm ls @types/node --depth=0`, PromptKit reference validation, and the bounded harness preflight all passed locally on 2026-09-21.`
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Exception Verification**: `N/A - exception work type`
-- **CI Evidence**: `GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) triggered by push and tested e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. The test job and all steps concluded success.`
+- **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) tested e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c and passed. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) tested 505daa10f43410a6eefb28a5b758af94227c1fbe and passed; its test job and all steps concluded success.`
 - **Review Evidence**: `Human accepted H1 local implementation`
-- **Commit Evidence**: `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main.`
+- **Commit Evidence**: `H1: e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main. H2: 505daa10f43410a6eefb28a5b758af94227c1fbe (chore(toolchain): align Node typings with Node 24), pushed non-force to origin/main.`
 - **Pull Request Evidence**: `N/A - direct main push explicitly authorized for H1`
 - **Release Evidence**: `N/A`
-- **Blocker and Resume Condition**: `H2 is active. H3–H7 remain unauthorized and require separate human authorization.`
-- **Completion State**: `in_progress`
-- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 implementation and local verification are complete; remote CI and acceptance remain pending separate push authorization.`
+- **Blocker and Resume Condition**: `H2 has no blocker. H3–H7 remain unauthorized and require separate human authorization.`
+- **Completion State**: `accepted`
+- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 local and remote CI verification passed for the exact pushed revision.`
 - **Changed-File Summary**: `H1 remains unchanged. H2 changes only package.json, package-lock.json, tests/toolchain.test.ts, this Task Record, and docs/STATE.md. No runtime source, CLI behavior, CI workflow, configuration, H3–H7 implementation, or tracked dist/node_modules artifact changed.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success.`
+- **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success. H2 accepted 2026-09-21 07:51 UTC after CI run 35574889277 concluded success.`
