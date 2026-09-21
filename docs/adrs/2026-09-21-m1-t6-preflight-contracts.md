@@ -129,12 +129,10 @@ provider metadata, or generalized execution profile.
 
 ## Consequences
 
-- T8 is committed at `a66fccc`. T6 remains gated after the second preflight
-  until this documentation correction is committed and T6 is separately
-  authorized again.
+- T8 is committed at `a66fccc`. T6, T7, T9, and T10 were subsequently implemented and accepted under these corrected contracts; T11 closeout completes the documentation and acceptance record without adding runtime machinery.
 - Protected operations always stop at the policy layer in M1.
 - `repo.test` is deterministic at the Sureflow dispatch boundary,
   but its child process is not hard-sandboxed.
 - Retry resolution precedes the single terminal evidence write and the one
   T4 verification call.
-- T7 and later tasks remain gated.
+- T7, T9, T10, and T11 closeout are complete; future milestones remain separately gated.

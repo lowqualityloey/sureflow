@@ -13,25 +13,25 @@ once Sureflow has a released implementation.
 ### Added
 
 - Initial project documentation and architectural specification.
-- `README.md`
-- `ARCHITECTURE.md`
-- `BENCHMARKS.md`
-- `SECURITY.md`
-- `CONTRIBUTING.md`
-- `CODE_OF_CONDUCT.md`
-- `LICENSE`
+- M1 local task-gate implementation: `init`, `run`, `status`, and `verify`.
+- Executable deterministic `fixtures/t0-basic/` acceptance fixture.
 
 ### Changed
 
-- Nothing yet.
+- M1 closeout documentation now records AC-1 through AC-8 evidence,
+  authoritative runtime-state boundaries, and known limitations.
 
 ### Fixed
 
-- Nothing yet.
+- M1 status now surfaces persisted completed task lifecycle state.
+- M1 verification reconciles stale accepted state to `halted` on FAIL/UNKNOWN.
 
 ### Security
 
-- No implementation-level security changes yet.
+- M1 adds default-deny policy, protected-operation terminal halts,
+  path-jail enforcement for repo.read/repo.write, closed npm-test dispatch,
+  pre-write redaction, and bounded negative-path coverage.
+- M1 does not claim OS sandboxing or perfect secret prevention.
 
 ## Release policy
 

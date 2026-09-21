@@ -49,6 +49,29 @@ Sureflow is designed around:
 
 ---
 
+## 2A. M1 implemented boundary and limitations
+
+M1 is the completed local vertical slice, not the full architecture described
+in this document. Its public surface is exactly `init`, `run`, `status`, and
+`verify`. Runtime authority is `.sureflow/state/`; `docs/STATE.md` and other
+PromptKit records are process documentation only. The implemented capabilities
+are `repo.read`, `repo.write`, and closed-profile `repo.test` (`npm test`,
+`shell: false`, cwd at the bounded T0 fixture root). Policy is default-deny;
+protected operations terminally return `REQUIRE_APPROVAL` with zero execution
+and no M1 approval-delivery mechanism.
+
+M1 appends execution history to events and one terminal verification-applicable
+record to evidence, uses deterministic T4 PASS/FAIL/UNKNOWN verification, and
+permits only one automatic retry for an initial started-process nonzero exit.
+The T0 fixture owns acceptance input. No OS sandbox is claimed for the test
+process; no arbitrary shell, network, Git remote, multi-agent, MCP/provider,
+skill runtime, scheduler, cloud service, persisted verdict history, run IDs,
+attempt IDs, latest-wins semantics, evidence repair, or generalized fixture or
+retry framework is implemented.
+
+All other sections describe architectural intent or future boundaries and
+must not be read as claims about the current M1 runtime.
+
 ## 3. High-Level Architecture
 
 ```text
@@ -728,6 +751,12 @@ Suggested structure:
 
 Structured state is authoritative.
 
+For M1, the concrete runtime state is only `.sureflow/state/project.json`,
+`.sureflow/state/active.json`, and validated task records under
+`.sureflow/state/tasks/`; events and evidence are separate append-only
+stores. Human-readable PromptKit documents are not runtime projections or
+inputs.
+
 Human-readable views are projections.
 
 This distinction prevents documentation and runtime state from becoming
@@ -1162,6 +1191,11 @@ sureflow task resume TASK-184
 IDE or agent slash commands may expose the same operations.
 
 They are presentation-layer aliases, not the architectural core.
+
+M1 currently implements only `sureflow init`, `sureflow run <taskId>`,
+`sureflow status`, and `sureflow verify <taskId>`. The other commands and task
+operations shown above remain future architectural intent and are not part of
+the shipped M1 runtime.
 
 ---
 

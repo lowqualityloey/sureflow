@@ -108,7 +108,7 @@ binding event/evidence distinction and M-D10..M-D13 above.
   so this is not a correctness/security hole — it is a
   false-halt/false-negative integration defect.
 
-## Proposed smallest contract correction (needs approval)
+## Proposed smallest contract correction (accepted; historical proposal)
 
 Select the verification-applicable record by the **existing**
 `capability` field instead of by `taskId` alone:
@@ -123,6 +123,8 @@ Select the verification-applicable record by the **existing**
   Intermediate/failed attempts belong in
   `.sureflow/events/events.jsonl`, which the approved spec §4 already
   separates from `evidence.jsonl`.
+
+At T11 closeout, this proposal is recorded as accepted and implemented through the committed T4/T6/T7/T9 history. The following list remains explicitly not authorized for M1:
 
 Explicitly NOT proposed (all rejected as unapproved schema
 machinery): run IDs, attempt IDs, sequence numbers, "latest record"

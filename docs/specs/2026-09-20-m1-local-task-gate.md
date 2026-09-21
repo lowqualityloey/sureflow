@@ -1,17 +1,16 @@
-# M1 Spec: Deterministic local task gate (FINAL FOR REVIEW)
+# M1 Spec: Deterministic local task gate (FINAL)
 
 <a id="PLAN-m1-local-task-gate"></a>
 
 - **Author**: Cline (AI coding agent)
-- **Status**: Approved by human 2026-09-20; amended by the human-approved T6 preflight correction on 2026-09-21
+- **Status**: Approved by human 2026-09-20; amended by the human-approved T6 preflight correction on 2026-09-21; implemented and accepted 2026-09-21
 - **Created**: 2026-09-20
 - **Target Release**: M1 (first useful vertical slice)
 - **Task Record**: `docs/tasks/2026-09-20-m1-local-task-gate.md`
 - **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5)
 - **T6 Preflight Decisions**: `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D13)
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
-- **Stack**: TypeScript + Node.js (human decision M-D1; package manager,
-  Node pin, TS config, test runner NOT yet decided — see §9)
+- **Stack**: TypeScript + Node.js 24.x, npm, strict TypeScript, Vitest, ESLint, and `tsc --noEmit` (human decisions M-D1 and §9)
 
 ## 1. Objective
 
@@ -77,14 +76,15 @@ record + human approval.
   model output, or caller input.
 - **Events/evidence (append-only JSONL)**:
   `.sureflow/events/events.jsonl` + `.sureflow/evidence/evidence.jsonl`.
-  Required fields per record: `who/what, when, task, capability,
-  policyDecision, target, result, provenance`. Secret-bearing
-  records are redacted, then the run HALTs.
+  Required fields per record: `schemaVersion, actor, recordedAt, taskId,
+  capability, policyDecision, target, result, provenance`. User-controlled and
+  execution-derived secret-bearing fields are redacted before append; no
+  unredacted duplicate is persisted.
 - **Verification verdicts**: exactly `PASS | FAIL | UNKNOWN |
-  BLOCKED`. Transition rule: `UNKNOWN` never becomes `PASS`;
-  missing/stale evidence -> `HALT` (surfaced as BLOCKED +
-  human-required). Test evidence (exit code, suite counts) never
-  authorizes a protected op.
+  BLOCKED`. Transition rule: `UNKNOWN` never becomes `PASS`; missing,
+  stale, corrupt, or duplicate evidence produces `UNKNOWN` and a controlled
+  HALT. T4 does not manufacture `BLOCKED`. Test evidence (exit code, suite
+  counts) never authorizes a protected op.
 - **Domain separation**: policy-layer `DENY` and
   `REQUIRE_APPROVAL` halt before execution and do not manufacture
   verification verdicts. `BLOCKED` remains in the stable
@@ -92,21 +92,10 @@ record + human approval.
   `REQUIRE_APPROVAL`.
 ## 5. CLI behavior
 
-- `sureflow init` — creates `.sureflow/{state,events,evidence,
-  policy}/` + `default.json` + fixture scaffold. Refuses to
-  overwrite existing state without an explicit flag. Prints what
-  was created, what was verified, what needs the human.
-- `sureflow run "<task>"` — consumes the already-approved T0
-  fixture/acceptance contract, loads policy, creates task record in
-  `.sureflow/state/tasks/`, resolves the allowlist, runs the single
-  worker step jailed to the fixture, appends events/evidence, runs
-  verification, prints ACCEPT or HALT + next human action.
-- `sureflow status` — reads authoritative state read-only and
-  renders: what happened / what was verified / what is uncertain /
-  what needs the human. Never mutates.
-- `sureflow verify` — re-runs the deterministic checks from stored
-  evidence inputs and re-emits the verdict. `verify` failing after
-  a prior ACCEPT flips the projection to HALT + human review.
+- `sureflow init` — creates local `.sureflow/state/`, policy, events, and evidence roots without fixture scaffolding.
+- `sureflow run <taskId>` — requires exact match with the approved T0 fixture task ID, loads policy, runs only the bounded worker, writes events/evidence, verifies after terminal execution, and prints ACCEPT or HALT.
+- `sureflow status` — reads authoritative `.sureflow/state/` read-only, enumerates persisted task lifecycle records, and does not reconstruct verdicts.
+- `sureflow verify <taskId>` — requires the exact fixture task ID, invokes existing T4 verification once, and reconciles stale accepted state to halted on FAIL/UNKNOWN without repairing evidence.
 - Exit codes: `0` = ACCEPT/PASS; `2` = HALT/BLOCKED/fail (so CI
   and humans can distinguish "stopped safely" from crashes).
   Unknown tool errors are `UNKNOWN` -> HALT, never silent `0`.
@@ -163,44 +152,17 @@ record + human approval.
 
 ## 8. Acceptance criteria (M1 done = all green)
 
-- [ ] AC-1 (happy path): `init` -> `run` on the T0 fixture ->
-  `status` shows ACCEPT with test evidence; `verify` re-emits PASS.
-- [ ] AC-2 (denied capability): worker step requesting anything
-  outside `repo.read/write/test` is DENIED pre-execution and
-  logged with policy decision.
-- [ ] AC-3 (protected op): simulated protected-op request (e.g.
-  fake `deploy.production`) returns
-  `PolicyDecision.REQUIRE_APPROVAL` and terminally HALTs with
-  zero execution and zero retry. It does not emit or map to
-  `VerificationVerdict.BLOCKED`.
-- [ ] AC-4 (unknown/missing evidence): deleted or corrupt evidence
-  record -> `verify` emits UNKNOWN -> HALT, never PASS.
-- [ ] AC-5 (repair bound): an initial started-process nonzero exit is
-  preserved as an event and retries exactly once; a second nonzero exit
-  writes one terminal `"test-failed"` evidence record and HALTs. No other
-  failure category retries and there is never a third attempt.
-- [ ] AC-6 (state authority): `status`/`verify` read only
-  `.sureflow/state/`; a test mutating only `docs/STATE.md` changes
-  nothing about the verdict (no dual source of truth).
-- [ ] AC-7 (determinism): two consecutive clean runs produce
-  identical verdicts; evidence records carry provenance.
-- [ ] AC-8 (no scope creep): no multi-agent/MCP/skills/providers/
-  scheduler/telemetry/cloud code paths exist; `status` proves the
-  4-command surface.
-## 9. Open questions (must close at spec review)
+- [x] AC-1 (happy path): T6/T8 real T0 integration reached ALLOW, `npm test` exit 0, terminal result `"ok"`, T4 PASS, accepted state, and status observability.
+- [x] AC-2 (denied capability): T9 proves unknown capability DENY, zero execution, exit 2, and no terminal evidence.
+- [x] AC-3 (protected op): T9 proves REQUIRE_APPROVAL is a terminal policy halt with zero execution/retry and no approval-delivery mechanism.
+- [x] AC-4 (unknown/missing evidence): T7/T9 prove missing, corrupt, schema-invalid, unreadable, or duplicate evidence is UNKNOWN, stale accepted state halts, and evidence is not repaired.
+- [x] AC-5 (repair bound): T6/T9 prove one retry only for initial started-process nonzero, no third attempt, and one terminal evidence record.
+- [x] AC-6 (state authority): T5/T9 prove `.sureflow/state/` is authoritative, docs/STATE and PromptKit records have no runtime effect, and status is read-only.
+- [x] AC-7 (determinism): T7/T10 prove equivalent clean roots and repeated status/verify produce stable semantic outcomes with no latest-wins behavior.
+- [x] AC-8 (no scope creep): T10 proves the public surface is exactly init/run/status/verify and no unauthorized runtime machinery exists.
+## 9. Closed decisions and deferred architecture
 
-1. Package manager: npm vs pnpm vs bun — owner: human.
-2. Node version pin + TS config strictness (`strict: true`
-   proposed) + zero-`any` guardrail — owner: human.
-3. Test runner for AC-1..AC-8 (vitest proposed, not assumed) +
-   typecheck/lint commands for the quality gate — owner: human.
-4. Exact JSON schemas for task/policy/event/evidence records
-   (field names above are binding intent; key order/naming
-   finalized at review) — owner: human + agent.
-5. Exit-code `2`-for-HALT convention + `status` output format —
-  owner: human.
-6. Initial-commit scope (docs + ADR + spec + records, no code) —
-  owner: human via `pk:commit`.
+The original intake questions are closed by the §9 addendum, the T6 preflight ADR, and the committed T1–T10 implementation history. M1 uses npm/Node 24.x, strict TypeScript, Vitest, ESLint, `tsc --noEmit`, the approved JSON contracts, exit code 2 for controlled non-success, and the four-command CLI above. Broader architecture questions and deferred subsystems remain outside M1 and are not open blockers for this closeout.
 
 ## Addendum: M1 §9 toolchain decisions (human, 2026-09-20)
 
@@ -225,11 +187,7 @@ Human closed §9 items 1–3 and 5 as follows (items 4, 6 partially open):
 
 ## 10. Verification plan
 
-- T1–T5 are committed through `e035cde`; the canonical history
-  reconciliation is committed at `d5e7bcb`.
-- This T6 preflight correction is documentation-only. Verify exact
-  documentation scope, required contract markers, links, dependency order,
-  and `git diff --check` before requesting `pk:commit`.
-- T8 must establish and verify the minimal T0 fixture contract before T6.
-- T6 must consume that contract and execute the existing AC verification
-  plan without broadening the approved M1 boundary.
+- T1–T10 are committed through `37a3d49`; T8 precedes T6 as the fixture prerequisite.
+- T6/T8 contract gaps were discovered and corrected before implementation; the T11 closeout records their historical decisions without changing runtime behavior.
+- T11 maps AC-1..AC-8 to executed T6–T10 evidence and runs the full quality/guard suite.
+- Future milestones and generalized architecture remain gated.

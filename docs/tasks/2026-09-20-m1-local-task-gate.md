@@ -10,9 +10,9 @@
 - **Work Type**: `Code Work`
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **External Reference (Optional)**: `N/A`
-- **Owner / Actor**: `Human authority; implementation history through T10; Codex authorized T10 determinism/surface audit`
+- **Owner / Actor**: `Human authority; implementation and closeout history through T11; Codex authorized T11 documentation/acceptance closeout`
 - **Execution Scope**: `Sureflow repo: M1 control-plane slice only (init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/). No other subsystems.`
-- **Approval Boundary**: `T1–T10 and T8, including T5 status observability, T6 integration acceptance, T7 verification, and T9 negative acceptance, are committed repository history. T11 remains gated; push, tag, and later-task implementation are not authorized. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
+- **Approval Boundary**: `T1–T11, including T5 status observability, T6 integration acceptance, T7 verification, T9 negative acceptance, T10 determinism/surface audit, and T11 documentation/acceptance closeout, are committed repository history. Future milestones, push, and tag operations are not authorized. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
 - **Created**: `2026-09-20 UTC`
 - **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5) and `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D13)
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
@@ -24,7 +24,7 @@
 - **In Scope**: M1 T1–T11 as defined in
   `docs/tasks/2026-09-20-m1-task-breakdown.md`. T1–T5 are
   complete and committed; T8 is committed at `a66fccc`; the second T6
-  preflight contract correction is committed at `ee3b66d`; T6 implementation and integration acceptance are complete from the runnable T0 path; T7 verification, T9 negative acceptance, and T10 determinism/surface audit are complete; T11 remains gated.
+  preflight contract correction is committed at `ee3b66d`; T6 implementation and integration acceptance are complete from the runnable T0 path; T7 verification, T9 negative acceptance, T10 determinism/surface audit, and T11 documentation/acceptance closeout are complete.
 - **Explicit Non-Goals**: No multi-agent execution, MCP, skills,
   providers, scheduler, telemetry platform, cloud infrastructure,
   remote tracking, generalized approval machinery, or other
@@ -40,8 +40,8 @@
 ## 3. Execution Policy (M1 task record)
 
 - **Execution Mode**: `Gated Mode`
-- **Checkpoint Policy**: `T10 determinism/surface audit complete. Stop; do not begin T11.`
-- **Stop Conditions**: `Stop before T11 or any later task without separate
+- **Checkpoint Policy**: `T11 documentation and acceptance closeout complete. Stop; do not begin future milestones.`
+- **Stop Conditions**: `Stop before any future milestone without separate
   explicit authorization; terminally halt on DENY or REQUIRE_APPROVAL
   with zero execution and zero retry; stop on scope expansion without a
   scope-change record; retry only an initial started-process nonzero numeric
@@ -70,7 +70,7 @@
 - [x] T7 verify CLI and stale-ACCEPT reconciliation — complete and accepted
 - [x] T9 negative acceptance coverage — complete and accepted
 - [x] T10 determinism and public-surface audit — complete and accepted
-- [ ] T11 planned / gated / not started
+- [x] T11 documentation and acceptance closeout — complete and accepted
 
 ## 4A. Locked Implementation Invariants
 
@@ -114,16 +114,39 @@
 
 ## 5. State and Ownership (M1 task record)
 
-- **Execution State**: `in_progress`
-- **Mapped pk:tasks Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 verification complete; T9 negative acceptance complete; T10 determinism/surface audit complete; T11 gated / not started`
-- **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Blockers and Resume Condition**: `No M1 T10 closeout blocker. T11 remains gated / not started.`
-- **Verification Status**: `Focused T10 suite: 4 passing tests. Full suite: 90 passing tests across 11 files. Typecheck, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Clean-checkout and final working-tree canonical npm run lint pass; an earlier ignored .kilo/worktrees/ auxiliary path caused a local-only traversal error and required no tooling change. T10 confirms public surface, semantic determinism, repeated status/verify stability, duplicate-evidence UNKNOWN, and no unauthorized machinery.`
+- **Execution State**: `completed`
+- **Mapped pk:tasks Status**: `Done — T1–T11 implementation, acceptance, and documentation closeout complete`
+- **Active Task Pointer**: `None (M1 closeout complete)`
+- **Blockers and Resume Condition**: `No M1 implementation or closeout blocker. Future milestones remain separately gated.`
+- **Verification Status**: `T11 closeout maps AC-1..AC-8 to executed T6–T10 evidence. Full suite: 90 passing tests across 11 files. Typecheck, build, git diff check, fixed-scope harness, changed-file scope, secret-pattern, debug-probe, credential filename, and runtime-artifact guards pass. Clean-checkout and final-working-tree canonical npm run lint pass; an earlier ignored .kilo/worktrees/ auxiliary path was local-only and required no tooling change. No runtime artifacts exist in the repository.`
 - **CI Evidence**: `N/A`
-- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 first T6 preflight contracts; a66fccc T8 fixture contract; ee3b66d T6 result/retry contracts; T5 status amendment, T6 integration acceptance, and T7 verification committed; T9 negative acceptance committed; T10 determinism/surface audit committed by this changeset (exact hash reported after creation)`
-- **Changed-File Summary**: `T10 determinism and public-surface audit in tests/t10Audit.test.ts and tsconfig.json. No production changes, tooling changes, or runtime artifacts leaked.`
-- **Next Action**: `STOP. Do not begin T11 without separate authorization.`
-- **Completion State**: `in_progress`
-- **Acceptance Results**: `Spec acceptance complete; T5/T6/T7 implementation and verification acceptance complete; T9 negative acceptance and T10 determinism/surface acceptance complete; T11 remains gated.`
+- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 first T6 preflight contracts; a66fccc T8 fixture contract; ee3b66d T6 result/retry contracts; T5 status amendment, T6 integration acceptance, and T7 verification committed; T9 negative acceptance committed; T10 determinism/surface audit committed; T11 documentation/acceptance closeout is the current changeset before pk:commit.`
+- **Changed-File Summary**: `T11 documentation-only closeout updates README.md, ARCHITECTURE.md, SECURITY.md, CHANGELOG.md, the M1 spec, canonical Task Record/breakdown, ADR/seam/scope records, and STATE.md. No source, tests, fixtures, package files, runtime behavior, or .sureflow artifacts changed.`
+- **Next Action**: `M1 closeout complete; request pk:commit, then stop. Do not begin future milestones.`
+- **Completion State**: `completed`
+- **Acceptance Results**: `Spec acceptance, T1–T10 implementation/verification, and T11 documentation/acceptance closeout are complete; AC-1..AC-8 are mapped in §6.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `T5 status observability amendment, T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit accepted 2026-09-21; T11 remains gated / not started`
+- **Completion Decision and Timestamp**: `T5 status observability amendment, T6 integration acceptance, T7 verification, T9 negative acceptance, T10 determinism/surface audit, and T11 documentation/acceptance closeout accepted 2026-09-21; future milestones remain gated`
+
+## 6. M1 Closeout Acceptance Evidence (T11)
+
+This section records executed acceptance evidence only; it does not add runtime
+behavior or replace the individual task records.
+
+| Criterion | Executed evidence | Result |
+| --- | --- | --- |
+| AC-1 | T6/T8 real T0 path: ALLOW -> fixed `npm test` exit 0 -> terminal evidence `ok` -> T4 PASS -> `accepted`; status surfaces the persisted state. | PASS |
+| AC-2 | T9 unknown capability is DENY, executes zero capabilities, exits 2, and writes no terminal execution evidence. | PASS |
+| AC-3 | T9 protected operations return terminal `REQUIRE_APPROVAL`, execute zero capabilities, retry zero times, and use no approval-delivery mechanism. | PASS |
+| AC-4 | T7/T9 missing, corrupt, schema-invalid, unreadable, or duplicate applicable evidence is UNKNOWN; stale accepted state becomes `halted`; evidence is not repaired or rewritten. | PASS |
+| AC-5 | T6/T9 retry only an initial successfully-started nonzero process once; spawn, signal, policy, and jail failures do not retry; no third attempt; one terminal evidence record per tuple. | PASS |
+| AC-6 | T5/T9/T10 keep `.sureflow/state/` authoritative; docs/STATE and PromptKit records do not affect runtime; status and verify preserve read-only evidence boundaries. | PASS |
+| AC-7 | T7/T10 equivalent clean roots and repeated status/verify calls produce the same semantic outcomes without timestamps, latest-wins, or ordering authority. | PASS |
+| AC-8 | T10 confirms the public surface is exactly `init`, `run`, `status`, and `verify`, with no unauthorized shell, network, approval, scheduler, multi-agent, provider, MCP, skill, or generalized execution machinery. | PASS |
+
+Known M1 limitations remain explicit: the bounded worker path is not an OS
+sandbox, so test code may access host filesystem or network resources; no
+approval-delivery mechanism exists; verification verdicts are not persisted and
+status does not reconstruct them; evidence is not repaired; secret redaction is
+the established boundary, not a claim of perfect secret detection; and all
+future subsystems remain outside M1.

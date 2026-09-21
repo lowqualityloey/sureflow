@@ -3,10 +3,10 @@
 - **Task ID**: `TASK-2026-09-20-m1-local-task-gate`
 - **Record Type**: Scope Change Record / T6–T8 Handoff
 - **Date**: 2026-09-21
-- **Status**: Approved for documentation reconciliation only
+- **Status**: Historical correction record; reconciled and superseded by completed T8, T6, T7, T9, T10, and T11 closeout
 - **Decision Owner**: Human
 - **Source ADR**: `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md`
-- **Implementation Authorization**: None; T8, T6, and T7 remain gated
+- **Implementation Authorization**: Historical field. T8, T6, T7, T9, T10, and T11 were later separately authorized and accepted in the canonical Task Record.
 
 ## Trigger
 
@@ -31,7 +31,7 @@ free-form verify-command concept.
 
 ## Revised Dependency Graph
 
-`T1–T5 complete -> T8 gated -> T6 gated -> T7 gated -> T9–T11 gated`
+`T1–T5 complete -> T8 complete -> T6 complete -> T7 complete -> T9 complete -> T10 complete -> T11 closeout`
 
 - **T8 prerequisite output**: approved minimal T0 fixture contract with no
   arbitrary command or argv.
@@ -60,8 +60,6 @@ free-form verify-command concept.
 - **Rollback**: documentation-only; revert this record and linked amendments
   before any implementation if the human changes these decisions.
 
-## Resume Condition
+## Resume Condition (historical)
 
-After the separately authorized documentation commit, STOP. T8 remains
-gated until explicitly authorized. T6 remains gated until T8 is implemented,
-verified, committed, and T6 is separately reauthorized. T7 remains gated.
+The original gating condition was satisfied by subsequent separate authorizations and commits for T8, T6, T7, T9, T10, and T11. T11 records M1 documentation and acceptance closeout; future milestones remain separately gated.

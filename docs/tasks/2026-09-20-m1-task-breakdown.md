@@ -4,10 +4,7 @@
 
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
-- **Status**: T1–T10 and T8 complete and committed; T6 contract corrections
-  committed through `ee3b66d`; T7 verification, T9 negative acceptance, and T10 determinism/surface audit complete; T11
-  remain gated/not started; PromptKit state
-  `in_progress`
+- **Status**: T1–T11 complete and committed; T6 contract corrections committed through `ee3b66d`; T11 documentation/acceptance closeout complete; PromptKit state `complete`
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
 - **TDD Enforcement Mode**: `disabled` ( acceptance = AC-1..AC-8
   executed post-implementation with `tsc` + test + lint evidence )
@@ -35,19 +32,13 @@
   The T0 fixture—not T4 or runtime evidence—is the approved source of
   `target` and `expectedResult` for this M1 acceptance path. T4
   consumes both through `VerificationRequest`.
-- [/] T6 CLI run + worker jail (p0) — **IMPLEMENTATION COMPLETE /
-  INTEGRATION ACCEPTANCE PENDING RUNNABLE T0 FIXTURE**: consumes the approved T8 contract; policy load, task record,
-  allowlist pre-check, fixture-jailed step, minimal events, one terminal
-  evidence append, and verification after retry resolution. Only an initial
-  started-process nonzero numeric exit retries, exactly once. AC-1/AC-2/AC-5
-  seams.
+- [x] T6 CLI run + worker jail (p0) — **COMPLETE + ACCEPTED**: consumes the approved T8 contract; policy load, task record, allowlist pre-check, fixture-jailed step, minimal events, one terminal evidence append, and verification after retry resolution. Only an initial started-process nonzero numeric exit retries, exactly once. The runnable T0 fixture reached ACCEPT/PASS with one attempt and zero retries. AC-1/AC-2/AC-5 seams.
 - [x] T7 CLI verify (p0) — **COMPLETE + ACCEPTED**: re-emits T4 verdict from stored evidence; stale ACCEPT -> HALT. AC-1/AC-4/AC-7 seams.
 - [x] T9 Negative tests (p0) — **COMPLETE + ACCEPTED**: AC-2/AC-3/AC-4/AC-5/AC-6 cases with
   exact commands + expected exit codes (0 vs 2).
 - [x] T10 Determinism + surface audit (p1) — **COMPLETE + ACCEPTED**: AC-7 double-run +
   AC-8 no-deferred-codepaths proof.
-- [ ] T11 Docs closeout (p2) — **PLANNED / GATED / NOT STARTED**: README status, CHANGELOG, STATE sync,
-  commit scope — human approval via pk:commit.
+- [x] T11 Docs closeout (p2) — **COMPLETE + ACCEPTED**: README, ARCHITECTURE, SECURITY, CHANGELOG, M1 spec, canonical records, and STATE reconciled to executed M1 evidence; full gates pass; pk:commit is the next action.
 
 Non-goals restated: no multi-agent/MCP/skills/providers/scheduler/
 telemetry/cloud/remote tracking. Scope change needs a record.
@@ -56,7 +47,7 @@ telemetry/cloud/remote tracking. Scope change needs a record.
 
 - T8 implementation and commit were separately authorized. T6 implementation
   was subsequently authorized, accepted, and committed.
-  T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit are complete. T11 remains gated / not started.
+  T6 integration acceptance, T7 verification, T9 negative acceptance, T10 determinism/surface audit, and T11 documentation/acceptance closeout are complete. Future milestones remain gated.
 - M1 public surface remains `init` / `run` /
   `status` / `verify`.
 - `.sureflow/state/` is authoritative runtime state;
@@ -87,3 +78,12 @@ telemetry/cloud/remote tracking. Scope change needs a record.
   acceptance/fixture contract, never from evidence.
 - The fixture's `expectedResult: "ok"` and the profile's exit-0 result
   `"ok"` are independent approved contract values, never runtime-derived.
+
+## T11 closeout evidence
+
+T11 maps AC-1..AC-8 to the executed T6/T8 integration, T7 verification,
+T9 negative acceptance, and T10 determinism/surface audit recorded in the
+canonical Task Record §6. The user-facing docs now distinguish implemented M1
+behavior from future architectural intent and state the no-OS-sandbox and
+no-approval-delivery limitations explicitly. No source, tests, fixtures,
+packages, or runtime artifacts changed in this closeout.

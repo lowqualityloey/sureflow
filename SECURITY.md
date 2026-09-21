@@ -10,6 +10,16 @@ Security therefore cannot depend on prompts alone.
 > **Prompts express intent. Policies enforce authority. Runtime boundaries
 > enforce security where possible.**
 
+## M1 implemented security boundary
+
+M1 enforces default-deny policy, hard-jails `repo.read` and `repo.write`
+paths, uses closed `npm-test` dispatch for `repo.test`, and redacts covered
+persisted event/evidence fields before append. Protected operations halt at
+`REQUIRE_APPROVAL`; no runtime approval-delivery mechanism exists. The
+repo.test cwd boundary is not an OS sandbox, and executed test code may still
+access host filesystem or network resources. M1 has no arbitrary shell,
+network, Git remote, multi-agent, MCP/provider, scheduler, or cloud runtime.
+These are bounded implementation facts, not a claim of perfect security.
 ## Security objectives
 
 Sureflow aims to:

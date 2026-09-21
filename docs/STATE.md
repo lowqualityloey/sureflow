@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T10 and T8 committed; T5 status observability amendment, T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit complete
-- **Overall Status**: IN_PROGRESS — T5 status amendment, T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit complete; T11 remains gated
+- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T11 closeout complete; future milestones remain gated
+- **Overall Status**: COMPLETED — M1 implementation, acceptance, and documentation closeout complete; future milestones remain gated
 - **Target Release / Deadline**: M1 implementation — no deadline recorded
-- **Current Working Branch**: `main` at T10 determinism/surface audit commit (exact hash reported after creation)
+- **Current Working Branch**: `main` at T11 documentation/acceptance closeout changeset pending pk:commit
 - **Last Updated**: 2026-09-21
 
 
@@ -16,7 +16,7 @@
 ### Milestone Roadmap
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
-- [/] **M1-build**: T1–T10 and T8 committed; T11 gated
+- [x] **M1-build**: T1–T11 closeout complete; future milestones gated
 
 ### Active Milestone Task Breakdown
 
@@ -32,8 +32,8 @@
 - [x] T7: verify CLI and stale-ACCEPT reconciliation complete
 - [x] T9: negative acceptance coverage complete
 - [x] T10: determinism and public-surface audit complete
-- [ ] T11: gated / not started
-- [!] Stop boundary: T10 closeout is committed; do not begin T11
+- [x] T11: documentation and acceptance closeout complete
+- [!] Stop boundary: M1 closeout is complete; do not begin future milestones
 
 ---
 
@@ -41,7 +41,7 @@
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md` (approved 2026-09-20; §9 addendum records toolchain decisions)
 - **Active Task Spec**: `docs/tasks/2026-09-20-m1-local-task-gate.md` plus `docs/tasks/2026-09-20-m1-task-breakdown.md` and linked Scope Change 1
-- **Key Source Files in Flight**: `tests/t10Audit.test.ts` and `tsconfig.json`; T10 canonical status reconciliation is included in this changeset.
+- **Key Files in Flight**: T11 documentation closeout in `docs/STATE.md`, the M1 Task Record/breakdown/spec, README, ARCHITECTURE, SECURITY, CHANGELOG, and linked ADR/seam/scope records. No source, tests, fixtures, packages, or runtime artifacts are in flight.
 - **Verification Commands (Scoped)**:
   - Unit Tests: `npm test` → 90 passed across 11 files (2026-09-21)
   - Focused T10: `npx vitest run tests/t10Audit.test.ts` → 4 passed (2026-09-21)
@@ -59,21 +59,21 @@
 - **Task Record**: `docs/tasks/2026-09-20-m1-local-task-gate.md`
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **Execution Scope**: `M1 control-plane slice only: init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/`
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 verification complete; T9 negative acceptance complete; T10 determinism/surface audit complete; T11 gated / not started`
-- **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Owner / Current Actor**: `Codex T10 determinism/surface audit + human authority`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Done — T1–T11 implementation, acceptance, and documentation closeout complete`
+- **Active Task Pointer**: `None (M1 closeout complete)`
+- **Owner / Current Actor**: `Human authority — T11 closeout accepted; pk:commit authorization requested`
 - **Start Time**: `2026-09-20 23:55 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `T10 determinism/surface audit commit (exact hash reported after creation)`
-- **Checkpoint Policy**: `T10 determinism/surface audit complete; stop before T11`
-- **Blockers and Resume Condition**: `No M1 T10 closeout blocker. T11 remains gated / not started.`
-- **Verification Status**: `Focused T10 suite: 4 passing tests. Full suite: 90 passing tests across 11 files. Typecheck, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Clean-checkout and final working-tree canonical npm run lint pass; an earlier ignored .kilo/worktrees/ auxiliary path caused a local-only traversal error and required no tooling change. T10 confirms public surface, semantic determinism, repeated status/verify stability, duplicate-evidence UNKNOWN, and no unauthorized machinery.`
+- **Current Revision**: `T11 documentation/acceptance closeout changeset pending pk:commit`
+- **Checkpoint Policy**: `T11 documentation/acceptance closeout complete; stop before future milestones`
+- **Blockers and Resume Condition**: `No M1 implementation or closeout blocker. Future milestones remain separately gated.`
+- **Verification Status**: `T11 closeout maps AC-1..AC-8 to executed T6–T10 evidence. Full suite: 90 passing tests across 11 files. Typecheck, build, git diff check, fixed-scope harness, changed-file scope, secret-pattern, debug-probe, credential filename, and runtime-artifact guards pass. Clean-checkout and final-working-tree canonical npm run lint pass; an earlier ignored .kilo/worktrees/ auxiliary path was local-only and required no tooling change. No runtime artifacts exist in the repository.`
 - **CI Evidence**: `N/A — no host-project CI`
-- **Changed-File Summary**: `T10 determinism and public-surface audit in tests/t10Audit.test.ts and tsconfig.json. No production changes, tooling changes, or runtime artifacts leaked.`
+- **Changed-File Summary**: `T11 documentation-only closeout updates README.md, ARCHITECTURE.md, SECURITY.md, CHANGELOG.md, the M1 spec, canonical Task Record/breakdown, ADR/seam/scope records, and STATE.md. No source, tests, fixtures, package files, runtime behavior, or .sureflow artifacts changed.`
 - **Latest Checkpoint**: `docs/tasks/2026-09-20-m1-local-task-gate.checkpoint-1.md`
 - **Latest Handoff**: `docs/tasks/2026-09-20-m1-local-task-gate.handoff-1.md`
-- **Next Action**: `STOP. Do not begin T11 without separate authorization.`
+- **Next Action**: `M1 closeout complete; request pk:commit, then stop. Do not begin future milestones.`
 
 ---
 
@@ -114,7 +114,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit are complete. T11 remains gated / not started.
+  - M1 implementation, integration acceptance, verification, negative acceptance, determinism audit, and T11 documentation closeout are complete. Future milestones remain gated.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M1); C7 capability-filter before MCP (deferred post-M1); C8 stack-agnostic verify-adapter interface (M1 avoids via fixture-local verify). C2/C3/C5 closed by M-D4/M-D3. Full text: `docs/specs/2026-09-20-sureflow-discovery-intake.md` §5.
 - **Technical Debt & Risks**:
@@ -131,7 +131,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. STOP. T5 status observability, T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit are complete; do not begin T11.
+1. M1 closeout is complete. Request `pk:commit` for the authorized documentation scope, then stop; do not begin future milestones.
 
 ---
 
@@ -159,3 +159,10 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 (sync, status, checkpoint) | ~3 | host telemetry unavailable | ~30k tok total (~8k-15k tok/turn heuristic) | Disk sync, CLI status, repository audit, verification, and durable checkpoint; heuristic, not billing telemetry |
 
 - **Running total**: ~32 turns (3 sessions) · ~320k tokens estimated cumulative spend
+
+## Project Closeout (Definition of Done)
+- **Completed**: 2026-09-21 · **Scope delivered**: M1 deterministic local task gate, T1–T11 implementation, acceptance, and documentation closeout
+- **Measured spend**: not measured (host telemetry unavailable)
+- **Estimated spend**: ~320k tokens cumulative across 3 recorded sessions
+- **Variance**: not measurable
+- **Gates held**: npm typecheck, 90 tests across 11 files, canonical lint, npm build, git diff check, harness security, scope/secret/debug/credential/artifact guards

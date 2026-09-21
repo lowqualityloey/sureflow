@@ -21,6 +21,30 @@ Sureflow is **not another coding agent**.
 
 It is the engineering control layer around coding agents.
 
+## M1 implementation boundary
+
+The committed M1 slice is a local filesystem control plane with exactly four
+public commands:
+
+```text
+sureflow init
+sureflow run <taskId>
+sureflow status
+sureflow verify <taskId>
+```
+
+M1 uses `.sureflow/state/` as its sole runtime-state authority and keeps
+PromptKit records such as `docs/STATE.md` out of runtime decisions. Policy is
+default-deny. Protected operations return terminal `REQUIRE_APPROVAL` halts;
+M1 has no approval-delivery mechanism. The worker supports only the approved
+`repo.read`, `repo.write`, and closed `repo.test` `npm-test` profile. Events
+and terminal evidence are append-only, T4 verification is deterministic, and
+the execution path permits at most one automatic retry.
+
+The T0 fixture in `fixtures/t0-basic/` is executable and owns the acceptance
+contract, including `expectedResult`. M1 acceptance is complete for this
+bounded slice. The broader architecture described below remains a future
+design boundary, not additional M1 runtime functionality.
 ---
 
 ## Why Sureflow?
@@ -412,36 +436,28 @@ Sureflow should not require:
 
 ## CLI
 
+M1 exposes only the following public commands:
+
 ```bash
 sureflow init
-sureflow run "Add password reset"
+sureflow run TASK-T0-BASIC
 sureflow status
-sureflow review
-sureflow verify
-sureflow diff
-sureflow checkpoint
-sureflow commit
-sureflow approve
-sureflow stop
+sureflow verify TASK-T0-BASIC
 ```
 
-Tasks are first-class:
-
-```bash
-sureflow task create
-sureflow task list
-sureflow task show TASK-184
-sureflow task run TASK-184
-sureflow task pause TASK-184
-sureflow task resume TASK-184
-```
-
-Slash-command integrations can expose the same operations inside supported
-agent environments.
-
----
+Normal `--help` / `-h` behavior is available. Unknown commands return the
+controlled exit code `2`. Review, diff, checkpoint, commit, approval, stop,
+task-management, and slash-command surfaces remain outside the implemented
+M1 CLI.
 
 ## Security
+
+For the implemented M1 slice, `repo.read` and `repo.write` paths are
+hard-jailed and `repo.test` uses fixed `npm` / `["test"]` / `shell: false`
+dispatch. This cwd boundary is not an OS sandbox: executed test code may
+still access filesystem paths or network resources according to the host
+environment. M1 has no arbitrary shell, Git push/merge/deploy, approval
+token/store, provider, MCP, scheduler, or cloud runtime.
 
 Sureflow is designed around:
 
@@ -525,10 +541,12 @@ to PromptKit OS until equivalent real-world benchmarks demonstrate that**.
 
 ## Status
 
-Sureflow is currently an **architectural target / design proposal**.
-
-Implementation should proceed incrementally and each major subsystem should
-be validated before additional complexity is introduced.
+M1 implementation and acceptance are complete for the bounded local task gate.
+The executed closeout evidence covers the four-command surface, policy
+halts, bounded execution/retry, evidence cardinality, deterministic
+verification, runtime-state authority, and known security limitations.
+Future architecture remains intentionally unimplemented until separately
+authorized.
 
 > **Every subsystem must justify its complexity.**
 
