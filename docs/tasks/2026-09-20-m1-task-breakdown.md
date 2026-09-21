@@ -5,8 +5,7 @@
 - **Parent Task**: `TASK-2026-09-20-m1-local-task-gate`
 - **Spec**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **Status**: T1–T5 and T8 complete and committed; T6 contract corrections
-  committed through `ee3b66d`; T6 implementation complete and committed
-  with integration acceptance pending runnable T0 fixture; T7
+  committed through `ee3b66d`; T6 implementation and integration acceptance complete from the runnable T0 path; T7
   and T9–T11 remain gated/not started; PromptKit state
   `in_progress`
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
@@ -58,8 +57,7 @@ telemetry/cloud/remote tracking. Scope change needs a record.
 
 - T8 implementation and commit were separately authorized. T6 implementation
   was subsequently authorized, accepted, and committed.
-  Integration acceptance remains pending runnable T0 fixture content; fixture
-  changes are not authorized here. T7 remains gated.
+  T6 integration acceptance is complete from the runnable T0 path. T7 remains gated / not started.
 - M1 public surface remains `init` / `run` /
   `status` / `verify`.
 - `.sureflow/state/` is authoritative runtime state;

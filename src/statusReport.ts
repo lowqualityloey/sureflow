@@ -23,6 +23,7 @@ export function formatStatusLines(outcome: StateReadOutcome): readonly string[] 
     return [
       "Sureflow status (read-only)",
       `Happened: project "${outcome.project.projectName}" initialized ${outcome.project.initializedAt}`,
+      ...outcome.tasks.map((task) => `Happened: ${task.taskId}: ${task.status}`),
       `Verified: state contract valid (schemaVersion ${String(outcome.project.schemaVersion)}); verification verdicts: none recorded`,
       `Uncertain: none recorded; active task: ${active}`,
       "Human: no action required",

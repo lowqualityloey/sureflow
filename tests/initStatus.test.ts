@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { type CliIo, runCli } from "../src/cli.js";
 import { readRuntimeState } from "../src/stateReader.js";
-import { isActiveState, isProjectState } from "../src/state.js";
+import { isActiveState, isProjectState, type TaskStatus } from "../src/state.js";
 
 interface Captured {
   readonly code: number;
@@ -55,6 +55,20 @@ function snapshot(root: string): string {
   };
   walk(root);
   return entries.join("\n");
+}
+
+function writeTaskState(root: string, taskId: string, status: TaskStatus): void {
+  writeFileSync(
+    join(root, ".sureflow/state/tasks", `${taskId}.json`),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      taskId,
+      status,
+      createdAt: "2026-09-21T00:00:00.000Z",
+      updatedAt: "2026-09-21T00:00:00.000Z",
+    }, null, 2)}\n`,
+    "utf8",
+  );
 }
 describe("T5 init", () => {
   it("creates the minimum approved runtime layout and valid state", () => {
@@ -115,6 +129,34 @@ describe("T5 status", () => {
     expect(first.out).toBe(second.out);
     expect(snapshot(root)).toBe(before);
   });
+
+  it("surfaces persisted accepted tasks while activeTaskId remains null without manufacturing a verdict", () => {
+    const root = tempRoot();
+    cli(["init"], root);
+    writeTaskState(root, "TASK-T0-BASIC", "accepted");
+    writeFileSync(join(root, ".sureflow/evidence/evidence.jsonl"), "{corrupt evidence\n", "utf8");
+    const before = snapshot(root);
+
+    const first = cli(["status"], root);
+    const second = cli(["status"], root);
+
+    expect(first.code).toBe(0);
+    expect(first.out).toContain("TASK-T0-BASIC: accepted");
+    expect(first.out).toContain("active task: none");
+    expect(first.out).toContain("verification verdicts: none recorded");
+    expect(first.out).toBe(second.out);
+    expect(snapshot(root)).toBe(before);
+  });
+
+  it("displays multiple persisted tasks by lexicographic taskId", () => {
+    const root = tempRoot();
+    cli(["init"], root);
+    writeTaskState(root, "TASK-Z", "halted");
+    writeTaskState(root, "TASK-A", "accepted");
+
+    const output = cli(["status"], root).out;
+    expect(output.indexOf("TASK-A: accepted")).toBeLessThan(output.indexOf("TASK-Z: halted"));
+  });
 });
 describe("T5 malformed state and AC-6", () => {
   it("does not silently repair malformed or unsupported runtime state", () => {
@@ -139,10 +181,25 @@ describe("T5 malformed state and AC-6", () => {
     expect(snapshot(root)).toBe(unsupported);
   });
 
+  it("surfaces malformed task state without repairing it", () => {
+    const root = tempRoot();
+    cli(["init"], root);
+    const taskPath = join(root, ".sureflow/state/tasks/BROKEN.json");
+    writeFileSync(taskPath, "{ not json\n", "utf8");
+    const before = snapshot(root);
+
+    const result = cli(["status"], root);
+    expect(result.code).toBe(2);
+    expect(result.out).toContain("tasks/BROKEN.json");
+    expect(snapshot(root)).toBe(before);
+  });
+
   it("derives status only from .sureflow/state/ (AC-6)", () => {
     const root = tempRoot();
     cli(["init"], root);
+    writeTaskState(root, "TASK-T0-BASIC", "accepted");
     const baseline = cli(["status"], root).out;
+    expect(baseline).toContain("TASK-T0-BASIC: accepted");
 
     // PromptKit process documentation must not influence runtime status.
     mkdirSync(join(root, "docs"), { recursive: true });

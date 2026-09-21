@@ -2,8 +2,8 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T5 and T8 committed; T6 implementation complete with integration acceptance pending a runnable T0 fixture
-- **Overall Status**: IN_PROGRESS — T6 implementation committed; actual T0 happy-path acceptance remains pending; T7 and T9–T11 remain gated
+- **Current Milestone / Epic**: M1: Deterministic local task gate — T1–T6 and T8 committed; T5 status observability amendment and T6 integration acceptance complete
+- **Overall Status**: IN_PROGRESS — T5 status amendment and T6 integration acceptance complete; T7 and T9–T11 remain gated
 - **Target Release / Deadline**: M1 implementation — no deadline recorded
 - **Current Working Branch**: `main` at T6 implementation commit (exact amended hash reported after creation)
 - **Last Updated**: 2026-09-21
@@ -16,7 +16,7 @@
 ### Milestone Roadmap
 - [x] **M0**: Repository discovery + architecture intake — completed, human-approved 2026-09-20 (M-D1..M-D5 in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`)
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
-- [/] **M1-build**: T1–T5 and T8 committed; T6 implementation complete / integration acceptance pending runnable T0 fixture → T7/T9–T11 gated
+- [/] **M1-build**: T1–T6 and T8 committed; T5 status amendment and T6 integration acceptance complete → T7/T9–T11 gated
 
 ### Active Milestone Task Breakdown
 
@@ -28,9 +28,9 @@
 - [x] T4: deterministic verifier — committed `7c70622`
 - [x] T5: CLI `init` and read-only `status` — committed `e035cde`
 - [x] T8: minimal T0 fixture contract — committed `a66fccc`
-- [/] T6: implementation complete and committed / integration acceptance pending runnable T0 fixture
+- [x] T6: implementation and integration acceptance complete — real T0 path reached ACCEPT/PASS with one attempt and zero retries
 - [ ] T7 and T9–T11: gated / not started
-- [!] Stop boundary: T6 implementation is committed; do not begin T7 or modify fixtures
+- [!] Stop boundary: T5/T6 closeout is committed; do not begin T7
 
 ---
 
@@ -57,20 +57,20 @@
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **Execution Scope**: `M1 control-plane slice only: init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/`
 - **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `T6 implementation complete — integration acceptance pending runnable T0 fixture; T7 gated`
+- **Mapped `pk:tasks` Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 gated / not started`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
 - **Owner / Current Actor**: `Codex T6 implementation + human authority`
 - **Start Time**: `2026-09-20 23:55 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `T6 implementation commit (exact amended hash reported after creation)`
-- **Checkpoint Policy**: `T6 implementation committed; stop before T7 and do not modify fixtures`
-- **Blockers and Resume Condition**: `T6 integration acceptance requires separately authorized runnable T0 fixture content for the fixed npm-test profile. T7 and T9–T11 remain gated.`
-- **Verification Status**: `Focused T6 suite: 15 passing tests, including 3/3 bounded pre-commit checks. Full suite: 65 passing tests across 8 files. Typecheck, lint, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass.`
+- **Current Revision**: `T5 status amendment and T6 integration closeout commit (exact hash reported after creation)`
+- **Checkpoint Policy**: `T5 status observability amendment and T6 integration acceptance complete; stop before T7`
+- **Blockers and Resume Condition**: `No M1 T5/T6 closeout blocker. T7 and T9–T11 remain gated / not started.`
+- **Verification Status**: `Focused status suite: 10 passing tests. Full suite: 68 passing tests across 8 files. Typecheck, lint, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Isolated T0 path: ALLOW, npm test exit 0, terminal evidence ok, T4 PASS, TaskState accepted, one attempt, zero retries, one terminal evidence record; status reports TASK-T0-BASIC: accepted and leaves evidence unchanged.`
 - **CI Evidence**: `N/A — no host-project CI`
-- **Changed-File Summary**: `T6 source: CLI run, orchestration, worker jail/closed dispatch, policy reader, event writer, task-state writer; focused tests and tsconfig test inclusion; canonical Task Record/breakdown/STATE reconciliation. No fixture/package/runtime artifacts.`
+- **Changed-File Summary**: `T5 status reader/report amendment and focused read-only tests; T6 integration acceptance recorded from the isolated runnable T0 path. No runtime artifacts leaked.`
 - **Latest Checkpoint**: `docs/tasks/2026-09-20-m1-local-task-gate.checkpoint-1.md`
 - **Latest Handoff**: `docs/tasks/2026-09-20-m1-local-task-gate.handoff-1.md`
-- **Next Action**: `STOP. Integration acceptance remains pending; do not begin T7 or modify fixtures.`
+- **Next Action**: `STOP. Do not begin T7 without separate authorization.`
 
 ---
 
@@ -111,7 +111,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - T6 implementation is complete; integration acceptance is pending runnable T0 fixture content because `fixtures/t0-basic/` currently lacks the project execution content required by fixed `npm test`. This does not authorize fixture changes. T7 and T9–T11 remain gated.
+  - T6 implementation and integration acceptance are complete from the runnable T0 path. T7 and T9–T11 remain gated / not started.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M1); C7 capability-filter before MCP (deferred post-M1); C8 stack-agnostic verify-adapter interface (M1 avoids via fixture-local verify). C2/C3/C5 closed by M-D4/M-D3. Full text: `docs/specs/2026-09-20-sureflow-discovery-intake.md` §5.
 - **Technical Debt & Risks**:
@@ -128,7 +128,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. STOP. T6 integration acceptance remains pending runnable T0 fixture content; do not begin T7 or modify fixtures.
+1. STOP. T5 status observability and T6 integration acceptance are complete; do not begin T7.
 
 ---
 
