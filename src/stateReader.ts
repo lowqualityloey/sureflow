@@ -68,6 +68,36 @@ function readTaskStates(rootDir: string, problems: string[]): readonly TaskState
   return tasks.sort((left, right) => left.taskId.localeCompare(right.taskId));
 }
 
+function validateTaskActivityConsistency(
+  active: ActiveState,
+  tasks: readonly TaskState[],
+  problems: string[],
+): void {
+  const nonTerminal = tasks.filter((task) => task.status === "pending" || task.status === "running");
+  if (nonTerminal.length > 1) {
+    problems.push("state: more than one task is pending or running");
+  }
+
+  if (active.activeTaskId === null) {
+    if (nonTerminal.length > 0) {
+      problems.push("active.json: activeTaskId must identify the pending or running task");
+    }
+    return;
+  }
+
+  const pointedTo = tasks.find((task) => task.taskId === active.activeTaskId);
+  if (pointedTo === undefined) {
+    problems.push(`active.json: activeTaskId points to missing task ${active.activeTaskId}`);
+    return;
+  }
+  if (pointedTo.status !== "pending" && pointedTo.status !== "running") {
+    problems.push(`active.json: activeTaskId points to non-active task ${active.activeTaskId}`);
+  }
+  if (nonTerminal.length === 1 && nonTerminal[0]?.taskId !== active.activeTaskId) {
+    problems.push("active.json: activeTaskId does not match the only pending or running task");
+  }
+}
+
 export function readRuntimeState(rootDir: string): StateReadOutcome {
   const projectPath = resolveStatePath(rootDir, PROJECT_RELATIVE_PATH);
   const activePath = resolveStatePath(rootDir, ACTIVE_RELATIVE_PATH);
@@ -91,6 +121,9 @@ export function readRuntimeState(rootDir: string): StateReadOutcome {
     problems.push("active.json: does not satisfy the T2 ActiveState contract");
   }
   const tasks = readTaskStates(rootDir, problems);
+  if (activeRaw !== undefined && isActiveState(activeRaw)) {
+    validateTaskActivityConsistency(activeRaw, tasks, problems);
+  }
   if (problems.length > 0) {
     return { kind: "invalid", problems };
   }

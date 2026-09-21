@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1.1 reliability hardening — H1–H3 accepted; H4–H7 gated
-- **Overall Status**: H3 ACCEPTED / COMPLETE — remote CI passed; H4–H7 remain unauthorized
+- **Current Milestone / Epic**: M1.1 reliability hardening — H1–H3 accepted; H4 active; H5–H7 gated
+- **Overall Status**: H4 IN PROGRESS — H1–H3 accepted / complete; H5–H7 remain unauthorized
 - **Target Release / Deadline**: M1.1 — no deadline recorded
-- **Current Working Branch**: `main` at `1d0fed15cb54f938d55115e4a2a75caa9578d8c4`; H1–H3 accepted; H4–H7 gated
+- **Current Working Branch**: `main` at the local H4 commit; H1–H3 accepted; H4 locally committed; H5–H7 gated
 - **Last Updated**: 2026-09-21
 
 
@@ -20,6 +20,7 @@
 - [x] **M1.1-H1**: Zero-cost Node 24 public CI — accepted after green remote CI run `35572778970` on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] **M1.1-H2**: Node 24 type alignment — accepted after green remote CI run `35574889277` on `505daa10f43410a6eefb28a5b758af94227c1fbe`
 - [x] **M1.1-H3**: Runtime namespace symlink containment — accepted after GitHub Actions run `35577273766` passed on `1d0fed15cb54f938d55115e4a2a75caa9578d8c4`
+- [~] **M1.1-H4**: State interruption safety — authorized; local commit complete; remote acceptance pending; H5–H7 remain gated
 
 ### Active Milestone Task Breakdown
 
@@ -38,23 +39,23 @@
 - [x] T11: documentation and acceptance closeout complete
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
-- [!] Stop boundary: H3 is complete and remotely accepted; H4–H7 remain unauthorized
+- [!] Stop boundary: H4 implementation only; do not begin H5–H7
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1–H3 accepted; H4–H7 gated
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1–H3 accepted; H4 active; H5–H7 gated
 - **Active Task Spec**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Key Files in Flight**: H3 remote-acceptance bookkeeping is uncommitted in `docs/STATE.md` and the Task Record; H4–H7 remain out of scope.
+- **Key Files in Flight**: H4 local commit; remote push/acceptance remains separately gated; H5–H7 remain out of scope.
 - **Verification Commands (Scoped)**:
-  - Unit Tests: `npm test` → 90 passed across 11 files on unchanged retry outside the restricted command sandbox; first attempt's child `node` process was denied with `EPERM` (2026-09-21)
+  - Unit Tests: `npm test` → 112 passed across 12 files on the final host-level retry; H4 focused init/status suite: 32 passed across 2 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
   - Linter: `npm run lint` → exit 0 (2026-09-21)
   - Build: `npm run build` → exit 0 (2026-09-21)
   - Repository checks: `git diff --check` and the tracked-tree cleanliness check → exit 0 (2026-09-21)
   - Harness preflight: bounded fixed-scope scan reported no findings (2026-09-21)
-  - H3 focused tests: 9 passed locally; GitHub Actions full suite: 100 passed across 12 files on `ubuntu-latest`
+  - H3 focused tests: 9 passed locally; GitHub Actions full suite: 100 passed across 12 files on `ubuntu-latest`; H4 focused verification is in progress
 
 ---
 
@@ -64,22 +65,22 @@
 - **Task ID**: `TASK-2026-09-21-m1-1-reliability-hardening`
 - **Task Record**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
 - **Specification**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md`
-- **Execution Scope**: `M1.1 H3 only: runtime containment resolvers, one shared helper, focused tests, required TypeScript test include, and linked bookkeeping records`
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Complete — H1–H3 accepted; H4–H7 gated`
-- **Active Task Pointer**: `H3 / TASK-2026-09-21-m1-1-reliability-hardening (accepted)`
-- **Owner / Current Actor**: `Codex; H3 remotely accepted; H4–H7 remain gated`
+- **Execution Scope**: `M1.1 H4 only: atomic authoritative state writes, cross-file state consistency validation, focused tests, and linked bookkeeping records; H1–H3 accepted; H5–H7 gated`
+- **Execution State**: `in_progress`
+- **Mapped `pk:tasks` Status**: `In progress — H1–H3 accepted; H4 locally committed; H5–H7 gated`
+- **Active Task Pointer**: `H4 / TASK-2026-09-21-m1-1-reliability-hardening (local commit complete; remote acceptance pending)`
+- **Owner / Current Actor**: `Codex; H4 locally committed under explicit authorization; H1–H3 accepted; H5–H7 remain gated`
 - **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `1d0fed15cb54f938d55115e4a2a75caa9578d8c4; H1–H3 accepted; origin/main matches`
-- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; stop before H4 work`
-- **Blockers and Resume Condition**: `H3 has no blocker. H4–H7 require separate authorization.`
-- **Verification Status**: `H3 focused suite: 9 tests passed locally; GitHub Actions run 35577273766 on ubuntu-latest passed install, typecheck, full 100-test suite, lint, build, diff check, and cleanliness check. H3 symlink tests executed as 9 tests with no skips.`
+- **Current Revision**: `local H4 commit; H1–H3 accepted; origin/main remains e156a8a819fdcddb2cee84a8a5dfb657c3be241e`
+- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; stop before H5 work`
+- **Blockers and Resume Condition**: `H4 local verification and commit are complete; push/remote acceptance requires separate authorization. H5–H7 require separate authorization.`
+- **Verification Status**: `H3 focused suite: 9 tests passed locally; GitHub Actions run 35577273766 on ubuntu-latest passed install, typecheck, full 100-test suite, lint, build, diff check, and cleanliness check. H3 symlink tests executed as 9 tests with no skips. H4 focused init/status suite: 32 tests passed; final full suite: 112 tests across 12 files; typecheck, lint, build, diff check, PromptKit references, harness preflight, and scope/secret/debug/credential/artifact guards passed.`
 - **CI Evidence**: `H1: GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed on e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. H2: GitHub Actions CI run 35574889277 (<https://github.com/lowqualityloey/sureflow/actions/runs/35574889277>) passed on 505daa10f43410a6eefb28a5b758af94227c1fbe; its test job and all steps concluded success.`
-- **Changed-File Summary**: `H3 commits d8932eb and 1d0fed1 contain exactly the nine authorized files: approved runtime containment source, focused tests, tsconfig.json, Task Record, and docs/STATE.md. No CLI, dependency, CI, H4–H7, or tracked runtime artifact changes.`
+- **Changed-File Summary**: `H3 commits d8932eb and 1d0fed1 contain exactly the nine authorized files. The H4 local commit contains exactly src/atomicStateWrite.ts, src/stateWriter.ts, src/taskStateStore.ts, src/stateReader.ts, tests/initStatus.test.ts, this Task Record, and docs/STATE.md. No CLI, dependency, CI, H3 containment, H5–H7, or tracked runtime artifact changes.`
 - **Latest Checkpoint**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-2.md` — H2 accepted; H3 completion recorded in the Task Record and this state tracker
 - **Latest Handoff**: `N/A`
-- **Next Action**: `STOP. Do not begin H4.`
+- **Next Action**: `Await separate push authorization for H4; do not begin H5.`
 
 ---
 
@@ -138,7 +139,8 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 7. Next Immediate Actions (Queued)
 1. H2 accepted: commit `505daa10f43410a6eefb28a5b758af94227c1fbe` is on `origin/main`; CI run `35574889277` passed.
-2. H3 commits `d8932eb` and `1d0fed1` pushed; GitHub Actions run `35577273766` passed; do not begin H4 without separate authorization.
+2. H3 commits `d8932eb` and `1d0fed1` pushed; GitHub Actions run `35577273766` passed.
+3. H4 explicitly authorized; implementation is active; do not commit, push, or begin H5.
 
 ---
 
@@ -157,6 +159,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-21 | Codex | M1.1 H1 remote acceptance | Pushed `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c` non-force to `origin/main`; GitHub Actions CI run `35572778970` passed; H1 accepted and H2–H7 remain gated |
 | 2026-09-21 | Codex | M1.1 H2 Node 24 type alignment | Aligned `@types/node` to Node 24, verified 91 local tests and canonical gates, pushed `505daa10f43410a6eefb28a5b758af94227c1fbe`, and accepted H2 after CI run `35574889277` passed; H3–H7 remain gated |
 | 2026-09-21 | Codex | M1.1 H3 remote acceptance | Pushed authorized commits `d8932eb` and `1d0fed1`; GitHub Actions run `35577273766` passed on `ubuntu-latest` for `1d0fed15cb54f938d55115e4a2a75caa9578d8c4`, including 100 tests and 9 H3 containment tests; H4–H7 remain gated |
+| 2026-09-21 | Codex | M1.1 H4 authorization and implementation start | Human authorized H4 only; preflight confirmed baseline `e156a8a819fdcddb2cee84a8a5dfb657c3be241e` and 20 focused init/status baseline tests; H4 atomic state writes and consistency validation are in progress; H5–H7 remain gated |
 
 ---
 

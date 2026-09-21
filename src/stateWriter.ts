@@ -8,7 +8,8 @@
  * migration machinery. Refuses to overwrite existing state unless
  * explicitly forced.
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { atomicReplaceTextFile } from "./atomicStateWrite.js";
 import { DEFAULT_M1_POLICY } from "./policy.js";
 import {
   POLICY_RELATIVE_PATH,
@@ -22,7 +23,12 @@ import {
   isProjectState,
   resolveStatePath,
 } from "./state.js";
-import { ACTIVE_RELATIVE_PATH, PROJECT_RELATIVE_PATH, readRuntimeState } from "./stateReader.js";
+import {
+  ACTIVE_RELATIVE_PATH,
+  PROJECT_RELATIVE_PATH,
+  TASKS_RELATIVE_PATH,
+  readRuntimeState,
+} from "./stateReader.js";
 
 export interface InitRequest {
   readonly rootDir: string;
@@ -40,15 +46,31 @@ export type InitOutcome =
   | { readonly kind: "already-initialized"; readonly existingPath: string };
 
 function writeJson(absPath: string, value: unknown): void {
-  writeFileSync(absPath, `${JSON.stringify(value, null, 2)}\n`, { encoding: "utf8" });
+  atomicReplaceTextFile(absPath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 export function initRuntimeState(request: InitRequest): InitOutcome {
   const { rootDir, force } = request;
   // State paths go through the T2 authoritative resolver (AC-6 boundary).
   const projectPath = resolveStatePath(rootDir, PROJECT_RELATIVE_PATH);
+  const activePath = resolveStatePath(rootDir, ACTIVE_RELATIVE_PATH);
+  const tasksPath = resolveStatePath(rootDir, TASKS_RELATIVE_PATH);
   if (existsSync(projectPath) && !force) {
     return { kind: "already-initialized", existingPath: PROJECT_RELATIVE_PATH };
+  }
+  if (force && (existsSync(projectPath) || existsSync(activePath) || existsSync(tasksPath))) {
+    const existing = readRuntimeState(rootDir);
+    if (existing.kind === "invalid") {
+      // Force must not detach a non-terminal task or rewrite malformed state.
+      // Keep the existing CLI refusal surface; callers can inspect the state
+      // without any mutation having occurred.
+      return { kind: "already-initialized", existingPath: PROJECT_RELATIVE_PATH };
+    }
+    if (existing.kind === "ok" && existing.tasks.some((task) =>
+      task.status === "pending" || task.status === "running"
+    )) {
+      return { kind: "already-initialized", existingPath: PROJECT_RELATIVE_PATH };
+    }
   }
 
   const createdPaths: string[] = [];

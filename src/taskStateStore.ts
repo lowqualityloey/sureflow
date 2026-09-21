@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { atomicReplaceTextFile } from "./atomicStateWrite.js";
 import {
   createTaskState,
   createActiveState,
@@ -21,7 +22,7 @@ export function taskStatePath(rootDir: string, taskId: string): string {
 }
 
 function writeJson(path: string, value: unknown): void {
-  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  atomicReplaceTextFile(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 export function taskStateExists(rootDir: string, taskId: string): boolean {
@@ -32,6 +33,8 @@ export function beginTask(rootDir: string, taskId: string, nowIso: string): Task
   const path = taskStatePath(rootDir, taskId);
   if (existsSync(path)) throw new Error(`task state already exists: ${taskId}`);
   const state = createTaskState(taskId, nowIso);
+  // Task content is replaced first; the active pointer follows. A reader that
+  // observes the interval sees invalid state rather than a false success.
   writeJson(path, state);
   writeJson(resolveStatePath(rootDir, ACTIVE_RELATIVE_PATH), {
     ...createActiveState(nowIso),
@@ -52,6 +55,8 @@ export function transitionTask(
     throw new Error(`invalid authoritative task state: ${taskId}`);
   }
   const state: TaskState = { ...parsed, status, updatedAt: nowIso };
+  // Preserve the existing task-then-pointer order. These are separate atomic
+  // replacements, not a transaction; readers reject any transient mismatch.
   writeJson(path, state);
   writeJson(
     resolveStatePath(rootDir, ACTIVE_RELATIVE_PATH),
