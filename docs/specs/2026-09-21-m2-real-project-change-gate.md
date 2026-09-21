@@ -370,6 +370,8 @@ M2 reuses `EvidenceRecord`, redaction, and append-only JSONL unchanged. It appen
 - Model text, worker claims, event history, task state, timestamps, or “latest wins” ordering never establish PASS.
 - `verify` reconciles stale `accepted` state to `halted` on FAIL or UNKNOWN, preserving M1 behavior.
 
+When the execution-time re-hash of `.sureflow/task.json` differs from the immutable plan, the terminal `repo.read` evidence result is `integrity-mismatch:<observed-sha256>` and is interpreted as FAIL. This is distinct from a later current-contract digest that differs from terminal evidence, which remains UNKNOWN as stale contract evidence.
+
 ---
 
 ## 8. Existing M1/M1.1 Contracts Reused Unchanged
