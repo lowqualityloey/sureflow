@@ -1,8 +1,8 @@
 /**
  * Sureflow CLI (M1 surface: init, run, status, verify).
  *
- * T5 implements `init` and `status` only. `run` (T6) and `verify`
- * (T7) remain explicit stubs that halt with the approved exit code;
+ * T6 implements `run` for the single approved T0 fixture. `verify`
+ * (T7) remains an explicit stub that halts with the approved exit code;
  * no additional public commands exist.
  *
  * Exit codes are the approved §9 contract: 0 = accepted/pass,
@@ -12,6 +12,7 @@ import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readRuntimeState } from "./stateReader.js";
 import { initRuntimeState } from "./stateWriter.js";
+import { runT0Task } from "./runTask.js";
 import {
   EXIT_ACCEPTED,
   EXIT_CONTROLLED_HALT,
@@ -31,7 +32,7 @@ function helpLines(): readonly string[] {
     "sureflow (M1) — approved commands: init, run, status, verify",
     "  sureflow init [--force]   create .sureflow/ runtime state (refuses to overwrite)",
     "  sureflow status           read-only runtime status from .sureflow/state/",
-    "  sureflow run ...          not implemented in M1 yet (T6)",
+    "  sureflow run <taskId>     run the approved T0 fixture",
     "  sureflow verify ...       not implemented in M1 yet (T7)",
     "Exit codes: 0 = accepted/pass, 2 = controlled halt/blocked/failure",
   ];
@@ -75,6 +76,21 @@ function runStatus(argv: readonly string[], cwd: string, io: CliIo): number {
   return statusExitCode(outcome);
 }
 
+function runTask(argv: readonly string[], cwd: string, io: CliIo): number {
+  const taskId = argv[1];
+  if (taskId === undefined || argv.length !== 2) {
+    io.err("sureflow run: requires exactly one fixture taskId");
+    return EXIT_CONTROLLED_HALT;
+  }
+  const outcome = runT0Task({ rootDir: cwd, requestedTaskId: taskId });
+  if (outcome.kind === "accepted") {
+    io.out(`Sureflow run: ACCEPT — ${outcome.taskId ?? "unknown task"} (${outcome.verdict ?? "PASS"})`);
+    return EXIT_ACCEPTED;
+  }
+  io.err(`Sureflow run: HALT — ${outcome.reason}`);
+  return EXIT_CONTROLLED_HALT;
+}
+
 export function runCli(argv: readonly string[], cwd: string, io: CliIo): number {
   const command = argv[0];
   if (command === undefined || command === "--help" || command === "-h") {
@@ -84,9 +100,10 @@ export function runCli(argv: readonly string[], cwd: string, io: CliIo): number 
     return EXIT_ACCEPTED;
   }
   if (command === "init") return runInit(argv, cwd, io);
+  if (command === "run") return runTask(argv, cwd, io);
   if (command === "status") return runStatus(argv, cwd, io);
-  if (command === "run" || command === "verify") {
-    io.err(`sureflow ${command}: not implemented in M1 yet (${command === "run" ? "T6" : "T7"}).`);
+  if (command === "verify") {
+    io.err("sureflow verify: not implemented in M1 yet (T7).");
     return EXIT_CONTROLLED_HALT;
   }
   io.err(`sureflow: unknown command '${command}'. Approved: ${APPROVED_COMMANDS.join(", ")}`);
