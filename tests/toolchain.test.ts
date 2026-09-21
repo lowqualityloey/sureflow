@@ -5,9 +5,11 @@ import { cliExecutable } from "./helpers/cliArtifact.js";
 
 const pkg: {
   engines: { node: string };
+  devDependencies: { "@types/node": string };
   scripts: Record<string, string>;
 } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
   engines: { node: string };
+  devDependencies: { "@types/node": string };
   scripts: Record<string, string>;
 };
 
@@ -17,6 +19,12 @@ describe("T1 toolchain gate", () => {
     // lockfile + provenance, not in engines).
     expect(pkg.engines.node).toBe("^24.0.0");
     const major = Number(process.version.replace(/^v/, "").split(".")[0]);
+    expect(major).toBe(24);
+  });
+
+  it("declares Node 24 type definitions", () => {
+    const declaredRange = pkg.devDependencies["@types/node"];
+    const major = Number(declaredRange.replace(/^\D*/, "").split(".")[0]);
     expect(major).toBe(24);
   });
 

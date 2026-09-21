@@ -11,7 +11,7 @@
 - **Specification**: [M1.1 Reliability Hardening](../specs/2026-09-21-m1-1-reliability-hardening.md)
 - **External Reference**: `N/A`
 - **Owner / Actor**: Human authority; Codex implements only explicitly authorized H tasks
-- **Execution Scope**: Sureflow M1.1, with H1 limited to `.github/workflows/ci.yml`
+- **Execution Scope**: Sureflow M1.1: H1 remains complete; H2 is limited to `package.json`, `package-lock.json`, `tests/toolchain.test.ts`, and linked bookkeeping records.
 - **Approval Boundary**: Every H task, commit, push, and scope expansion require explicit human authorization
 - **Created**: 2026-09-21 06:50 UTC
 
@@ -30,7 +30,7 @@
   - **AC-H1.1**: One `ubuntu-latest` job runs Node 24 canonical gates on push to `main` and pull requests targeting `main`.
   - **AC-H1.2**: Workflow has `contents: read`, no persisted checkout credentials, no cache, artifacts, matrix, write operations, secrets, paid service, or nonstandard runner.
   - **AC-H1.3**: The actual remote GitHub Actions run against the committed H1 revision is green.
-- [ ] **H2**: Node 24 type alignment — planned / gated / unauthorized.
+- [ ] **H2**: Node 24 type alignment — active / in progress / explicitly authorized.
 - [ ] **H3**: runtime namespace symlink containment — planned / gated / unauthorized.
 - [ ] **H4**: state interruption safety — planned / gated / unauthorized.
 - [ ] **H5**: mutation lock — planned / gated / unauthorized.
@@ -43,19 +43,19 @@
 - **TDD Enforcement Mode**: `disabled`
 - **Batch Authorization**: `N/A`
 - **Soft Checkpoint**: `N/A - H1 is a bounded configuration task`
-- **Hard Checkpoint**: `Before H2 authorization`
+- **Hard Checkpoint**: `Before H3 authorization`
 - **Event-Driven Checkpoints**: `Commit, push, remote CI result, scope expansion, or task switch`
 - **Stop Conditions**: `Private/metered CI, conflicting workflow, failed local or remote gate, scope expansion, or missing human authorization`
 - **Host Timer Capability**: `No mechanical timer observed`
 
 ## 5. State and Active Ownership
 
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Complete — H1 accepted; H2–H7 remain gated`
-- **Active Task Pointer**: `H1 / TASK-2026-09-21-m1-1-reliability-hardening`
+- **Execution State**: `in_progress`
+- **Mapped `pk:tasks` Status**: `In Progress — H1 accepted; H2 authorized; H3–H7 gated`
+- **Active Task Pointer**: `H2 / TASK-2026-09-21-m1-1-reliability-hardening`
 - **Start Time**: `2026-09-21 06:50 UTC`
-- **Current Actor**: `Codex, under explicit H1 authorization`
-- **Next Action**: `STOP. Do not begin H2 without separate human authorization.`
+- **Current Actor**: `Codex, under explicit H2 authorization`
+- **Next Action**: `Await separate authorization to push the locally verified H2 commit. Do not begin H3.`
 
 ### Transition History
 
@@ -63,6 +63,7 @@
 |---|---|---|---|---|---|
 | planned | in_progress | 2026-09-21 06:50 UTC | Human authority | H1 explicitly authorized; H2–H7 remain gated | User authorization and local H1 implementation evidence |
 | in_progress | completed | 2026-09-21 07:24 UTC | Codex | H1 commit pushed and remote CI passed | `origin/main` = `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`; CI run `35572778970` concluded `success` |
+| completed | in_progress | 2026-09-21 | Human authority | H2 explicitly authorized; H3–H7 remain gated | User authorization for Node 24 type alignment only |
 
 ## 6. Evidence and Completion Gate
 
@@ -70,7 +71,7 @@
 - **Scope Change Records**: `None`
 - **Checkpoint Records**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 remote acceptance boundary
 - **Handoff Records**: `None`
-- **Verification Evidence**: `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and the tracked-tree cleanliness check passed locally on 2026-09-21. `npm test` passed 90 tests across 11 files on an unchanged retry outside the restricted command sandbox after the first attempt's child `node` process was denied with `EPERM`. The bounded PromptKit harness preflight reported no findings in its fixed scope. Remote GitHub Actions remains pending commit/push.
+- **Verification Evidence**: `H1: npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`, and the tracked-tree cleanliness check passed locally on 2026-09-21; `npm test` passed 90 tests across 11 files outside the restricted command sandbox after its initial child-node EPERM. `H2: npm ci`, `npm run typecheck`, `npm test` (91 tests across 11 files), `npm run lint`, `npm run build`, `git diff --check`, `npm ls @types/node --depth=0`, PromptKit reference validation, and the bounded harness preflight all passed locally on 2026-09-21.`
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - TDD Enforcement Mode disabled`
@@ -80,9 +81,9 @@
 - **Commit Evidence**: `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c (chore(ci): add bounded Node 24 verification workflow), pushed non-force to origin/main.`
 - **Pull Request Evidence**: `N/A - direct main push explicitly authorized for H1`
 - **Release Evidence**: `N/A`
-- **Blocker and Resume Condition**: `H1 has no blocker. H2–H7 remain unauthorized and require separate human authorization.`
-- **Completion State**: `accepted`
-- **Acceptance Results**: `AC-H1.1, AC-H1.2, and AC-H1.3 passed. The remote CI run was green for the exact pushed H1 revision.`
-- **Changed-File Summary**: `.github/workflows/ci.yml` adds the bounded H1 workflow; the linked M1.1 specification, this Task Record, and `docs/STATE.md` record its approved scope and execution evidence. No runtime, test, fixture, package, or H2-H7 implementation files changed.
+- **Blocker and Resume Condition**: `H2 is active. H3–H7 remain unauthorized and require separate human authorization.`
+- **Completion State**: `in_progress`
+- **Acceptance Results**: `H1 AC-H1.1, AC-H1.2, and AC-H1.3 passed. H2 implementation and local verification are complete; remote CI and acceptance remain pending separate push authorization.`
+- **Changed-File Summary**: `H1 remains unchanged. H2 changes only package.json, package-lock.json, tests/toolchain.test.ts, this Task Record, and docs/STATE.md. No runtime source, CLI behavior, CI workflow, configuration, H3–H7 implementation, or tracked dist/node_modules artifact changed.`
 - **Completion Exception**: `None`
 - **Completion Decision and Timestamp**: `H1 accepted 2026-09-21 07:24 UTC after CI run 35572778970 concluded success.`

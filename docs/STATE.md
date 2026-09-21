@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M1.1 reliability hardening — H1 zero-cost public CI accepted; H2–H7 gated
-- **Overall Status**: H1 COMPLETE — remote CI passed; H2–H7 remain unauthorized
+- **Current Milestone / Epic**: M1.1 reliability hardening — H1 accepted; H2 Node 24 type alignment active; H3–H7 gated
+- **Overall Status**: IN PROGRESS — H1 complete; H2 authorized; H3–H7 remain unauthorized
 - **Target Release / Deadline**: M1.1 — no deadline recorded
-- **Current Working Branch**: `main` at `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`; H1 accepted
+- **Current Working Branch**: `main` at `efdc54e3b446fd9b57ae1a77cdfe8d86375e0816`; H1 accepted and checkpointed
 - **Last Updated**: 2026-09-21
 
 
@@ -18,6 +18,7 @@
 - [x] **M1-spec**: Deterministic local task gate — APPROVED 2026-09-20 (`docs/specs/2026-09-20-m1-local-task-gate.md`)
 - [x] **M1-build**: T1–T11 closeout complete; future milestones gated
 - [x] **M1.1-H1**: Zero-cost Node 24 public CI — accepted after green remote CI run `35572778970` on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
+- [ ] **M1.1-H2**: Node 24 type alignment — active / in progress; H3–H7 remain gated
 
 ### Active Milestone Task Breakdown
 
@@ -35,15 +36,16 @@
 - [x] T10: determinism and public-surface audit complete
 - [x] T11: documentation and acceptance closeout complete
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
+- [ ] H2: Node 24 type alignment — active / in progress; H3–H7 remain gated / unauthorized
 - [!] Stop boundary: H2–H7 remain unauthorized; do not begin H2
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1 accepted; H2–H7 gated
+- **Active RFC / Spec**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md` — H1 accepted; H2 active; H3–H7 gated
 - **Active Task Spec**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
-- **Key Files in Flight**: H1 acceptance bookkeeping only: the Task Record, its checkpoint record, and `docs/STATE.md`. No runtime, test, fixture, package, workflow, or H2–H7 implementation files are in flight.
+- **Key Files in Flight**: H2 only: `package.json`, `package-lock.json`, `tests/toolchain.test.ts`, the Task Record, and `docs/STATE.md`. No production source, workflow, configuration, or H3–H7 files are in flight.
 - **Verification Commands (Scoped)**:
   - Unit Tests: `npm test` → 90 passed across 11 files on unchanged retry outside the restricted command sandbox; first attempt's child `node` process was denied with `EPERM` (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -60,22 +62,22 @@
 - **Task ID**: `TASK-2026-09-21-m1-1-reliability-hardening`
 - **Task Record**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.md`
 - **Specification**: `docs/specs/2026-09-21-m1-1-reliability-hardening.md`
-- **Execution Scope**: `M1.1 H1 only: .github/workflows/ci.yml plus linked bookkeeping records`
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Complete — H1 accepted; H2–H7 gated`
-- **Active Task Pointer**: `H1 / TASK-2026-09-21-m1-1-reliability-hardening`
-- **Owner / Current Actor**: `Codex, under explicit H1 authorization; H2–H7 remain gated`
+- **Execution Scope**: `M1.1 H2 only: package.json, package-lock.json, tests/toolchain.test.ts, and linked bookkeeping records`
+- **Execution State**: `in_progress`
+- **Mapped `pk:tasks` Status**: `In Progress — H1 accepted; H2 authorized; H3–H7 gated`
+- **Active Task Pointer**: `H2 / TASK-2026-09-21-m1-1-reliability-hardening`
+- **Owner / Current Actor**: `Codex, under explicit H2 authorization; H3–H7 remain gated`
 - **Start Time**: `2026-09-21 06:50 UTC`
 - **Current Branch**: `main`
-- **Current Revision**: `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c; H1 accepted`
-- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; hard stop before H2 authorization`
-- **Blockers and Resume Condition**: `H1 accepted. STOP before H2; separate human authorization is required to resume.`
+- **Current Revision**: `efdc54e3b446fd9b57ae1a77cdfe8d86375e0816; H1 accepted and checkpointed; H2 active`
+- **Checkpoint Policy**: `Commit, push, remote CI result, scope expansion, or task switch; hard stop before H3 authorization`
+- **Blockers and Resume Condition**: `H2 is active. STOP before H3; separate human authorization is required to resume beyond H2.`
 - **Verification Status**: `H1 workflow structure matches AC-H1.1 and AC-H1.2. Typecheck, 90 tests across 11 files, lint, build, git diff check, tracked-tree cleanliness, and bounded harness preflight pass locally. The initial sandboxed test attempt denied one child node process with EPERM; the unchanged suite passed outside the restricted command sandbox.`
 - **CI Evidence**: `GitHub Actions CI run 35572778970 (<https://github.com/lowqualityloey/sureflow/actions/runs/35572778970>) passed after push; its head SHA was e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c. The test job and all its steps concluded success.`
-- **Changed-File Summary**: `.github/workflows/ci.yml` plus the existing M1.1 specification, Task Record, and `docs/STATE.md`. No runtime, test, fixture, package, or H2–H7 implementation files changed.
+- **Changed-File Summary**: `H2 planned scope: package.json, package-lock.json, tests/toolchain.test.ts, Task Record, and docs/STATE.md. No runtime, source, workflow, configuration, or H3–H7 implementation files may change.`
 - **Latest Checkpoint**: `docs/tasks/2026-09-21-m1-1-reliability-hardening.checkpoint-1.md` — H1 accepted; hard stop before H2
 - **Latest Handoff**: `N/A`
-- **Next Action**: `STOP. Do not begin H2 without separate human authorization.`
+- **Next Action**: `Await separate authorization to push the locally verified H2 commit. Do not begin H3.`
 
 ---
 
@@ -133,8 +135,8 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. H1 accepted: commit `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c` is on `origin/main`; CI run `35572778970` passed.
-2. Stop; do not begin H2 without separate authorization.
+1. H2 implementation and local verification are complete; await separate authorization to push its commit.
+2. Stop; do not begin H3 without separate authorization.
 
 ---
 
