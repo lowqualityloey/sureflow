@@ -22,6 +22,6 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src", "tests/toolchain.test.ts", "tests/statePolicy.test.ts", "tests/evidenceStore.test.ts", "tests/evidenceRedact.test.ts", "tests/verifier.test.ts", "tests/initStatus.test.ts", "tests/t0Fixture.test.ts", "tests/runTask.test.ts", "tests/verify.test.ts", "tests/negativePaths.test.ts", "tests/helpers/cliArtifact.ts", "vitest.config.ts", "eslint.config.js"],
+  "include": ["src", "tests/toolchain.test.ts", "tests/statePolicy.test.ts", "tests/evidenceStore.test.ts", "tests/evidenceRedact.test.ts", "tests/verifier.test.ts", "tests/initStatus.test.ts", "tests/t0Fixture.test.ts", "tests/runTask.test.ts", "tests/verify.test.ts", "tests/negativePaths.test.ts", "tests/t10Audit.test.ts", "tests/helpers/cliArtifact.ts", "vitest.config.ts", "eslint.config.js"],
   "exclude": ["node_modules", "dist", "fixtures", ".sureflow"]
 }

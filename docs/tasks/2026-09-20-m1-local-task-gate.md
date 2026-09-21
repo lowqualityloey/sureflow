@@ -10,9 +10,9 @@
 - **Work Type**: `Code Work`
 - **Specification**: `docs/specs/2026-09-20-m1-local-task-gate.md`
 - **External Reference (Optional)**: `N/A`
-- **Owner / Actor**: `Human authority; implementation history through T9; Codex authorized T9 negative acceptance`
+- **Owner / Actor**: `Human authority; implementation history through T10; Codex authorized T10 determinism/surface audit`
 - **Execution Scope**: `Sureflow repo: M1 control-plane slice only (init/run/status/verify, static policy, single worker, JSONL evidence, fixtures/t0-basic/). No other subsystems.`
-- **Approval Boundary**: `T1–T9 and T8, including T5 status observability, T6 integration acceptance, and T7 verification, are committed repository history. T10–T11 remain gated; push, tag, and later-task implementation are not authorized. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
+- **Approval Boundary**: `T1–T10 and T8, including T5 status observability, T6 integration acceptance, T7 verification, and T9 negative acceptance, are committed repository history. T11 remains gated; push, tag, and later-task implementation are not authorized. Protected operations terminally halt at REQUIRE_APPROVAL in M1; no approval-delivery mechanism exists.`
 - **Created**: `2026-09-20 UTC`
 - **Decisions**: `docs/adrs/2026-09-20-stack-and-m1-boundary.md` (M-D1..M-D5) and `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md` (M-D6..M-D13)
 - **Scope Change**: `docs/tasks/2026-09-20-m1-local-task-gate.scope-1.md`
@@ -24,7 +24,7 @@
 - **In Scope**: M1 T1–T11 as defined in
   `docs/tasks/2026-09-20-m1-task-breakdown.md`. T1–T5 are
   complete and committed; T8 is committed at `a66fccc`; the second T6
-  preflight contract correction is committed at `ee3b66d`; T6 implementation and integration acceptance are complete from the runnable T0 path; T7 verification and T9 negative acceptance are complete; T10–T11 remain gated.
+  preflight contract correction is committed at `ee3b66d`; T6 implementation and integration acceptance are complete from the runnable T0 path; T7 verification, T9 negative acceptance, and T10 determinism/surface audit are complete; T11 remains gated.
 - **Explicit Non-Goals**: No multi-agent execution, MCP, skills,
   providers, scheduler, telemetry platform, cloud infrastructure,
   remote tracking, generalized approval machinery, or other
@@ -40,8 +40,8 @@
 ## 3. Execution Policy (M1 task record)
 
 - **Execution Mode**: `Gated Mode`
-- **Checkpoint Policy**: `T9 negative acceptance complete. Stop; do not begin T10.`
-- **Stop Conditions**: `Stop before T10 or any later task without separate
+- **Checkpoint Policy**: `T10 determinism/surface audit complete. Stop; do not begin T11.`
+- **Stop Conditions**: `Stop before T11 or any later task without separate
   explicit authorization; terminally halt on DENY or REQUIRE_APPROVAL
   with zero execution and zero retry; stop on scope expansion without a
   scope-change record; retry only an initial started-process nonzero numeric
@@ -69,7 +69,8 @@
 - [x] T6 run + worker — implementation and integration acceptance complete from the runnable T0 path
 - [x] T7 verify CLI and stale-ACCEPT reconciliation — complete and accepted
 - [x] T9 negative acceptance coverage — complete and accepted
-- [ ] T10–T11 planned / gated / not started
+- [x] T10 determinism and public-surface audit — complete and accepted
+- [ ] T11 planned / gated / not started
 
 ## 4A. Locked Implementation Invariants
 
@@ -114,15 +115,15 @@
 ## 5. State and Ownership (M1 task record)
 
 - **Execution State**: `in_progress`
-- **Mapped pk:tasks Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 verification complete; T9 negative acceptance complete; T10–T11 gated / not started`
+- **Mapped pk:tasks Status**: `T5 status observability amendment complete; T6 integration acceptance complete; T7 verification complete; T9 negative acceptance complete; T10 determinism/surface audit complete; T11 gated / not started`
 - **Active Task Pointer**: `TASK-2026-09-20-m1-local-task-gate`
-- **Blockers and Resume Condition**: `No M1 T9 closeout blocker. T10–T11 remain gated / not started.`
-- **Verification Status**: `Focused T9 suite: 12 passing tests. Full suite: 86 passing tests across 10 files. Typecheck, lint, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Isolated T0 path: ALLOW, npm test exit 0, terminal evidence ok, T4 PASS, TaskState accepted, one attempt, zero retries, one terminal evidence record; status reports TASK-T0-BASIC: accepted and leaves evidence unchanged.`
+- **Blockers and Resume Condition**: `No M1 T10 closeout blocker. T11 remains gated / not started.`
+- **Verification Status**: `Focused T10 suite: 4 passing tests. Full suite: 90 passing tests across 11 files. Typecheck, build, git diff check, fixed-scope harness preflight, changed-file scope, secret-pattern, debug-probe, and runtime-artifact guards pass. Clean-checkout and final working-tree canonical npm run lint pass; an earlier ignored .kilo/worktrees/ auxiliary path caused a local-only traversal error and required no tooling change. T10 confirms public surface, semantic determinism, repeated status/verify stability, duplicate-evidence UNKNOWN, and no unauthorized machinery.`
 - **CI Evidence**: `N/A`
-- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 first T6 preflight contracts; a66fccc T8 fixture contract; ee3b66d T6 result/retry contracts; T5 status amendment, T6 integration acceptance, and T7 verification committed; T9 negative acceptance committed by this changeset (exact hash reported after creation)`
-- **Changed-File Summary**: `T9 negative acceptance coverage in tests/negativePaths.test.ts and tsconfig.json. No production changes or runtime artifacts leaked.`
-- **Next Action**: `STOP. Do not begin T10 without separate authorization.`
+- **Commit Evidence**: `4942ca4 design baseline; d7a5d24 T1; 6ad617f T2; a4f16af T3; 7c70622 T4; e035cde T5; d5e7bcb history reconciliation; ad5adc3 first T6 preflight contracts; a66fccc T8 fixture contract; ee3b66d T6 result/retry contracts; T5 status amendment, T6 integration acceptance, and T7 verification committed; T9 negative acceptance committed; T10 determinism/surface audit committed by this changeset (exact hash reported after creation)`
+- **Changed-File Summary**: `T10 determinism and public-surface audit in tests/t10Audit.test.ts and tsconfig.json. No production changes, tooling changes, or runtime artifacts leaked.`
+- **Next Action**: `STOP. Do not begin T11 without separate authorization.`
 - **Completion State**: `in_progress`
-- **Acceptance Results**: `Spec acceptance complete; T5/T6/T7 implementation and verification acceptance complete; T9 negative acceptance complete; T10–T11 remain gated.`
+- **Acceptance Results**: `Spec acceptance complete; T5/T6/T7 implementation and verification acceptance complete; T9 negative acceptance and T10 determinism/surface acceptance complete; T11 remains gated.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `T5 status observability amendment, T6 integration acceptance, T7 verification, and T9 negative acceptance accepted 2026-09-21; T10–T11 remain gated / not started`
+- **Completion Decision and Timestamp**: `T5 status observability amendment, T6 integration acceptance, T7 verification, T9 negative acceptance, and T10 determinism/surface audit accepted 2026-09-21; T11 remains gated / not started`
