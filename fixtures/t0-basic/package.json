@@ -1,0 +1,7 @@
+{
+  "name": "sureflow-t0-basic-fixture",
+  "private": true,
+  "scripts": {
+    "test": "node --test fixture.test.mjs"
+  }
+}
