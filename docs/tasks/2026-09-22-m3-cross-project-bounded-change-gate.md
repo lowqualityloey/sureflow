@@ -15,7 +15,7 @@
 - **External Reference**: `N/A - local tracking remains authoritative`
 - **Owner / Actor**: Human authority owns approval; Codex may implement only separately authorized M3 tasks
 - **Execution Scope**: M3 CORE-ONLY; one bounded single-file change demonstrated independently on separate Node/TypeScript npm and pnpm project shapes
-- **Approval Boundary**: Human authority explicitly authorized M3 CORE-ONLY planning, M3-T1 through M3-T4 implementation/acceptance, T3 and T4 commit/push/remote validation, and this final documentation reconciliation. M3 merge, release, and post-M3 work remain separately gated.
+- **Approval Boundary**: Human authority explicitly authorized M3 CORE-ONLY planning, M3-T1 through M3-T4 implementation/acceptance, T3 and T4 commit/push/remote validation, final documentation reconciliation, PR readiness, normal merge of PR #1, and post-merge main CI observation. Release/deploy and post-M3 feature work remain separately gated.
 - **Created**: 2026-09-22 00:00 UTC
 
 ## 2. Objective and Boundaries
@@ -63,17 +63,17 @@
 - **Explicit Non-Goals**:
   - skills, skill resolver, providers, MCP, context engines, generalized adapter registry, scheduler, daemon, queue, or multi-agent orchestration;
   - automatic repair, arbitrary shell, deployment, remote Git mutation, package-manager installation, or workspace support;
-  - M3 merge, release, publish, deployment, or post-M3 actions.
-- **Dependencies**: Accepted M2 baseline `675f433e77fe9bdcc91edd05aa5e64f049fad46e`; accepted M3-T1 and M3-T2 commits on `m3-core`; Node 24, npm, Git, and the existing permitted-host verification environment.
+  - release, publish, deployment, or post-M3 actions; the authorized M3 merge is recorded below.
+- **Dependencies**: Accepted M2 baseline `675f433e77fe9bdcc91edd05aa5e64f049fad46e`; accepted M3-T1 through M3-T4 chain integrated by PR #1 normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; Node 24, npm, Git, and the existing permitted-host verification environment.
 - **Risk**: `High` — M3 extends deterministic verification across independent project-manager shapes and process lifetimes. Mitigation: closed adapter contracts, fixed execution budgets, direct-child-only ownership, strict evidence binding, physical containment revalidation, and fail-closed verdict/state behavior.
-- **Verification Condition**: M3-T1 through M3-T4 are accepted on `m3-core`; T4 remote validation is recorded with its focused public-CLI, full-suite, typecheck, lint, build, diff, and cleanliness evidence. Final PR integration remains separately gated.
+- **Verification Condition**: M3-T1 through M3-T4 were independently accepted on `m3-core`, PR #1 was merged with a normal merge commit, and the resulting main commit passed the recorded focused public-CLI, full-suite, typecheck, lint, build, diff, and cleanliness gates.
 
 ## 3. Dependency-Ordered Task Breakdown
 
-- [x] **M3-T1 — Closed adapter/kernel boundary + EvidenceRecord v2 contract** — accepted on `m3-core`, not merged into `main`; implementation commit `4fbe92d41940db3c7d1965a0124f6b8f9b98a40f`, CI hardening follow-up `46fb1e0cce39105e8b9a55f141204d181a15f955`, GitHub Actions run `35699026135`, `372/372` across 23 files with full gates green.
-- [x] **M3-T2 — Narrow pnpm project eligibility + fixed dispatch + read-only public preflight** — accepted on `m3-core`, not merged into `main`; implementation commit `5b46501eccf146777e6d8b6277700667237df464`, lint-only correction `5bfd27c2a2ea57da8e98d9b2ad6447de4a431418`, GitHub Actions run `35702794992`, `405/405` across 24 files with zero skips and typecheck/lint/build/diff/cleanliness green. The initial test-green/lint-failed result remains recorded as such.
-- [x] **M3-T3 — Bounded verification execution + cancellation + runtime EvidenceRecord v2 + input/plan binding** — committed at `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported.
-- [x] **M3-T4 — Independent npm + pnpm acceptance / M3 closeout** — accepted / complete on `m3-core` at `7944b13f0268473606b1b99833f1706d1159a0ab`; GitHub Actions run `35744104235` passed with `460/460` across 26 files and focused T4 `7/7`.
+- [x] **M3-T1 — Closed adapter/kernel boundary + EvidenceRecord v2 contract** — independently accepted on `m3-core` and integrated into `main` via PR #1; implementation commit `4fbe92d41940db3c7d1965a0124f6b8f9b98a40f`, CI hardening follow-up `46fb1e0cce39105e8b9a55f141204d181a15f955`, GitHub Actions run `35699026135`, `372/372` across 23 files with full gates green.
+- [x] **M3-T2 — Narrow pnpm project eligibility + fixed dispatch + read-only public preflight** — independently accepted on `m3-core` and integrated into `main` via PR #1; implementation commit `5b46501eccf146777e6d8b6277700667237df464`, lint-only correction `5bfd27c2a2ea57da8e98d9b2ad6447de4a431418`, GitHub Actions run `35702794992`, `405/405` across 24 files with zero skips and typecheck/lint/build/diff/cleanliness green. The initial test-green/lint-failed result remains recorded as such.
+- [x] **M3-T3 — Bounded verification execution + cancellation + runtime EvidenceRecord v2 + input/plan binding** — independently accepted on `m3-core` and integrated into `main` via PR #1 at commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported.
+- [x] **M3-T4 — Independent npm + pnpm acceptance / M3 closeout** — independently accepted on `m3-core` and integrated into `main` via PR #1 at `7944b13f0268473606b1b99833f1706d1159a0ab`; GitHub Actions run `35744104235` passed with `460/460` across 26 files and focused T4 `7/7`.
 
 ## 4. T3 Contract and Invariants
 
@@ -95,23 +95,23 @@
 
 ## 4C. Final M3 Core-Only Acceptance
 
-- **M3-T1**: Accepted / complete on `m3-core`; implementation `4fbe92d41940db3c7d1965a0124f6b8f9b98a40f`, hardening follow-up `46fb1e0cce39105e8b9a55f141204d181a15f955`, CI run `35699026135`, `372/372` across 23 files.
-- **M3-T2**: Accepted / complete on `m3-core`; implementation `5b46501eccf146777e6d8b6277700667237df464`, lint correction `5bfd27c2a2ea57da8e98d9b2ad6447de4a431418`, CI run `35702794992`, `405/405` across 24 files with zero skips.
-- **M3-T3**: Accepted / complete on `m3-core`; commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`, CI run `35731683141`, `453/453` across 25 files with zero skips reported.
-- **M3-T4**: Accepted / complete on `m3-core`; commit `7944b13f0268473606b1b99833f1706d1159a0ab`, CI run `35744104235`, job `106801107733`, synthetic PR merge SHA `e76b47838af5f94f14613f57c036292cead4c723`, `460/460` across 26 files, focused T4 `7/7`, and no T4 skips reported.
+- **M3-T1**: Independently accepted on `m3-core` and integrated into `main` via PR #1; implementation `4fbe92d41940db3c7d1965a0124f6b8f9b98a40f`, hardening follow-up `46fb1e0cce39105e8b9a55f141204d181a15f955`, CI run `35699026135`, `372/372` across 23 files.
+- **M3-T2**: Independently accepted on `m3-core` and integrated into `main` via PR #1; implementation `5b46501eccf146777e6d8b6277700667237df464`, lint correction `5bfd27c2a2ea57da8e98d9b2ad6447de4a431418`, CI run `35702794992`, `405/405` across 24 files with zero skips.
+- **M3-T3**: Independently accepted on `m3-core` and integrated into `main` via PR #1 at commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`, CI run `35731683141`, `453/453` across 25 files with zero skips reported.
+- **M3-T4**: Independently accepted on `m3-core` and integrated into `main` via PR #1 at commit `7944b13f0268473606b1b99833f1706d1159a0ab`, CI run `35744104235`, job `106801107733`, synthetic PR merge SHA `e76b47838af5f94f14613f57c036292cead4c723`, `460/460` across 26 files, focused T4 `7/7`, and no T4 skips reported.
 
 T4 remote gates passed: pinned pnpm installation, pnpm `9.15.4`, `npm ci`, typecheck, full `npm test`, lint, build, `git diff --check`, and tracked-tree cleanliness. Remote warnings were observed but did not fail a gate: deprecated ESLint, two moderate npm audit findings, and an esbuild install-script approval warning. They are not claimed resolved.
 
 The local acceptance toolchain was Node `v24.20.0`, npm `11.19.0`, and pnpm `9.15.4`; pnpm was provisioned outside the repository under an isolated user-local prefix and is not a Sureflow dependency. The official linked-worktree harness remained exit `2` with only `PREFLIGHT|INCOMPLETE|GIT_LAYOUT|.`; the supplemental worktree-compatible metadata check and harness regression tests passed.
 
-M3 CORE-ONLY implementation and acceptance are complete on `m3-core`. Final PR integration into `main` remains separately gated. M3 does not claim hermetic verification, descendant process-tree isolation, workspace or multi-file mutation support, package-manager installation as a product capability, automatic repair/retry, or provider/skills/MCP orchestration.
+M3 CORE-ONLY implementation, acceptance, and main integration are complete. PR #1 was merged by normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; post-merge main CI run `35750536825` passed. M3 does not claim hermetic verification, descendant process-tree isolation, workspace or multi-file mutation support, package-manager installation as a product capability, automatic repair/retry, or provider/skills/MCP orchestration.
 
 ## 4A. Acceptance Criteria
 
-- **AC-M3.1**: M3-T1 through M3-T4 are accepted on `m3-core` only and are not represented as merged into `main`.
+- **AC-M3.1**: M3-T1 through M3-T4 were independently accepted on `m3-core` and are integrated into `main` through PR #1's normal merge commit.
 - **AC-M3.2**: M3-T3 bounded execution, cancellation, v2 evidence, strict input/plan binding, containment revalidation, and fail-closed behavior are covered by the recorded local evidence without claiming descendant isolation.
-- **AC-M3.3**: T3 and T4 commit, push, and remote validation remain distinct approval events; both are now accepted on `m3-core` and neither is represented as merged into `main`.
-- **AC-M3.4**: M3-T4 acceptance is proven by the public-CLI focused suite, full permitted-host and GitHub-hosted suites, fixture pre-change failures, fixture post-run checks, required CI gates, and negative pre-mutation cases without claiming merge or release.
+- **AC-M3.3**: T3 and T4 commit, push, and remote validation remained distinct approval events; after those independent acceptances, PR #1 was merged normally into `main`.
+- **AC-M3.4**: M3-T4 acceptance is proven by the public-CLI focused suite, full permitted-host and GitHub-hosted suites, fixture pre-change failures, fixture post-run checks, required CI gates, negative pre-mutation cases, and the resulting main merge commit's green CI without claiming release.
 
 ## 5. Execution Policy
 
@@ -131,9 +131,9 @@ M3 CORE-ONLY implementation and acceptance are complete on `m3-core`. Final PR i
 - **Active Task Pointer**: `None`
 - **Active Review Task**: `None`
 - **Start Time**: `2026-09-22`
-- **Current Actor**: Human authority / Codex — M3 T1-T4 acceptance complete on `m3-core`; final PR integration remains separately gated
-- **Next Action**: Review this final M3 documentation diff, separately authorize its documentation-only closeout commit, then separately authorize remote validation and PR-ready/merge review; no post-M3 work.
-- **Branch / Revision**: `m3-core @ 7944b13f0268473606b1b99833f1706d1159a0ab`; `origin/m3-core` matches; `origin/main` remains `675f433e77fe9bdcc91edd05aa5e64f049fad46e4`
+- **Current Actor**: Human authority / Codex — M3 integrated and post-merge validated; documentation-only reconciliation is in progress
+- **Next Action**: Complete this documentation reconciliation and separately authorize its documentation-only commit; any branch cleanup or future milestone planning remains separately authorized.
+- **Branch / Revision**: `docs/m3-post-merge-integration` based on `origin/main @ f711876da659bb9c36745b3189eac986f94ba7ea`; local `m3-core @ 6f51237d68d8b20193a2924fbeb6a2d90801299f` remains; remote `m3-core` is absent
 - **Changed Files**:
   - `docs/STATE.md`
   - `docs/tasks/2026-09-22-m3-cross-project-bounded-change-gate.md`
@@ -169,17 +169,17 @@ M3 CORE-ONLY implementation and acceptance are complete on `m3-core`. Final PR i
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
 - **Verification Evidence**: T3 focused set `131/131`; full permitted-host suite `453/453` across 25 files; root T3 typecheck, lint, build, and diff check passed. T4 focused public-CLI suite passed `7/7`; full permitted-host and GitHub-hosted suites passed `460/460` across 26 files; both npm and pnpm disposable projects exercised `init`, `preflight`, `run`, `status`, and `verify`; pre-change fixture tests failed nonzero, post-run typecheck/lint/build and bounded replacement passed, and all four structural negatives halted before mutation. PromptKit kit reference validation and harness regression tests passed; direct linked-worktree preflight reported only `PREFLIGHT|INCOMPLETE|GIT_LAYOUT|.`; current M3 diagnostics are `0`, while 98 historical pre-M2 diagnostics remain outside M3 acceptance.
-- **CI Evidence**: T1 run `35699026135` passed with `372/372` across 23 files. T2 run `35702794992` passed with `405/405` across 24 files and zero skips. T3 run `35731683141` passed with `453/453` across 25 files and zero skips reported. T4 run `35744104235`, job `106801107733`, tested branch head `7944b13f0268473606b1b99833f1706d1159a0ab` with synthetic PR merge SHA `e76b47838af5f94f14613f57c036292cead4c723`; it passed pinned pnpm setup/version, npm ci, typecheck, npm test `460/460` across 26 files, lint, build, diff check, and cleanliness.
+- **CI Evidence**: T1 run `35699026135` passed with `372/372` across 23 files. T2 run `35702794992` passed with `405/405` across 24 files and zero skips. T3 run `35731683141` passed with `453/453` across 25 files and zero skips reported. T4 run `35744104235`, job `106801107733`, tested branch head `7944b13f0268473606b1b99833f1706d1159a0ab` with synthetic PR merge SHA `e76b47838af5f94f14613f57c036292cead4c723`; it passed pinned pnpm setup/version, npm ci, typecheck, npm test `460/460` across 26 files, lint, build, diff check, and cleanliness. Post-merge main run `35750536825`, job `106823643297`, tested merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; pnpm `9.15.4`, npm ci, typecheck, npm test `460/460` across 26 files, focused T4 `7/7`, lint, build, diff check, and tracked-tree cleanliness all passed.
 - **Review Evidence**: Read-only authority/security audit passed. Official PromptKit harness remains exit `2` with only `PREFLIGHT|INCOMPLETE|GIT_LAYOUT|.` because this is a linked worktree; supplemental Git-resolved worktree metadata checks passed.
 - **Commit Evidence**: T4 commit `7944b13f0268473606b1b99833f1706d1159a0ab` is present on `m3-core` with exactly the authorized 14 paths; no additional commit was created.
-- **Pull Request Evidence**: PR #1 remains `OPEN / DRAFT / UNMERGED`, head `7944b13f0268473606b1b99833f1706d1159a0ab`, base `main` at `675f433e77fe9bdcc91edd05aa5e64f049fad46e`; no PR metadata mutation was performed.
+- **Pull Request Evidence**: PR #1 `MERGED`; title `M3: complete cross-project bounded change gate`; original head `6f51237d68d8b20193a2924fbeb6a2d90801299f`; previous base `675f433e77fe9bdcc91edd05aa5e64f049fad46e`; normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; merged at `2026-09-22T15:55:01Z`.
 - **Release Evidence**: `N/A — release and deployment are outside M3 CORE-ONLY scope`
-- **Blocker and Resume Condition**: `M3 CORE-ONLY T1-T4 are accepted/complete on m3-core. Final documentation closeout commit, PR integration, and any post-M3 work remain separately gated.`
+- **Blocker and Resume Condition**: `No M3 implementation blocker remains. M3 is integrated and post-merge validated. Complete this documentation-only reconciliation; branch cleanup and any post-M3 work remain separately authorized.`
 - **Completion State**: `completed`
-- **Acceptance Results**: M3-T1 through M3-T4 are accepted / complete on `m3-core`. T4 is accepted at commit `7944b13f0268473606b1b99833f1706d1159a0ab` after CI run `35744104235` passed. This does not represent merge into `main`.
-- **Changed-File Summary**: T4 committed exactly the authorized 14 paths; this final reconciliation changes only this Task Record and `docs/STATE.md`. No M3 runtime source, package, dependency, or post-M3 files are included.
-- **Completion Exception**: `N/A — CORE-ONLY acceptance is complete on m3-core; main integration remains separately gated`
-- **Completion Decision and Timestamp**: `T1-T4 remotely accepted on m3-core as of T4 CI run 35744104235; PR #1 remains open/draft/unmerged.`
+- **Acceptance Results**: M3-T1 through M3-T4 were independently accepted on `m3-core`; PR #1 then merged them into `main` with normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`. Post-merge main CI run `35750536825` passed `460/460` across 26 files with focused T4 `7/7` and all required gates green.
+- **Changed-File Summary**: T4 committed exactly the authorized 14 paths; this post-merge reconciliation changes only this Task Record and `docs/STATE.md`. No M3 runtime source, package, dependency, CI, fixture, or post-M3 files are included.
+- **Completion Exception**: `N/A — CORE-ONLY implementation, acceptance, closeout, and main integration are complete; this documentation reconciliation is uncommitted pending review`
+- **Completion Decision and Timestamp**: `M3 T1-T4 integrated into main by PR #1 normal merge commit f711876da659bb9c36745b3189eac986f94ba7ea; post-merge CI run 35750536825 passed at 460/460 across 26 files with focused T4 7/7.`
 
 ## 7. Transition History
 
@@ -189,11 +189,23 @@ M3 CORE-ONLY implementation and acceptance are complete on `m3-core`. Final PR i
 | planned | ready | 2026-09-22 | Human authority | M3-T1 through M3-T3 direction and separate T3 authorization boundary established | This Task Record |
 | ready | in_progress | 2026-09-22 | Codex | M3-T3 implementation and remediation started under explicit authorization | T3 implementation scope |
 | in_progress | awaiting_review | 2026-09-23 | Codex | T3 implementation, remediation, authority audit, and local verification complete; local commit remains separately gated | Focused and full local evidence above |
-| awaiting_review | completed | 2026-09-23 | Human authority / Codex | M3 CORE-ONLY T1-T4 acceptance completed on `m3-core`; main integration remains separately gated | T1-T4 remote evidence above; PR #1 open/draft/unmerged |
+| awaiting_review | completed | 2026-09-23 | Human authority / Codex | M3 CORE-ONLY T1-T4 acceptance completed on `m3-core`; main integration was subsequently completed through PR #1 | T1-T4 remote evidence above; integration events below |
 
 Event milestones supporting the final transition:
 
 - T3 local commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4` was created, pushed, and remotely accepted on `m3-core` by GitHub Actions run `35731683141`.
 - T4 acceptance-only implementation and local verification completed with focused `7/7` and permitted-host `460/460` evidence.
 - T4 local commit `7944b13f0268473606b1b99833f1706d1159a0ab` was created, pushed, and remotely accepted by GitHub Actions run `35744104235`, job `106801107733`.
-- The final milestone execution state became `completed` on `m3-core`; PR #1 remains open/draft/unmerged and main integration remains separately gated.
+- The final milestone execution state became `completed` on `m3-core`; PR #1 was later marked ready and merged normally into `main`.
+- PR #1 was marked ready after final metadata reconciliation, then merged by normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea` with original head `6f51237d68d8b20193a2924fbeb6a2d90801299f` and previous base `675f433e77fe9bdcc91edd05aa5e64f049fad46e`.
+- Resulting `origin/main` post-merge CI run `35750536825`, job `106823643297`, tested `f711876da659bb9c36745b3189eac986f94ba7ea` and passed `460/460` across 26 files, focused T4 `7/7`, pinned pnpm `9.15.4`, npm ci, typecheck, lint, build, diff check, and tracked-tree cleanliness.
+- After merge, remote `m3-core` was observed absent while local `m3-core` remained. No recreation or remediation was performed, and all accepted M3 commits remain preserved in `main` ancestry.
+
+## 8. Post-Merge Integration Observation
+
+- **Integrated Revision**: `main @ f711876da659bb9c36745b3189eac986f94ba7ea`
+- **PR**: `#1 — M3: complete cross-project bounded change gate — MERGED`
+- **Post-Merge CI**: Run `35750536825`, job `106823643297`, `SUCCESS`; `460/460` across 26 files; focused T4 `7/7`; pinned pnpm `9.15.4`; npm ci, typecheck, lint, build, diff check, and tracked-tree cleanliness passed.
+- **Warnings**: Deprecated ESLint, two moderate npm audit findings, and an esbuild install-script warning remained non-blocking and are not claimed resolved.
+- **Branch Observation**: Remote `m3-core` is absent; local `m3-core` remains; no branch recreation or remediation was performed. This is an observed repository fact, not an M3 acceptance failure, and no cause is asserted.
+- **Boundary**: No release, deployment, M4, or other post-M3 feature work is authorized by this record.
