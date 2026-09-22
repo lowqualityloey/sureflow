@@ -6,8 +6,8 @@
  * second lock, state, evidence, policy, or verifier implementation here.
  */
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import {
   applyBoundedReplacement,
   validateBoundedReplacement,
@@ -16,6 +16,7 @@ import {
 } from "./boundedReplacement.js";
 import {
   appendEvidence,
+  appendEvidenceV2,
   readEvidence,
   type EvidenceReadEntry,
 } from "./evidenceStore.js";
@@ -30,10 +31,7 @@ import {
 import { decidePolicy, type PolicyDecision } from "./policy.js";
 import { loadPolicy } from "./policyStore.js";
 import { detectProject, type DetectedNodeTypeScriptProject } from "./projectDetection.js";
-import {
-  resolveAdapterContract,
-  type ResolvedAdapterContract,
-} from "./projectAdapter.js";
+import type { ResolvedAdapterContract } from "./projectAdapter.js";
 import { verifyProjectChange } from "./projectChangeVerifier.js";
 import {
   inspectPostWriteScope,
@@ -62,6 +60,30 @@ import {
   type VerificationStepResult,
 } from "./verificationAdapter.js";
 import type { VerificationVerdict } from "./verdicts.js";
+import {
+  runBoundedVerificationPlan,
+  terminalCauseForResult,
+  verificationResultText,
+  type InterruptionSource,
+  type VerificationClock,
+} from "./verificationExecution.js";
+import {
+  VERIFICATION_INPUT_BINDING_PROVENANCE,
+  VERIFICATION_INPUT_BINDING_TARGET,
+  createExecutionContextV2,
+  digestInputBindingV1,
+  digestResolvedPlanV1,
+  encodeExecutionProvenanceV2,
+  encodeInputBindingV1,
+  type M3TerminalCause,
+  type VerificationInputFingerprints,
+} from "./evidenceV2.js";
+import {
+  adapterStepArgv,
+  M3_ADAPTER_CONTRACT_VERSION,
+  resolveAdapterContract,
+} from "./projectAdapter.js";
+import { toPersistedRecordV2 } from "./redaction.js";
 
 const ACTOR = "worker:m2" as const;
 const CONTRACT_PROVENANCE = "control-plane-task-input" as const;
@@ -93,6 +115,8 @@ export interface M2RunTaskDependencies {
   readonly nowIso?: () => string;
   readonly onPhase?: (phase: M2RunPhase) => void | Promise<void>;
   readonly verificationSpawn?: VerificationSpawn;
+  readonly verificationClock?: VerificationClock;
+  readonly verificationInterruption?: InterruptionSource;
   readonly runVerification?: typeof runVerificationPlan;
 }
 
@@ -247,11 +271,29 @@ function scopeEvidenceResult(scope: ScopeComplianceResult): string {
   return `${scope.kind}:${scope.reason}`;
 }
 
-function verificationEvidenceResult(result: VerificationStepResult): string {
-  if (result.kind === "passed") return "passed";
-  if (result.kind === "failed") return `failed:${String(result.exitCode)}`;
-  if (result.kind === "spawn-error") return "spawn-error";
-  return `terminated:${result.signal}`;
+/**
+ * Narrow production adapter: map process SIGINT/SIGTERM into the bounded
+ * controller's interruption interface. Subscription installs the listeners;
+ * unsubscribing removes them, so they exist only for the owned execution
+ * window. Test seams inject a synthetic InterruptionSource instead.
+ */
+export function processInterruptionSource(): InterruptionSource {
+  return {
+    subscribe: (listener) => {
+      const onSigint = (): void => {
+        listener("SIGINT");
+      };
+      const onSigterm = (): void => {
+        listener("SIGTERM");
+      };
+      process.on("SIGINT", onSigint);
+      process.on("SIGTERM", onSigterm);
+      return () => {
+        process.removeListener("SIGINT", onSigint);
+        process.removeListener("SIGTERM", onSigterm);
+      };
+    },
+  };
 }
 
 function readContractDigest(rootDir: string, plan: ValidatedExecutionPlan): string | null {
@@ -279,6 +321,111 @@ function transitionHalted(
   } catch {
     return "could not persist halted authoritative task state";
   }
+}
+
+/**
+ * Read one already-detected project input file for the T3 input binding.
+ * Uses the detected project's canonical root plus strict fixed relative
+ * names only — never caller paths — and hard-fails on unreadable bytes so
+ * verification never spawns against unbound inputs.
+ */
+function readBoundInputFile(root: string, relativePath: string, label: string): Uint8Array {
+  const normalized = relativePath.replace(/\\/g, "/");
+  if (
+    normalized.length === 0 ||
+    normalized !== relativePath ||
+    normalized.startsWith("/") ||
+    normalized.includes("..") ||
+    normalized.split("/").some((segment) => segment.length === 0 || segment === ".")
+  ) {
+    throw new Error(`refused: ${label} is not an approved project input path`);
+  }
+  const lexicalRoot = resolve(root);
+  const absolute = join(lexicalRoot, normalized);
+  const resolvedAbsolute = resolve(absolute);
+  const fromRoot = relative(lexicalRoot, resolvedAbsolute);
+  if (fromRoot === ".." || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
+    throw new Error(`refused: ${label} escapes the project root`);
+  }
+
+  const canonicalRoot = realpathSync(lexicalRoot);
+  const segments = normalized.split("/");
+  for (let index = 0; index < segments.length; index += 1) {
+    const ancestor = join(lexicalRoot, ...segments.slice(0, index + 1));
+    const physicalAncestor = realpathSync(ancestor);
+    const physicalRelative = relative(canonicalRoot, physicalAncestor);
+    if (
+      physicalRelative === ".." ||
+      physicalRelative.startsWith(`..${sep}`) ||
+      isAbsolute(physicalRelative)
+    ) {
+      throw new Error(`refused: ${label} escapes the physical project root`);
+    }
+  }
+  if (!lstatSync(absolute).isFile()) {
+    throw new Error(`refused: ${label} is not a regular file`);
+  }
+  const physicalFile = realpathSync(absolute);
+  const physicalFileRelative = relative(canonicalRoot, physicalFile);
+  if (
+    physicalFileRelative === ".." ||
+    physicalFileRelative.startsWith(`..${sep}`) ||
+    isAbsolute(physicalFileRelative)
+  ) {
+    throw new Error(`refused: ${label} escapes the physical project root`);
+  }
+  const bytes = readFileSync(resolvedAbsolute);
+  return new Uint8Array(bytes);
+}
+
+/**
+ * Compute the M3-T3 input binding immediately before the first verification
+ * spawn: SHA-256 fingerprints of the exact detected manifest, lockfile, and
+ * tsconfig bytes, plus the deterministic resolved-plan digest. Fails closed
+ * when any input cannot be safely read.
+ */
+function computeVerificationInputBinding(
+  project: DetectedNodeTypeScriptProject,
+  adapterContract: ResolvedAdapterContract,
+  plan: ValidatedExecutionPlan,
+): VerificationInputFingerprints {
+  const manifestBytes = readBoundInputFile(project.root, "package.json", "package.json");
+  const lockfileBytes = readBoundInputFile(project.root, project.lockfilePath, project.lockfilePath);
+  const tsconfigBytes = readBoundInputFile(project.root, "tsconfig.json", "tsconfig.json");
+  const planDigest = digestResolvedPlanV1({
+    adapterId: adapterContract.adapterId,
+    adapterContractVersion: M3_ADAPTER_CONTRACT_VERSION,
+    executable: adapterContract.executable,
+    cwdRole: adapterContract.cwdRole,
+    steps: verificationPlanSteps(plan, adapterContract).map((step) => ({
+      check: step.check,
+      argv: step.argv,
+    })),
+  });
+  return Object.freeze({
+    manifestPath: "package.json" as const,
+    manifestSha256: sha256(manifestBytes),
+    lockfilePath: project.lockfilePath,
+    lockfileSha256: sha256(lockfileBytes),
+    tsconfigPath: "tsconfig.json" as const,
+    tsconfigSha256: sha256(tsconfigBytes),
+    planDigest,
+  });
+}
+
+/**
+ * Canonical ordered verification steps for the binding plan digest. Reads
+ * fixed argv only from the resolved closed adapter contract in the accepted
+ * canonical order — never from caller dispatch.
+ */
+function verificationPlanSteps(
+  plan: ValidatedExecutionPlan,
+  contract: ResolvedAdapterContract,
+): readonly { readonly check: ValidatedExecutionPlan["requiredVerification"][number]; readonly argv: readonly string[] }[] {
+  return plan.requiredVerification.map((check) => ({
+    check,
+    argv: adapterStepArgv(contract, check),
+  }));
 }
 
 function allPolicyDecisions(
@@ -421,10 +568,52 @@ async function runM2TaskUnlocked(
     }
     await phase(dependencies, "replacement-applied");
 
-    const runVerification = dependencies.runVerification ?? runVerificationPlan;
-    verificationResults = dependencies.verificationSpawn === undefined
-      ? await runVerification(project, verificationPlan)
-      : await runVerification(project, verificationPlan, dependencies.verificationSpawn);
+    // T3 input binding happens immediately before the first verification
+    // spawn. Unreadable inputs halt before any child is started.
+    let fingerprints: VerificationInputFingerprints;
+    try {
+      fingerprints = computeVerificationInputBinding(project, adapterContract, plan);
+    } catch {
+      const persistFailure = transitionHalted(request.rootDir, plan.taskId, nowIso, transitions);
+      taskRunning = false;
+      return haltedRun(
+        persistFailure ?? "verification input binding failed; inputs could not be safely read",
+        { taskId, policyDecisions, transitions },
+      );
+    }
+    const bindingResult = encodeInputBindingV1(fingerprints);
+    const bindingDigest = digestInputBindingV1(bindingResult);
+    const bindingProvenance = encodeExecutionProvenanceV2(bindingDigest);
+
+    // T3 bounded execution owns the direct npm/pnpm child only. The legacy
+    // injected `runVerification` seam remains honored only when explicitly
+    // injected by tests; production always takes the bounded path.
+    let boundedCauses: readonly M3TerminalCause[] = Object.freeze([]);
+    if (dependencies.runVerification !== undefined && dependencies.verificationSpawn === undefined) {
+      verificationResults = await dependencies.runVerification(project, verificationPlan);
+      boundedCauses = Object.freeze(
+        verificationResults.map((result) => terminalCauseForResult(result)),
+      );
+    } else {
+      const options: {
+        readonly spawn?: VerificationSpawn;
+        readonly clock?: VerificationClock;
+        readonly interruption?: InterruptionSource;
+      } = {
+        ...(dependencies.verificationSpawn === undefined
+          ? {}
+          : { spawn: dependencies.verificationSpawn }),
+        ...(dependencies.verificationClock === undefined
+          ? {}
+          : { clock: dependencies.verificationClock }),
+        ...(dependencies.verificationInterruption === undefined
+          ? {}
+          : { interruption: dependencies.verificationInterruption }),
+      };
+      const bounded = await runBoundedVerificationPlan(project, verificationPlan, options);
+      verificationResults = bounded.results;
+      boundedCauses = bounded.causes;
+    }
     await phase(dependencies, "verification-complete");
 
     const contractResult = readContractDigest(request.rootDir, plan);
@@ -466,18 +655,37 @@ async function runM2TaskUnlocked(
         result: scopeEvidenceResult(scope),
         provenance: SCOPE_PROVENANCE,
       });
-      for (const result of verificationResults) {
-        appendEvidence(request.rootDir, {
+      // Exactly one machine-readable binding record per run. It uses the
+      // existing v1/common evidence shape because it records an observed
+      // read/binding, not a process execution.
+      appendEvidence(request.rootDir, {
+        actor: ACTOR,
+        recordedAt: nowIso(),
+        taskId: plan.taskId,
+        capability: "repo.read",
+        policyDecision: policyDecisions["repo.read"] ?? "ALLOW",
+        target: VERIFICATION_INPUT_BINDING_TARGET,
+        result: bindingResult,
+        provenance: VERIFICATION_INPUT_BINDING_PROVENANCE,
+      });
+      verificationResults.forEach((result, index) => {
+        const terminalCause = boundedCauses[index] ?? terminalCauseForResult(result);
+        appendEvidenceV2(request.rootDir, toPersistedRecordV2({
           actor: ACTOR,
           recordedAt: nowIso(),
           taskId: plan.taskId,
           capability: "repo.verify",
           policyDecision: policyDecisions["repo.verify"] ?? "ALLOW",
           target: `${plan.adapter}:${result.check}`,
-          result: verificationEvidenceResult(result),
-          provenance: `${adapterContract.executable} ${result.check}; shell=false`,
-        });
-      }
+          result: verificationResultText(result),
+          provenance: bindingProvenance,
+          executionContext: createExecutionContextV2(
+            adapterContract,
+            adapterStepArgv(adapterContract, result.check),
+            terminalCause,
+          ),
+        }));
+      });
     } catch {
       const persistFailure = transitionHalted(request.rootDir, plan.taskId, nowIso, transitions);
       taskRunning = false;

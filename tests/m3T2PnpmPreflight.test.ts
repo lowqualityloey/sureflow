@@ -754,14 +754,34 @@ describe("M3-T2 public preflight (I, J, K, L, M, O)", () => {
       for (const record of verifyRecords) {
         expect(record["result"]).toBe("passed");
       }
-      expect(verifyRecords.map((record) => record["provenance"])).toEqual(
-        ["typecheck", "test", "lint", "build"].map(
-          (check) => `${expectedExecutable} ${check}; shell=false`,
-        ),
+      // T3: runtime repo.verify records are v2 bound to the run binding;
+      // the binding record itself stays v1. Provenance is the versioned
+      // execution contract, identical across the run's four steps.
+      const bindingRecords = records.filter(
+        (record) => record["target"] === "verification-input-binding",
       );
-      for (const record of records) {
-        expect(record["schemaVersion"]).toBe(1);
-        expect("executionContext" in record).toBe(false);
+      expect(bindingRecords).toHaveLength(1);
+      expect(bindingRecords[0]?.["provenance"]).toBe("verification-input-binding-v1");
+      const bindingDigest = (bindingRecords[0]?.["result"] as string).length > 0
+        ? (await import("node:crypto")).createHash("sha256").update(bindingRecords[0]?.["result"] as string, "utf8").digest("hex")
+        : "";
+      expect(verifyRecords.map((record) => record["provenance"])).toEqual([
+        `verification-execution-v2;binding=${bindingDigest};shell=false`,
+        `verification-execution-v2;binding=${bindingDigest};shell=false`,
+        `verification-execution-v2;binding=${bindingDigest};shell=false`,
+        `verification-execution-v2;binding=${bindingDigest};shell=false`,
+      ]);
+      for (const record of verifyRecords) {
+        expect(record["schemaVersion"]).toBe(2);
+        expect(record["executionContext"]).toMatchObject({
+          adapterId: adapter,
+          executable: expectedExecutable,
+          cwdRole: "project-root",
+          stepLimitSeconds: 120,
+          overallBudgetSeconds: 300,
+          terminationGraceSeconds: 5,
+          terminalCause: "passed",
+        });
       }
     }
   });

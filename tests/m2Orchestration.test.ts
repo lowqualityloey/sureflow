@@ -6,6 +6,7 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  symlinkSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -15,13 +16,22 @@ import { spawnSync } from "node:child_process";
 import { afterEach, describe, expect, it } from "vitest";
 import { executionLockPath, mutationLockExists, acquireMutationLock, releaseMutationLock } from "../src/mutationLock.js";
 import { DEFAULT_M1_POLICY } from "../src/policy.js";
-import { runM2Task, verifyM2Task, type M2RunPhase } from "../src/m2Orchestration.js";
+import { processInterruptionSource, runM2Task, verifyM2Task, type M2RunPhase } from "../src/m2Orchestration.js";
 import { parseT0TaskFixture } from "../src/t0Fixture.js";
-import { readEvidence } from "../src/evidenceStore.js";
+import { readEvidence, type EvidenceReadEntry } from "../src/evidenceStore.js";
 import { initRuntimeState } from "../src/stateWriter.js";
 import { runCliAsync } from "../src/cli.js";
 import type { M2VerificationProfile } from "../src/taskContract.js";
-import type { VerificationStepResult } from "../src/verificationAdapter.js";
+import type {
+  VerificationSpawnedProcess,
+  VerificationStepResult,
+} from "../src/verificationAdapter.js";
+import {
+  M3_OVERALL_BUDGET_MS,
+  M3_TERMINATION_GRACE_MS,
+  type InterruptionSource,
+  type VerificationClock,
+} from "../src/verificationExecution.js";
 
 const fixtureRoot = resolve("fixtures/m2-node-ts-project");
 const temporaryRoots: string[] = [];
@@ -118,6 +128,102 @@ function verificationResults(
   });
 }
 
+interface BoundedFakeClock extends VerificationClock {
+  advance(ms: number): void;
+}
+
+/** Deterministic manual clock/timer seam for bounded-execution tests. */
+function boundedFakeClock(start = 0): BoundedFakeClock {
+  let now = start;
+  let nextId = 1;
+  const timers = new Map<number, { at: number; callback: () => void }>();
+  return {
+    now: () => now,
+    setTimeout: (callback, delayMs) => {
+      const id = nextId++;
+      timers.set(id, { at: now + Math.max(0, delayMs), callback });
+      return id;
+    },
+    clearTimeout: (handle) => {
+      timers.delete(handle as number);
+    },
+    advance: (ms) => {
+      const target = now + ms;
+      for (;;) {
+        let next: number | null = null;
+        for (const [id, timer] of timers) {
+          if (timer.at <= target && (next === null || timer.at < (timers.get(next)?.at ?? Infinity))) {
+            next = id;
+          }
+        }
+        if (next === null) break;
+        const timer = timers.get(next);
+        if (timer === undefined) break;
+        timers.delete(next);
+        now = timer.at;
+        timer.callback();
+      }
+      now = target;
+    },
+  };
+}
+
+/** Fake direct child that never emits error/close on its own. */
+function neverClosingChild(): VerificationSpawnedProcess {
+  // The child records nothing: this fake exists only to stay open so a
+  // deadline or a controlled interruption settles the step.
+  const child: VerificationSpawnedProcess = {
+    on: () => child,
+    kill: () => true,
+  };
+  return child;
+}
+
+/** Synthetic interruption source: no real process signals are ever sent. */
+function syntheticInterruption(): InterruptionSource & {
+  emit(signal: "SIGINT" | "SIGTERM"): void;
+} {
+  const listeners = new Set<(signal: "SIGINT" | "SIGTERM") => void>();
+  return {
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    emit: (signal) => {
+      for (const listener of [...listeners]) listener(signal);
+    },
+  };
+}
+
+/**
+ * Drive a bounded run to settlement with the fake clock only: flush pending
+ * microtasks and advance the cleanup grace repeatedly. Never waits on real
+ * timers and fails fast instead of hanging.
+ */
+async function settleWithClock<T>(pending: Promise<T>, clock: BoundedFakeClock): Promise<T> {
+  let settled = false;
+  const settledYet = (): boolean => settled;
+  const tracked = pending.then(
+    (value) => {
+      settled = true;
+      return value;
+    },
+    (error: unknown) => {
+      settled = true;
+      throw error;
+    },
+  );
+  const iterations = Math.ceil(M3_OVERALL_BUDGET_MS / M3_TERMINATION_GRACE_MS) + 1;
+  for (let step = 0; step < iterations && !settledYet(); step += 1) {
+    clock.advance(M3_TERMINATION_GRACE_MS);
+    await Promise.resolve();
+  }
+  expect(settled).toBe(true);
+  return tracked;
+}
+
 function taskStatus(root: string): string {
   const task = JSON.parse(
     readFileSync(join(root, `.sureflow/state/tasks/${TASK_ID}.json`), "utf8"),
@@ -141,6 +247,42 @@ afterEach(() => {
 });
 
 describe("M2-T7 single orchestration", () => {
+  it.skipIf(process.platform === "win32").each(["package.json", "package-lock.json", "tsconfig.json"] as const)("halts before spawning when %s is replaced by an escaping symlink", async (inputName) => {
+      const root = tempRoot();
+      const outside = mkdtempSync(join(tmpdir(), "sureflow-m3-outside-"));
+      temporaryRoots.push(outside);
+      const outsideFile = join(outside, inputName);
+      writeFileSync(outsideFile, readFileSync(join(root, inputName)));
+      let spawned = false;
+      const outcome = await run(root, {
+        runVerification: (_project, plan) => {
+          spawned = true;
+          return successfulVerification(_project, plan);
+        },
+        onPhase: (phase) => {
+          if (phase === "replacement-applied") {
+            unlinkSync(join(root, inputName));
+            symlinkSync(outsideFile, join(root, inputName));
+          }
+        },
+      });
+      expect(outcome.kind).toBe("halted");
+      expect(outcome.reason).toContain("verification input binding");
+      expect(spawned).toBe(false);
+    });
+
+  it("installs and removes real process interruption listeners per run", () => {
+    const source = processInterruptionSource();
+    const beforeInt = process.listenerCount("SIGINT");
+    const beforeTerm = process.listenerCount("SIGTERM");
+    const unsubscribe = source.subscribe(() => {});
+    expect(process.listenerCount("SIGINT")).toBe(beforeInt + 1);
+    expect(process.listenerCount("SIGTERM")).toBe(beforeTerm + 1);
+    unsubscribe();
+    expect(process.listenerCount("SIGINT")).toBe(beforeInt);
+    expect(process.listenerCount("SIGTERM")).toBe(beforeTerm);
+  });
+
   it("executes the complete M2 order and accepts only after T6 PASS", async () => {
     const root = tempRoot();
     const phases: M2RunPhase[] = [];
@@ -154,7 +296,7 @@ describe("M2-T7 single orchestration", () => {
       "verification-complete", "contract-rechecked", "scope-captured",
       "evidence-appended", "verdict-computed",
     ]);
-    expect(readEvidence(root).filter((entry) => entry.kind === "record")).toHaveLength(7);
+    expect(readEvidence(root).filter((entry) => entry.kind === "record")).toHaveLength(8);
   });
 
   it("routes the direct async CLI to M2 and returns exit 0 on acceptance", async () => {
@@ -445,6 +587,71 @@ describe("M2-T7 single orchestration", () => {
     const outcome = verifyM2Task({ rootDir: root, requestedTaskId: TASK_ID });
     expect(outcome.verdict).toBe("UNKNOWN");
     expect(taskStatus(root)).toBe("halted");
+  });
+
+  it("T3: a per-step timeout cannot PASS and releases the mutation lock", async () => {
+    const root = tempRoot();
+    const clock = boundedFakeClock();
+    const child = neverClosingChild();
+    // Drive the bounded run with the fake clock only: the per-step allowance
+    // and cleanup grace elapse without any real waiting.
+    const outcome = await settleWithClock(
+      runM2Task(
+        { rootDir: root, requestedTaskId: TASK_ID },
+        {
+          verificationSpawn: () => child,
+          verificationClock: clock,
+        },
+      ),
+      clock,
+    );
+    expect(outcome.kind).toBe("halted");
+    expect(outcome.verdict).toBe("FAIL");
+    expect(taskStatus(root)).toBe("halted");
+    expect(mutationLockExists(root)).toBe(false);
+    const records = readEvidence(root).filter(
+      (entry): entry is Extract<EvidenceReadEntry, { kind: "record" }> => entry.kind === "record",
+    );
+    const verify = records.filter((entry) => entry.record.capability === "repo.verify");
+    expect(verify).toHaveLength(1);
+    expect(verify[0]?.record.result).toBe("timed-out");
+    expect(verify[0]?.record.schemaVersion).toBe(2);
+    // Unstarted steps are never fabricated.
+    expect(records.filter((entry) => entry.record.capability === "repo.verify")).toHaveLength(1);
+  });
+
+  it("T3: a controlled interruption halts through the normal lock release path", async () => {
+    const root = tempRoot();
+    const interruption = syntheticInterruption();
+    const child = neverClosingChild();
+    const clock = boundedFakeClock();
+    const outcome = await settleWithClock(
+      runM2Task(
+        { rootDir: root, requestedTaskId: TASK_ID },
+        {
+          verificationSpawn: () => {
+            interruption.emit("SIGTERM");
+            return child;
+          },
+          verificationClock: clock,
+          verificationInterruption: interruption,
+        },
+      ),
+      clock,
+    );
+    expect(outcome.kind).toBe("halted");
+    expect(outcome.verdict).toBe("FAIL");
+    expect(taskStatus(root)).toBe("halted");
+    expect(mutationLockExists(root)).toBe(false);
+    const verify = readEvidence(root).filter(
+      (entry): entry is Extract<EvidenceReadEntry, { kind: "record" }> =>
+        entry.kind === "record" && entry.record.capability === "repo.verify",
+    );
+    expect(verify).toHaveLength(1);
+    expect(verify[0]?.record.result).toBe("interrupted:SIGTERM");
+    expect(verify[0]?.record.target).toBe(
+      "node-typescript/npm-scripts-v1:typecheck",
+    );
   });
 
   it("keeps T0 fixture parsing closed to repo.verify", () => {

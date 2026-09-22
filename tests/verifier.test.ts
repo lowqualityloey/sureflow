@@ -22,13 +22,14 @@ function req(overrides: Partial<VerificationRequest> = {}): VerificationRequest 
 }
 
 type RecordEntry = Extract<EvidenceReadEntry, { kind: "record" }>;
+type V1Record = Extract<RecordEntry["record"], { schemaVersion: 1 }>;
 
-function recordEntry(result: string, line = 1, overrides: Partial<RecordEntry["record"]> = {}): RecordEntry {
+function recordEntry(result: string, line = 1, overrides: Partial<V1Record> = {}): RecordEntry {
   return {
     kind: "record",
     line,
     record: {
-      schemaVersion: 1,
+      schemaVersion: 1 as const,
       actor: "worker:t0",
       recordedAt: "2026-09-20T00:00:00.000Z",
       taskId: TASK,

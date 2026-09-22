@@ -18,6 +18,7 @@ import {
   digestExecutionContextV2,
   encodeArgvForDigest,
   encodeExecutionContextV2,
+  encodeInputBindingV1,
   encodeTerminalCause,
   EVIDENCE_V2_SCHEMA_VERSION,
   isEvidenceRecordV2,
@@ -25,6 +26,7 @@ import {
   M3_STEP_LIMIT_SECONDS,
   M3_TERMINATION_GRACE_SECONDS,
   parseExecutionContext,
+  parseInputBindingV1,
   parseStoredEvidenceRecord,
   type EvidenceRecordV2,
   type EvidenceV2ExecutionContext,
@@ -118,6 +120,32 @@ describe("M3-T1 EvidenceRecord v2", () => {
     expect(parseExecutionContext(null)).toBe(null);
   });
 
+  it("accepts only the exact canonical input-binding encoding", () => {
+    const fingerprints = {
+      manifestPath: "package.json" as const,
+      manifestSha256: "a".repeat(64),
+      lockfilePath: "package-lock.json" as const,
+      lockfileSha256: "b".repeat(64),
+      tsconfigPath: "tsconfig.json" as const,
+      tsconfigSha256: "c".repeat(64),
+      planDigest: "d".repeat(64),
+    };
+    const canonical = encodeInputBindingV1(fingerprints);
+    expect(parseInputBindingV1(canonical)).toEqual(fingerprints);
+    const lines = canonical.split("\n");
+    const reordered = [lines[1], lines[0], ...lines.slice(2)].join("\n");
+    const duplicate = [...lines];
+    duplicate[1] = lines[0] ?? "";
+    const missing = lines.slice(0, 7).join("\n");
+    const extra = `${canonical}\nextra=value`;
+    const whitespace = `${canonical} `;
+    const alternatePath = canonical.replace("manifest=package.json", "manifest=./package.json");
+    const trailingNewline = `${canonical}\n`;
+    for (const invalid of [reordered, duplicate.join("\n"), missing, extra, whitespace, alternatePath, trailingNewline]) {
+      expect(parseInputBindingV1(invalid)).toBe(null);
+    }
+  });
+
   it("H: unknown schema versions and malformed records fail closed", () => {
     for (const schemaVersion of [0, 3, 99, "2", "1", null, undefined]) {
       expect(parseStoredEvidenceRecord({ ...v1Record(), schemaVersion }).kind).toBe("unknown");
@@ -168,8 +196,6 @@ describe("M3-T1 EvidenceRecord v2", () => {
       "failed:abc",
       "failed:",
       "terminated:",
-      "terminated:SIGINT",
-      "terminated:SIGTERM",
       "terminated:sigkill",
       "terminated:has space",
       "interrupted:SIGHUP",
@@ -179,6 +205,16 @@ describe("M3-T1 EvidenceRecord v2", () => {
     ]) {
       expect(decodeTerminalCause(bad)).toBe(null);
     }
+  });
+
+  it("terminated:SIGINT/SIGTERM record an independent child signal (not owned interruption)", () => {
+    // Human T3 decision: ownership, not the signal name, distinguishes the
+    // two. A child independently observed exiting with SIGINT/SIGTERM is
+    // terminated:SIG*; Sureflow-owned cancellation is interrupted:SIG*.
+    expect(decodeTerminalCause("terminated:SIGINT")).toEqual({ kind: "terminated", signal: "SIGINT" });
+    expect(decodeTerminalCause("terminated:SIGTERM")).toEqual({ kind: "terminated", signal: "SIGTERM" });
+    expect(decodeTerminalCause("interrupted:SIGINT")).toEqual({ kind: "interrupted", signal: "SIGINT" });
+    expect(decodeTerminalCause("interrupted:SIGTERM")).toEqual({ kind: "interrupted", signal: "SIGTERM" });
   });
 
   it("I: identical contexts encode and digest identically", () => {

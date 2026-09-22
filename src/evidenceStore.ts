@@ -6,15 +6,25 @@
  * - Malformed existing lines are SURFACED via `readEvidence()` as
  *   `corrupt` entries — never silently discarded, never repaired,
  *   and never interpreted as a verification verdict (T4 owns that).
+ * - Supports both v1 and v2 evidence records; unknown schema versions
+ *   surface as corrupt.
  */
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { type EvidenceDraft, type EvidenceRecord, isEvidenceRecord } from "./evidence.js";
+import {
+  type EvidenceDraft,
+  type EvidenceRecord,
+} from "./evidence.js";
+import {
+  isEvidenceRecordV2,
+  type EvidenceRecordV2,
+  parseStoredEvidenceRecord,
+} from "./evidenceV2.js";
 import { defaultEvidencePath, resolveEvidencePath } from "./evidencePaths.js";
 import { toPersistedRecord } from "./redaction.js";
 
 export type EvidenceReadEntry =
-  | { readonly kind: "record"; readonly line: number; readonly record: EvidenceRecord }
+  | { readonly kind: "record"; readonly line: number; readonly record: EvidenceRecord | EvidenceRecordV2 }
   | { readonly kind: "corrupt"; readonly line: number; readonly raw: string; readonly error: string };
 
 function resolveEvidenceFilePath(rootDir: string, filePath?: string): string {
@@ -44,8 +54,22 @@ export function appendEvidence(
   return record;
 }
 
+/** Append a strictly validated v2 record. Fails fast on invalid input. */
+export function appendEvidenceV2(
+  rootDir: string,
+  draft: Omit<EvidenceRecordV2, "schemaVersion">,
+  filePath?: string,
+): EvidenceRecordV2 {
+  const absolute = resolveEvidenceFilePath(rootDir, filePath);
+  mkdirSync(dirname(absolute), { recursive: true });
+  const record = { ...draft, schemaVersion: 2 } as EvidenceRecordV2;
+  if (!isEvidenceRecordV2(record)) throw new Error("invalid EvidenceRecord v2 draft");
+  appendFileSync(absolute, `${JSON.stringify(record)}\n`, { encoding: "utf8" });
+  return record;
+}
+
 /**
- * Read every line: valid records parse to `record` entries;
+ * Read every line: valid records parse to `record` entries (v1 or v2);
  * blank lines are skipped; anything else surfaces as `corrupt`
  * with its line number, raw text, and parse/validation error.
  */
@@ -72,11 +96,12 @@ export function readEvidence(rootDir: string, filePath?: string): readonly Evide
       entries.push({ kind: "corrupt", line, raw, error: message });
       continue;
     }
-    if (!isEvidenceRecord(parsed)) {
-      entries.push({ kind: "corrupt", line, raw, error: "line is not a valid EvidenceRecord" });
+    const outcome = parseStoredEvidenceRecord(parsed);
+    if (outcome.kind === "unknown") {
+      entries.push({ kind: "corrupt", line, raw, error: "unknown schema version or malformed record" });
       continue;
     }
-    entries.push({ kind: "record", line, record: parsed });
+    entries.push({ kind: "record", line, record: outcome.record });
   }
   return entries;
 }

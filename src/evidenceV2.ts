@@ -28,7 +28,7 @@ import {
   M3_ADAPTER_IDS,
   managerForAdapterId,
 } from "./projectAdapter.js";
-import type { M3AdapterId, M3CwdRole } from "./projectAdapter.js";
+import type { M3AdapterId, M3CwdRole, ResolvedAdapterContract } from "./projectAdapter.js";
 
 export const EVIDENCE_V2_SCHEMA_VERSION = 2 as const;
 
@@ -40,6 +40,12 @@ export const M3_TERMINATION_GRACE_SECONDS = 5 as const;
 /**
  * Closed M3 terminal-cause domain. Typed internally; the canonical string
  * encoding is the persisted form. No free-form prose is machine-readable.
+ *
+ * terminated:<SIGNAL> records a child independently observed terminating by
+ * signal — including SIGINT/SIGTERM when Sureflow itself did NOT own an
+ * interruption. interrupted:SIGINT/SIGTERM records only Sureflow-owned
+ * cancellation after receiving that control signal. Ownership, not the
+ * signal name, distinguishes the two.
  */
 export type M3TerminalCause =
   | { readonly kind: "passed" }
@@ -93,7 +99,7 @@ export function decodeTerminalCause(value: unknown): M3TerminalCause | null {
   }
   if (value.startsWith("terminated:")) {
     const signal = value.slice("terminated:".length);
-    if (!SIGNAL_PATTERN.test(signal) || signal === "SIGINT" || signal === "SIGTERM") return null;
+    if (!SIGNAL_PATTERN.test(signal)) return null;
     return Object.freeze({ kind: "terminated" as const, signal });
   }
   return null;
@@ -314,4 +320,191 @@ export function parseStoredEvidenceRecord(value: unknown): StoredEvidenceRecordO
     return Object.freeze({ kind: "v1" as const, record: value });
   }
   return Object.freeze({ kind: "unknown" as const });
+}
+
+/**
+ * Pure builder for one started step's v2 execution context. Inputs come only
+ * from the resolved closed adapter contract plus the observed argv and the
+ * controller-settled terminal cause — never from task/user input.
+ */
+export function createExecutionContextV2(
+  contract: ResolvedAdapterContract,
+  argv: readonly string[],
+  terminalCause: M3TerminalCause,
+): EvidenceV2ExecutionContext {
+  return Object.freeze({
+    adapterId: contract.adapterId,
+    adapterContractVersion: M3_ADAPTER_CONTRACT_VERSION,
+    executable: contract.executable,
+    argv: Object.freeze([...argv]),
+    argvDigest: digestArgv(argv),
+    cwdRole: contract.cwdRole,
+    stepLimitSeconds: M3_STEP_LIMIT_SECONDS,
+    overallBudgetSeconds: M3_OVERALL_BUDGET_SECONDS,
+    terminationGraceSeconds: M3_TERMINATION_GRACE_SECONDS,
+    terminalCause: encodeTerminalCause(terminalCause),
+  });
+}
+
+/**
+ * M3-T3 input binding: machine-readable evidence that the exact manifest,
+ * lockfile, tsconfig, and resolved-plan bytes observed immediately before
+ * verification are the ones a run's v2 verification records bind to.
+ *
+ * The binding record itself uses the existing generic v1/common evidence
+ * shape (capability repo.read, fixed target/provenance below): it records
+ * an observed read/binding, not a process execution. Its result carries ONE
+ * strict canonical encoding; bindingDigest = SHA-256 of that encoding.
+ * Every runtime v2 repo.verify record references the digest through its
+ * versioned provenance contract. No schema change, no new v2 fields.
+ *
+ * Scope of the claim: these fingerprints are evidence of the exact bytes
+ * Sureflow observed immediately before verification. They do NOT claim the
+ * project is hermetic — dependencies may still change externally, scripts
+ * may still observe environment/network, and descendants may still mutate
+ * external state. Post-write Git scope checks keep their existing purpose.
+ */
+export const VERIFICATION_INPUT_BINDING_TARGET = "verification-input-binding" as const;
+export const VERIFICATION_INPUT_BINDING_PROVENANCE = "verification-input-binding-v1" as const;
+export const VERIFICATION_EXECUTION_PROVENANCE_VERSION = "verification-execution-v2" as const;
+
+export interface VerificationInputFingerprints {
+  readonly manifestPath: "package.json";
+  readonly manifestSha256: string;
+  readonly lockfilePath: "package-lock.json" | "pnpm-lock.yaml";
+  readonly lockfileSha256: string;
+  readonly tsconfigPath: "tsconfig.json";
+  readonly tsconfigSha256: string;
+  readonly planDigest: string;
+}
+
+const HEX64_PATTERN = /^[0-9a-f]{64}$/u;
+
+/** Canonical input-binding encoding: fixed order, one fact per line. */
+export function encodeInputBindingV1(fingerprints: VerificationInputFingerprints): string {
+  return [
+    `v=${VERIFICATION_INPUT_BINDING_PROVENANCE}`,
+    `manifest=${fingerprints.manifestPath}`,
+    `manifest-sha256=${fingerprints.manifestSha256}`,
+    `lockfile=${fingerprints.lockfilePath}`,
+    `lockfile-sha256=${fingerprints.lockfileSha256}`,
+    `tsconfig=${fingerprints.tsconfigPath}`,
+    `tsconfig-sha256=${fingerprints.tsconfigSha256}`,
+    `plan=${fingerprints.planDigest}`,
+  ].join("\n");
+}
+
+/** SHA-256 hex digest of the canonical input-binding encoding. */
+export function digestInputBindingV1(encoding: string): string {
+  return sha256Hex(encoding);
+}
+
+function splitBindingLine(line: string): readonly [string, string] | null {
+  const parts = line.split("=");
+  if (parts.length !== 2) return null;
+  const key = parts[0];
+  const entry = parts[1];
+  if (key === undefined || entry === undefined) return null;
+  return [key, entry] as const;
+}
+
+/** Strict inverse of encodeInputBindingV1. Unknown or malformed → null. */
+export function parseInputBindingV1(value: unknown): VerificationInputFingerprints | null {
+  if (typeof value !== "string") return null;
+  const lines = value.split("\n");
+  if (lines.length !== 8) return null;
+  const fields: Record<string, string> = {};
+  for (const line of lines) {
+    const split = splitBindingLine(line);
+    if (split === null || split[0] in fields) return null;
+    fields[split[0]] = split[1];
+  }
+  if (fields["v"] !== "verification-input-binding-v1") return null;
+  if (fields["manifest"] !== "package.json") return null;
+  if (fields["tsconfig"] !== "tsconfig.json") return null;
+  const lockfile = fields["lockfile"];
+  if (lockfile !== "package-lock.json" && lockfile !== "pnpm-lock.yaml") return null;
+  const manifestSha256 = fields["manifest-sha256"];
+  const lockfileSha256 = fields["lockfile-sha256"];
+  const tsconfigSha256 = fields["tsconfig-sha256"];
+  const planDigest = fields["plan"];
+  if (
+    manifestSha256 === undefined ||
+    lockfileSha256 === undefined ||
+    tsconfigSha256 === undefined ||
+    planDigest === undefined
+  ) {
+    return null;
+  }
+  if (
+    !HEX64_PATTERN.test(manifestSha256) ||
+    !HEX64_PATTERN.test(lockfileSha256) ||
+    !HEX64_PATTERN.test(tsconfigSha256) ||
+    !HEX64_PATTERN.test(planDigest)
+  ) {
+    return null;
+  }
+  const parsed = Object.freeze({
+    manifestPath: "package.json" as const,
+    manifestSha256,
+    lockfilePath: lockfile,
+    lockfileSha256,
+    tsconfigPath: "tsconfig.json" as const,
+    tsconfigSha256,
+    planDigest,
+  });
+  return encodeInputBindingV1(parsed) === value ? parsed : null;
+}
+
+export interface ResolvedPlanDigestInputs {
+  readonly adapterId: M3AdapterId;
+  readonly adapterContractVersion: typeof M3_ADAPTER_CONTRACT_VERSION;
+  readonly executable: "npm" | "pnpm";
+  readonly cwdRole: M3CwdRole;
+  readonly steps: readonly {
+    readonly check: string;
+    readonly argv: readonly string[];
+  }[];
+}
+
+/**
+ * Canonical resolved-plan encoding: fixed order with collision-safe
+ * length-prefixed argv boundaries per step. Excludes timestamps, absolute
+ * paths, and random values by construction.
+ */
+export function encodeResolvedPlanV1(input: ResolvedPlanDigestInputs): string {
+  const lines = [
+    "v=resolved-verification-plan-v1",
+    `adapterId=${input.adapterId}`,
+    `adapterContractVersion=${String(input.adapterContractVersion)}`,
+    `executable=${input.executable}`,
+    `cwdRole=${input.cwdRole}`,
+    "shell=false",
+  ];
+  for (const step of input.steps) {
+    lines.push(`step=${step.check}:${encodeArgvForDigest(step.argv)}`);
+  }
+  return lines.join("\n");
+}
+
+/** SHA-256 hex digest of the canonical resolved-plan encoding. */
+export function digestResolvedPlanV1(input: ResolvedPlanDigestInputs): string {
+  return sha256Hex(encodeResolvedPlanV1(input));
+}
+
+/**
+ * Versioned machine-parsed provenance contract for runtime v2 repo.verify
+ * records: `verification-execution-v2;binding=<64hex>;shell=false`.
+ * The binding value must equal the run's input-binding digest.
+ */
+export function encodeExecutionProvenanceV2(bindingDigest: string): string {
+  return `${VERIFICATION_EXECUTION_PROVENANCE_VERSION};binding=${bindingDigest};shell=false`;
+}
+
+/** Strict provenance parser. Returns the binding digest, or null. */
+export function parseExecutionProvenanceV2(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const match = /^verification-execution-v2;binding=([0-9a-f]{64});shell=false$/u.exec(value);
+  const digest = match?.[1];
+  return digest === undefined ? null : digest;
 }

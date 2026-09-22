@@ -17,7 +17,7 @@ import { readRuntimeState } from "./stateReader.js";
 import { initRuntimeState } from "./stateWriter.js";
 import { runT0Task } from "./runTask.js";
 import { verifyT0Task } from "./verifyTask.js";
-import { hasM2TaskContract, runM2Task } from "./m2Orchestration.js";
+import { hasM2TaskContract, processInterruptionSource, runM2Task } from "./m2Orchestration.js";
 import { verifyM2Task } from "./m2Orchestration.js";
 import { preflightM2Task } from "./preflight.js";
 import {
@@ -149,7 +149,14 @@ async function runTaskAsync(argv: readonly string[], cwd: string, io: CliIo): Pr
   }
   if (!hasM2TaskContract(cwd)) return runTask(argv, cwd, io);
 
-  const outcome = await runM2Task({ rootDir: cwd, requestedTaskId: taskId });
+  // Production CLI adapts process SIGINT/SIGTERM into the bounded
+  // verification controller's interruption seam. Listeners live only for the
+  // owned verification-execution window and are removed in the controller's
+  // cleanup, so nothing leaks across CLI operations.
+  const outcome = await runM2Task(
+    { rootDir: cwd, requestedTaskId: taskId },
+    { verificationInterruption: processInterruptionSource() },
+  );
   if (outcome.kind === "accepted") {
     io.out(`Sureflow run: ACCEPT — ${outcome.taskId ?? "unknown task"} (${outcome.verdict ?? "PASS"})`);
     return EXIT_ACCEPTED;

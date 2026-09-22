@@ -53,7 +53,17 @@ export type VerificationStepResult =
   | { readonly check: M2VerificationProfile; readonly kind: "passed"; readonly exitCode: 0 }
   | { readonly check: M2VerificationProfile; readonly kind: "failed"; readonly exitCode: number }
   | { readonly check: M2VerificationProfile; readonly kind: "spawn-error" }
-  | { readonly check: M2VerificationProfile; readonly kind: "terminated"; readonly signal: string };
+  | { readonly check: M2VerificationProfile; readonly kind: "terminated"; readonly signal: string }
+  | { readonly check: M2VerificationProfile; readonly kind: "timed-out" }
+  | {
+      readonly check: M2VerificationProfile;
+      readonly kind: "interrupted";
+      readonly signal: "SIGINT" | "SIGTERM";
+  };
+
+export function isValidFailureExitCode(exitCode: number): boolean {
+  return Number.isInteger(exitCode) && exitCode >= 1 && exitCode <= 255;
+}
 
 export interface VerificationSpawnOptions {
   readonly cwd: string;
@@ -67,6 +77,12 @@ export interface VerificationSpawnedProcess {
     event: "close",
     listener: (exitCode: number | null, signal: NodeJS.Signals | null) => void,
   ): this;
+  /**
+   * Terminate the owned direct child, if the spawner owns a live handle.
+   * Optional so existing deterministic fakes without a live process keep
+   * working; the bounded controller degrades to wait-for-close when absent.
+   */
+  kill?(signal: NodeJS.Signals): boolean;
 }
 
 export type VerificationSpawn = (
@@ -111,9 +127,10 @@ function isKnownArgv(argv: readonly string[]): argv is VerificationArgv {
 /**
  * Build one verification step from an already-resolved adapter contract.
  * No package-manager branching is permitted here: dispatch comes only from
- * the contract produced by the single resolution seam.
+ * the contract produced by the single resolution seam. Exported for the
+ * bounded execution controller, which reuses the same fail-closed mapping.
  */
-function stepForContract(
+export function stepForContract(
   contract: ResolvedAdapterContract,
   check: M2VerificationProfile,
 ): VerificationStep | null {
@@ -188,7 +205,8 @@ export function resolveVerificationPlan(
   });
 }
 
-function defaultSpawn(
+/** Direct child_process spawn behind the VerificationSpawn seam. */
+export function defaultSpawn(
   executable: "npm" | "pnpm",
   argv: VerificationArgv,
   options: VerificationSpawnOptions,
@@ -229,7 +247,7 @@ function executeStep(
         settle({ check: step.check, kind: "terminated", signal });
       } else if (exitCode === 0) {
         settle({ check: step.check, kind: "passed", exitCode: 0 });
-      } else if (typeof exitCode === "number") {
+      } else if (typeof exitCode === "number" && isValidFailureExitCode(exitCode)) {
         settle({ check: step.check, kind: "failed", exitCode });
       } else {
         settle({ check: step.check, kind: "spawn-error" });
@@ -244,37 +262,53 @@ export async function runVerificationPlan(
   plan: VerificationPlan,
   spawn: VerificationSpawn = defaultSpawn,
 ): Promise<readonly VerificationStepResult[]> {
-  if (!validProject(project)) return Object.freeze([]);
-  const candidate: unknown = plan;
-  if (!isRecord(candidate) || !isAdapterId(candidate.profile) || !Array.isArray(candidate.steps)) {
-    return Object.freeze([]);
-  }
-  const requestedChecks = candidate.steps.map((step) =>
-    isRecord(step) && isProfile(step.check) ? step.check : null,
-  );
-  if (requestedChecks.some((check) => check === null)) return Object.freeze([]);
-  const checks = requestedChecks as M2VerificationProfile[];
-  if (new Set(checks).size !== checks.length || checks.length === 0) {
-    return Object.freeze([]);
-  }
-  const canonicalChecks = M2_VERIFICATION_PROFILES.filter((check) => checks.includes(check));
-  if (canonicalChecks.some((check, index) => checks[index] !== check)) {
-    return Object.freeze([]);
-  }
-  const supportedChecks = readUniqueProfiles(project.supportedChecks);
-  if (supportedChecks === null || canonicalChecks.some((check) => !supportedChecks.includes(check))) {
-    return Object.freeze([]);
-  }
-
-  const resolved = resolveAdapterContractForIds(project.adapter, candidate.profile);
-  if (resolved.kind !== "resolved") return Object.freeze([]);
+  const executable = resolveExecutableChecks(project, plan);
+  if (executable === null) return Object.freeze([]);
 
   const results: VerificationStepResult[] = [];
-  for (const check of canonicalChecks) {
-    const step = stepForContract(resolved.contract, check);
+  for (const check of executable.checks) {
+    const step = stepForContract(executable.contract, check);
     if (step === null) return Object.freeze([]);
     const result = await executeStep(step, project.root, spawn);
     results.push(result);
   }
   return Object.freeze(results);
+}
+
+/**
+ * Shared fail-closed validation for executing an already-resolved plan:
+ * project shape, plan shape, known/unique/non-empty checks in canonical
+ * order, plan support, and closed adapter resolution. Returns the contract
+ * plus canonical checks, or null. Used by both the legacy unbounded runner
+ * and the bounded execution controller so validation never diverges.
+ */
+export function resolveExecutableChecks(
+  project: DetectedNodeTypeScriptProject,
+  plan: VerificationPlan,
+): { readonly contract: ResolvedAdapterContract; readonly checks: readonly M2VerificationProfile[] } | null {
+  if (!validProject(project)) return null;
+  const candidate: unknown = plan;
+  if (!isRecord(candidate) || !isAdapterId(candidate.profile) || !Array.isArray(candidate.steps)) {
+    return null;
+  }
+  const requestedChecks = candidate.steps.map((step) =>
+    isRecord(step) && isProfile(step.check) ? step.check : null,
+  );
+  if (requestedChecks.some((check) => check === null)) return null;
+  const checks = requestedChecks as M2VerificationProfile[];
+  if (new Set(checks).size !== checks.length || checks.length === 0) {
+    return null;
+  }
+  const canonicalChecks = M2_VERIFICATION_PROFILES.filter((check) => checks.includes(check));
+  if (canonicalChecks.some((check, index) => checks[index] !== check)) {
+    return null;
+  }
+  const supportedChecks = readUniqueProfiles(project.supportedChecks);
+  if (supportedChecks === null || canonicalChecks.some((check) => !supportedChecks.includes(check))) {
+    return null;
+  }
+
+  const resolved = resolveAdapterContractForIds(project.adapter, candidate.profile);
+  if (resolved.kind !== "resolved") return null;
+  return { contract: resolved.contract, checks: Object.freeze([...canonicalChecks]) };
 }
