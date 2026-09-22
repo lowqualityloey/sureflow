@@ -30,6 +30,10 @@ import {
 import { decidePolicy, type PolicyDecision } from "./policy.js";
 import { loadPolicy } from "./policyStore.js";
 import { detectProject, type DetectedNodeTypeScriptProject } from "./projectDetection.js";
+import {
+  resolveAdapterContract,
+  type ResolvedAdapterContract,
+} from "./projectAdapter.js";
 import { verifyProjectChange } from "./projectChangeVerifier.js";
 import {
   inspectPostWriteScope,
@@ -340,7 +344,15 @@ async function runM2TaskUnlocked(
     const project: DetectedNodeTypeScriptProject = detected.project;
     await phase(dependencies, "project-detected");
 
-    const resolved = resolveVerificationPlan(project, plan);
+    // Single closed adapter seam: everything below consumes the resolved
+    // contract. No package-manager branching is permitted past this point.
+    const adapterResolution = resolveAdapterContract(project, plan);
+    if (adapterResolution.kind !== "resolved") {
+      return haltedRun(`adapter resolution unsupported: ${adapterResolution.reason}`, { taskId });
+    }
+    const adapterContract: ResolvedAdapterContract = adapterResolution.contract;
+
+    const resolved = resolveVerificationPlan(project, plan, adapterContract);
     if (resolved.kind !== "resolved") {
       return haltedRun(
         `verification profile resolution unsupported: ${resolved.missingChecks.join(", ") || "invalid plan"}`,
@@ -463,7 +475,7 @@ async function runM2TaskUnlocked(
           policyDecision: policyDecisions["repo.verify"] ?? "ALLOW",
           target: `${plan.adapter}:${result.check}`,
           result: verificationEvidenceResult(result),
-          provenance: `npm ${result.check}; shell=false`,
+          provenance: `${adapterContract.executable} ${result.check}; shell=false`,
         });
       }
     } catch {

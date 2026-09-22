@@ -16,6 +16,13 @@ import type {
   ValidatedExecutionPlan,
 } from "./taskContract.js";
 import type { DetectedNodeTypeScriptProject } from "./projectDetection.js";
+import {
+  adapterStepArgv,
+  isResolvedAdapterContract,
+  resolveAdapterContract,
+  resolveAdapterContractForIds,
+  type ResolvedAdapterContract,
+} from "./projectAdapter.js";
 
 export type VerificationArgv =
   | readonly ["run", "typecheck"]
@@ -90,17 +97,30 @@ function unsupported(missingChecks: readonly M2VerificationProfile[]): Verificat
   });
 }
 
-function stepFor(check: M2VerificationProfile): VerificationStep {
-  switch (check) {
-    case "typecheck":
-      return Object.freeze({ check, executable: "npm", argv: ["run", "typecheck"] as const, shell: false });
-    case "test":
-      return Object.freeze({ check, executable: "npm", argv: ["test"] as const, shell: false });
-    case "lint":
-      return Object.freeze({ check, executable: "npm", argv: ["run", "lint"] as const, shell: false });
-    case "build":
-      return Object.freeze({ check, executable: "npm", argv: ["run", "build"] as const, shell: false });
+function isKnownArgv(argv: readonly string[]): argv is VerificationArgv {
+  if (argv.length === 1) return argv[0] === "test";
+  if (argv.length === 2 && argv[0] === "run") {
+    return argv[1] === "typecheck" || argv[1] === "lint" || argv[1] === "build";
   }
+  return false;
+}
+
+/**
+ * Build one verification step from an already-resolved adapter contract.
+ * No package-manager branching is permitted here: dispatch comes only from
+ * the contract produced by the single resolution seam.
+ */
+function stepForContract(
+  contract: ResolvedAdapterContract,
+  check: M2VerificationProfile,
+): VerificationStep | null {
+  // The contract is trusted here: kernel entry points validate explicit
+  // contracts through isResolvedAdapterContract, and internal resolution
+  // only produces the closed npm contract. Only the argv shape is
+  // re-checked, fail-closed, before spawning.
+  const argv = adapterStepArgv(contract, check);
+  if (!isKnownArgv(argv)) return null;
+  return Object.freeze({ check, executable: "npm", argv, shell: false });
 }
 
 function validProject(value: unknown): value is DetectedNodeTypeScriptProject {
@@ -115,12 +135,28 @@ function validPlan(value: unknown): value is ValidatedExecutionPlan {
   return readUniqueProfiles(value.requiredVerification) !== null;
 }
 
-/** Resolve only snapshot-owned profiles into the fixed canonical npm plan. */
+/**
+ * Resolve only snapshot-owned profiles into the fixed canonical plan.
+ * Steps are derived from the resolved adapter contract, never from
+ * caller-supplied dispatch. An explicit contract may be passed by kernel
+ * callers that already resolved one; otherwise it is resolved here at the
+ * same closed seam with identical observable behavior.
+ */
 export function resolveVerificationPlan(
   project: DetectedNodeTypeScriptProject,
   plan: ValidatedExecutionPlan,
+  adapter?: ResolvedAdapterContract,
 ): VerificationResolutionOutcome {
   if (!validProject(project) || !validPlan(plan)) return unsupported([]);
+
+  let contract: ResolvedAdapterContract | null = null;
+  if (adapter !== undefined) {
+    if (isResolvedAdapterContract(adapter)) contract = adapter;
+  } else {
+    const resolved = resolveAdapterContract(project, plan);
+    if (resolved.kind === "resolved") contract = resolved.contract;
+  }
+  if (contract === null) return unsupported([]);
 
   const requiredVerification = readUniqueProfiles(plan.requiredVerification);
   const supportedChecks = readUniqueProfiles(project.supportedChecks);
@@ -129,9 +165,13 @@ export function resolveVerificationPlan(
   const missingChecks = requiredVerification.filter((check) => !supportedChecks.includes(check));
   if (missingChecks.length > 0) return unsupported(missingChecks);
 
-  const steps = M2_VERIFICATION_PROFILES
-    .filter((check) => requiredVerification.includes(check))
-    .map(stepFor);
+  const steps: VerificationStep[] = [];
+  for (const check of M2_VERIFICATION_PROFILES) {
+    if (!requiredVerification.includes(check)) continue;
+    const step = stepForContract(contract, check);
+    if (step === null) return unsupported([]);
+    steps.push(step);
+  }
   return Object.freeze({
     kind: "resolved" as const,
     plan: Object.freeze({
@@ -219,9 +259,14 @@ export async function runVerificationPlan(
     return Object.freeze([]);
   }
 
+  const resolved = resolveAdapterContractForIds(project.adapter, candidate.profile);
+  if (resolved.kind !== "resolved") return Object.freeze([]);
+
   const results: VerificationStepResult[] = [];
   for (const check of canonicalChecks) {
-    const result = await executeStep(stepFor(check), project.root, spawn);
+    const step = stepForContract(resolved.contract, check);
+    if (step === null) return Object.freeze([]);
+    const result = await executeStep(step, project.root, spawn);
     results.push(result);
   }
   return Object.freeze(results);
