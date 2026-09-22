@@ -29,7 +29,8 @@ const PLAN: ValidatedExecutionPlan = Object.freeze({
   source: Object.freeze({ path: ".sureflow/task.json", sha256: CONTRACT_SHA }),
 });
 
-type RecordOverrides = Partial<Extract<EvidenceReadEntry, { kind: "record" }>["record"]>;
+type V1Record = Extract<Extract<EvidenceReadEntry, { kind: "record" }>["record"], { schemaVersion: 1 }>;
+type RecordOverrides = Partial<V1Record>;
 
 function evidence(
   capability: string,
@@ -42,7 +43,7 @@ function evidence(
     kind: "record",
     line,
     record: {
-      schemaVersion: 1,
+      schemaVersion: 1 as const,
       actor: "worker:m2",
       recordedAt: "2026-09-22T00:00:00.000Z",
       taskId: TASK,

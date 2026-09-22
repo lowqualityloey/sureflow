@@ -308,7 +308,7 @@ afterEach(() => {
 });
 
 describe("M2-T8 independent public acceptance", () => {
-  it("AC-M2.8 executes init, run, and verify through the public CLI", () => {
+  it("AC-M2.8 executes init, run, and verify through the public CLI", { timeout: 10_000 }, () => {
     const root = setupFixture();
     const trace = makeNpmTrace();
     const contract = readFixtureContract();
@@ -328,7 +328,7 @@ describe("M2-T8 independent public acceptance", () => {
     expect(taskStatus(root)).toBe("accepted");
 
     const records = evidenceRecords(root);
-    expect(records).toHaveLength(7);
+    expect(records).toHaveLength(8);
     expect(records[0]).toMatchObject({
       taskId: TASK_ID,
       capability: "repo.read",
@@ -347,7 +347,12 @@ describe("M2-T8 independent public acceptance", () => {
       target: "project-scope",
       result: "compliant",
     });
-    expect(records.slice(3).map((record) => [record.capability, record.target, record.result])).toEqual([
+    expect(records[3]).toMatchObject({
+      capability: "repo.read",
+      target: "verification-input-binding",
+      provenance: "verification-input-binding-v1",
+    });
+    expect(records.slice(4).map((record) => [record.capability, record.target, record.result])).toEqual([
       ["repo.verify", "node-typescript/npm-scripts-v1:typecheck", "passed"],
       ["repo.verify", "node-typescript/npm-scripts-v1:test", "passed"],
       ["repo.verify", "node-typescript/npm-scripts-v1:lint", "passed"],

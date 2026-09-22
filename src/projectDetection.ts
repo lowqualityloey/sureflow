@@ -1,8 +1,13 @@
 /**
- * M2-T2 structural detection for the one supported Node/TypeScript/npm shape.
+ * M2-T2 structural detection for the supported Node/TypeScript shapes.
  *
- * Detection reads project evidence only. It does not execute npm, project
- * scripts, TypeScript, Git, or any later M2 orchestration.
+ * Two closed shapes are supported: unambiguous npm (package-lock.json) and
+ * the narrow pnpm shape (pManifest non-empty pnpm-lock.yaml, no
+ * package-lock.json, no workspace markers, agreeing packageManager claim).
+ * Conflicting manager evidence fails closed as unsupported/ineligible.
+ *
+ * Detection reads project evidence only. It does not execute npm, pnpm,
+ * project scripts, TypeScript, Git, or any later M2 orchestration.
  */
 import {
   lstatSync,
@@ -12,19 +17,21 @@ import {
 } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import {
-  M2_ADAPTER_ID,
   M2_VERIFICATION_PROFILES,
+  M3_ADAPTER_IDS,
+  M3_PNPM_ADAPTER_ID,
 } from "./taskContract.js";
 import type {
   M2VerificationProfile,
+  M3AdapterId,
   ValidatedExecutionPlan,
 } from "./taskContract.js";
 
 export interface DetectedNodeTypeScriptProject {
-  readonly adapter: typeof M2_ADAPTER_ID;
+  readonly adapter: M3AdapterId;
   readonly root: string;
   readonly manifestPath: "package.json";
-  readonly lockfilePath: "package-lock.json";
+  readonly lockfilePath: "package-lock.json" | "pnpm-lock.yaml";
   readonly tsconfigPath: "tsconfig.json";
   readonly targetPath: string;
   readonly supportedChecks: readonly M2VerificationProfile[];
@@ -172,7 +179,7 @@ function parseJsonObject(text: string, label: string): ParsedJsonObject {
 
 function checkPlanAuthority(plan: ValidatedExecutionPlan): ProjectDetectionOutcome | null {
   const adapter = isRecord(plan) && typeof plan.adapter === "string" ? plan.adapter : undefined;
-  if (adapter !== M2_ADAPTER_ID) {
+  if (adapter === undefined || !(M3_ADAPTER_IDS as readonly string[]).includes(adapter)) {
     return unsupported("task plan selects an unsupported adapter");
   }
   if (
@@ -185,6 +192,44 @@ function checkPlanAuthority(plan: ValidatedExecutionPlan): ProjectDetectionOutco
     return invalid("task plan contains an invalid or duplicate verification profile");
   }
   return null;
+}
+
+type LockManager = "npm" | "pnpm";
+
+function managerForAdapter(adapter: M3AdapterId): LockManager {
+  return adapter === M3_PNPM_ADAPTER_ID ? "pnpm" : "npm";
+}
+
+/**
+ * Presence probe for one contained lockfile. A contained regular file counts
+ * as present; a missing path counts as absent; any other state (escape,
+ * unreadable, non-file) fails closed with its outcome.
+ */
+function probeContainedFile(
+  root: string,
+  relativePath: string,
+  label: string,
+): "present" | "absent" | ProjectDetectionOutcome {
+  const resolved = resolveContainedFile(root, relativePath, label);
+  if ("bytes" in resolved) return "present";
+  if (resolved.kind === "unsupported" && resolved.reason.endsWith("is missing")) return "absent";
+  return resolved;
+}
+
+/**
+ * Read the package.json packageManager agreement claim, if present.
+ * Returns the claimed manager, null when absent, or a fail-closed outcome
+ * for malformed or unsupported values.
+ */
+function readPackageManagerClaim(
+  packageJson: Record<string, unknown>,
+): LockManager | null | ProjectDetectionOutcome {
+  if (!("packageManager" in packageJson)) return null;
+  const claim = packageJson.packageManager;
+  if (typeof claim !== "string" || !/^(npm|pnpm)@\S+$/u.test(claim)) {
+    return unsupported("package.json packageManager is unsupported");
+  }
+  return claim.startsWith("pnpm@") ? "pnpm" : "npm";
 }
 
 /** Detect one supported project shape without executing any project code. */
@@ -212,14 +257,52 @@ export function detectProject(
   if ("type" in packageJson && packageJson.type !== "module" && packageJson.type !== "commonjs") {
     return unsupported("package.json has an unsupported Node module type");
   }
+  if ("workspaces" in packageJson) {
+    return unsupported("package.json workspaces are unsupported in M3");
+  }
+  const selectedManager = managerForAdapter(plan.adapter);
 
-  const lockfile = resolveContainedFile(root, "package-lock.json", "package-lock.json");
-  if (!("bytes" in lockfile)) return lockfile;
-  const lockfileText = decodeUtf8(lockfile, "package-lock.json");
-  if (typeof lockfileText !== "string") return lockfileText;
-  if (lockfileText.trim().length === 0) return unsupported("package-lock.json is empty");
-  const parsedLockfile = parseJsonObject(lockfileText, "package-lock.json");
-  if (!parsedLockfile.ok) return parsedLockfile.outcome;
+  const npmLock = probeContainedFile(root, "package-lock.json", "package-lock.json");
+  if (typeof npmLock !== "string") return npmLock;
+  const pnpmLock = probeContainedFile(root, "pnpm-lock.yaml", "pnpm-lock.yaml");
+  if (typeof pnpmLock !== "string") return pnpmLock;
+  const workspaceMarker = probeContainedFile(root, "pnpm-workspace.yaml", "pnpm-workspace.yaml");
+  if (typeof workspaceMarker !== "string") return workspaceMarker;
+  if (workspaceMarker === "present") {
+    return unsupported("pnpm-workspace.yaml is present: workspaces are unsupported in M3");
+  }
+  if (npmLock === "present" && pnpmLock === "present") {
+    return unsupported(
+      "conflicting package-manager evidence: package-lock.json and pnpm-lock.yaml are both present",
+    );
+  }
+  const managerClaim = readPackageManagerClaim(packageJson);
+  if (managerClaim !== null && typeof managerClaim === "object") return managerClaim;
+  if (managerClaim !== null && managerClaim !== selectedManager) {
+    return unsupported(
+      `package.json packageManager agrees with ${managerClaim} but the task selects ${selectedManager}`,
+    );
+  }
+
+  let lockfilePath: "package-lock.json" | "pnpm-lock.yaml";
+  if (selectedManager === "pnpm") {
+    if (pnpmLock === "absent") return unsupported("pnpm-lock.yaml is missing");
+    const lockfile = resolveContainedFile(root, "pnpm-lock.yaml", "pnpm-lock.yaml");
+    if (!("bytes" in lockfile)) return lockfile;
+    const lockfileText = decodeUtf8(lockfile, "pnpm-lock.yaml");
+    if (typeof lockfileText !== "string") return lockfileText;
+    if (lockfileText.trim().length === 0) return unsupported("pnpm-lock.yaml is empty");
+    lockfilePath = "pnpm-lock.yaml";
+  } else {
+    const lockfile = resolveContainedFile(root, "package-lock.json", "package-lock.json");
+    if (!("bytes" in lockfile)) return lockfile;
+    const lockfileText = decodeUtf8(lockfile, "package-lock.json");
+    if (typeof lockfileText !== "string") return lockfileText;
+    if (lockfileText.trim().length === 0) return unsupported("package-lock.json is empty");
+    const parsedLockfile = parseJsonObject(lockfileText, "package-lock.json");
+    if (!parsedLockfile.ok) return parsedLockfile.outcome;
+    lockfilePath = "package-lock.json";
+  }
 
   const tsconfig = resolveContainedFile(root, "tsconfig.json", "tsconfig.json");
   if (!("bytes" in tsconfig)) return tsconfig;
@@ -237,16 +320,18 @@ export function detectProject(
     (check) => typeof scripts[check] !== "string" || scripts[check].trim().length === 0,
   );
   if (missingChecks.length > 0) {
-    return unsupported(`package.json is missing required npm scripts: ${missingChecks.join(", ")}`);
+    return unsupported(
+      `package.json is missing required ${selectedManager} scripts: ${missingChecks.join(", ")}`,
+    );
   }
 
   return Object.freeze({
     kind: "supported" as const,
     project: Object.freeze({
-      adapter: M2_ADAPTER_ID,
+      adapter: plan.adapter,
       root,
       manifestPath: "package.json" as const,
-      lockfilePath: "package-lock.json" as const,
+      lockfilePath,
       tsconfigPath: "tsconfig.json" as const,
       targetPath: plan.targetPath,
       supportedChecks: Object.freeze([...plan.requiredVerification]),

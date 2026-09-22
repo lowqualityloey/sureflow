@@ -12,6 +12,12 @@ import { resolveSureflowPath } from "./sureflowPaths.js";
 export const M2_TASK_CONTRACT_SCHEMA_VERSION = 1 as const;
 export const M2_TASK_CONTRACT_RELATIVE_PATH = ".sureflow/task.json" as const;
 export const M2_ADAPTER_ID = "node-typescript/npm-scripts-v1" as const;
+/**
+ * M3-T2 narrow pnpm counterpart. The closed adapter set stays exactly these
+ * two compile-time members: nothing here may be extended at runtime.
+ */
+export const M3_PNPM_ADAPTER_ID = "node-typescript/pnpm-scripts-v1" as const;
+export const M3_ADAPTER_IDS = [M2_ADAPTER_ID, M3_PNPM_ADAPTER_ID] as const;
 export const M2_REPLACEMENT_OPERATION = "replace-existing-file" as const;
 
 export const M2_VERIFICATION_PROFILES = [
@@ -22,13 +28,15 @@ export const M2_VERIFICATION_PROFILES = [
 ] as const;
 
 export type M2AdapterId = typeof M2_ADAPTER_ID;
+/** Closed M3 task-adapter identity: exactly npm-scripts-v1 or pnpm-scripts-v1. */
+export type M3AdapterId = (typeof M3_ADAPTER_IDS)[number];
 export type M2ReplacementOperation = typeof M2_REPLACEMENT_OPERATION;
 export type M2VerificationProfile = (typeof M2_VERIFICATION_PROFILES)[number];
 
 export interface M2TaskContract {
   readonly schemaVersion: typeof M2_TASK_CONTRACT_SCHEMA_VERSION;
   readonly taskId: string;
-  readonly adapter: M2AdapterId;
+  readonly adapter: M3AdapterId;
   readonly operation: M2ReplacementOperation;
   readonly targetPath: string;
   readonly expectedBeforeSha256: string;
@@ -39,7 +47,7 @@ export interface M2TaskContract {
 export interface ValidatedExecutionPlan {
   readonly schemaVersion: typeof M2_TASK_CONTRACT_SCHEMA_VERSION;
   readonly taskId: string;
-  readonly adapter: M2AdapterId;
+  readonly adapter: M3AdapterId;
   readonly operation: M2ReplacementOperation;
   readonly targetPath: string;
   readonly expectedBeforeSha256: string;
@@ -160,7 +168,10 @@ export function parseM2TaskContract(value: unknown): M2TaskContract {
   if (value.schemaVersion !== M2_TASK_CONTRACT_SCHEMA_VERSION) {
     throw new Error("invalid M2 task contract: unsupported schemaVersion");
   }
-  if (value.adapter !== M2_ADAPTER_ID) {
+  if (
+    value.adapter !== M2_ADAPTER_ID &&
+    (value.adapter as M3AdapterId) !== M3_PNPM_ADAPTER_ID
+  ) {
     throw new Error("invalid M2 task contract: unsupported adapter");
   }
   if (value.operation !== M2_REPLACEMENT_OPERATION) {
@@ -170,7 +181,7 @@ export function parseM2TaskContract(value: unknown): M2TaskContract {
   return Object.freeze({
     schemaVersion: M2_TASK_CONTRACT_SCHEMA_VERSION,
     taskId: validateTaskId(value.taskId),
-    adapter: M2_ADAPTER_ID,
+    adapter: value.adapter as M3AdapterId,
     operation: M2_REPLACEMENT_OPERATION,
     targetPath: validateTargetPath(value.targetPath),
     expectedBeforeSha256: validateSha256(value.expectedBeforeSha256),

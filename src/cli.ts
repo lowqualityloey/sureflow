@@ -1,9 +1,11 @@
 /**
- * Sureflow CLI (M1/M2 surface: init, run, status, verify).
+ * Sureflow CLI (M1/M2 surface: init, run, status, verify; M3 adds preflight).
  *
- * The public command set is unchanged. A canonical `.sureflow/task.json`
- * routes `run` and `verify` to the M2 control-plane path; absent that file,
- * the original T0 compatibility path remains in place.
+ * The public command set is init, run, status, verify, preflight. A
+ * canonical `.sureflow/task.json` routes `run`, `verify`, and `preflight`
+ * to the M2 control-plane path; absent that file, the original T0
+ * compatibility path remains in place for run/verify while preflight
+ * reports ineligibility.
  *
  * Exit codes are the approved §9 contract: 0 = accepted/pass,
  * 2 = controlled halt/blocked/failure.
@@ -15,8 +17,9 @@ import { readRuntimeState } from "./stateReader.js";
 import { initRuntimeState } from "./stateWriter.js";
 import { runT0Task } from "./runTask.js";
 import { verifyT0Task } from "./verifyTask.js";
-import { hasM2TaskContract, runM2Task } from "./m2Orchestration.js";
+import { hasM2TaskContract, processInterruptionSource, runM2Task } from "./m2Orchestration.js";
 import { verifyM2Task } from "./m2Orchestration.js";
+import { preflightM2Task } from "./preflight.js";
 import {
   EXIT_ACCEPTED,
   EXIT_CONTROLLED_HALT,
@@ -25,7 +28,7 @@ import {
   statusExitCode,
 } from "./statusReport.js";
 
-export const APPROVED_COMMANDS: readonly string[] = ["init", "run", "status", "verify"] as const;
+export const APPROVED_COMMANDS: readonly string[] = ["init", "run", "status", "verify", "preflight"] as const;
 
 export interface CliIo {
   readonly out: (line: string) => void;
@@ -34,11 +37,12 @@ export interface CliIo {
 
 function helpLines(): readonly string[] {
   return [
-    "sureflow — approved commands: init, run, status, verify",
+    "sureflow — approved commands: init, run, status, verify, preflight",
     "  sureflow init [--force]   create .sureflow/ runtime state (refuses to overwrite)",
     "  sureflow status           read-only runtime status from .sureflow/state/",
     "  sureflow run <taskId>     run the canonical task (M2 contract or T0 compatibility path)",
     "  sureflow verify <taskId>   verify the canonical task from persisted evidence",
+    "  sureflow preflight <taskId>   read-only structural eligibility check (never authorizes run)",
     "Exit codes: 0 = accepted/pass, 2 = controlled halt/blocked/failure",
   ];
 }
@@ -145,7 +149,14 @@ async function runTaskAsync(argv: readonly string[], cwd: string, io: CliIo): Pr
   }
   if (!hasM2TaskContract(cwd)) return runTask(argv, cwd, io);
 
-  const outcome = await runM2Task({ rootDir: cwd, requestedTaskId: taskId });
+  // Production CLI adapts process SIGINT/SIGTERM into the bounded
+  // verification controller's interruption seam. Listeners live only for the
+  // owned verification-execution window and are removed in the controller's
+  // cleanup, so nothing leaks across CLI operations.
+  const outcome = await runM2Task(
+    { rootDir: cwd, requestedTaskId: taskId },
+    { verificationInterruption: processInterruptionSource() },
+  );
   if (outcome.kind === "accepted") {
     io.out(`Sureflow run: ACCEPT — ${outcome.taskId ?? "unknown task"} (${outcome.verdict ?? "PASS"})`);
     return EXIT_ACCEPTED;
@@ -174,6 +185,27 @@ function runVerifyAsync(argv: readonly string[], cwd: string, io: CliIo): number
   return EXIT_CONTROLLED_HALT;
 }
 
+function runPreflight(argv: readonly string[], cwd: string, io: CliIo): number {
+  const taskId = argv[1];
+  if (taskId === undefined || argv.length !== 2) {
+    io.err("sureflow preflight: requires exactly one taskId");
+    return EXIT_CONTROLLED_HALT;
+  }
+  if (!hasM2TaskContract(cwd)) {
+    io.err("Sureflow preflight: HALT — no M2 task contract: structural eligibility cannot be established");
+    return EXIT_CONTROLLED_HALT;
+  }
+  const outcome = preflightM2Task({ rootDir: cwd, requestedTaskId: taskId });
+  if (outcome.kind === "eligible") {
+    io.out(
+      `Sureflow preflight: ELIGIBLE — ${outcome.taskId} (${outcome.adapterId}; structural eligibility only, not authorization)`,
+    );
+    return EXIT_ACCEPTED;
+  }
+  io.err(`Sureflow preflight: HALT — ${outcome.reason}`);
+  return EXIT_CONTROLLED_HALT;
+}
+
 export function runCli(argv: readonly string[], cwd: string, io: CliIo): number {
   const command = argv[0];
   if (command === undefined || command === "--help" || command === "-h") {
@@ -186,6 +218,7 @@ export function runCli(argv: readonly string[], cwd: string, io: CliIo): number 
   if (command === "run") return runTask(argv, cwd, io);
   if (command === "status") return runStatus(argv, cwd, io);
   if (command === "verify") return runVerify(argv, cwd, io);
+  if (command === "preflight") return runPreflight(argv, cwd, io);
   io.err(`sureflow: unknown command '${command}'. Approved: ${APPROVED_COMMANDS.join(", ")}`);
   return EXIT_CONTROLLED_HALT;
 }
@@ -199,6 +232,7 @@ export async function runCliAsync(
   const command = argv[0];
   if (command === "run") return runTaskAsync(argv, cwd, io);
   if (command === "verify") return runVerifyAsync(argv, cwd, io);
+  if (command === "preflight") return runPreflight(argv, cwd, io);
   return runCli(argv, cwd, io);
 }
 

@@ -11,6 +11,7 @@
  * never stored alongside the redacted value.
  */
 import type { EvidenceDraft, EvidenceRecord } from "./evidence.js";
+import type { EvidenceRecordV2 } from "./evidenceV2.js";
 import { EVIDENCE_SCHEMA_VERSION, REDACTED } from "./evidenceConstants.js";
 
 export { REDACTED };
@@ -49,7 +50,7 @@ export function redactUnknownValue(value: unknown): unknown {
   return value;
 }
 
-/** Redact a draft and stamp the schema version. */
+/** Redact a v1 draft and stamp the schema version. */
 export function toPersistedRecord(draft: EvidenceDraft): EvidenceRecord {
   const redacted = redactUnknownValue({ ...draft }) as Record<string, unknown>;
   return {
@@ -62,5 +63,22 @@ export function toPersistedRecord(draft: EvidenceDraft): EvidenceRecord {
     target: redacted["target"] as string,
     result: redacted["result"] as string,
     provenance: redacted["provenance"] as string,
+  };
+}
+
+/** Redact a v2 draft and stamp the schema version. */
+export function toPersistedRecordV2(draft: Omit<EvidenceRecordV2, "schemaVersion">): EvidenceRecordV2 {
+  const redacted = redactUnknownValue({ ...draft }) as Record<string, unknown>;
+  return {
+    schemaVersion: 2 as const,
+    actor: redacted["actor"] as string,
+    recordedAt: redacted["recordedAt"] as string,
+    taskId: redacted["taskId"] as string,
+    capability: redacted["capability"] as string,
+    policyDecision: redacted["policyDecision"] as EvidenceRecord["policyDecision"],
+    target: redacted["target"] as string,
+    result: redacted["result"] as string,
+    provenance: redacted["provenance"] as string,
+    executionContext: redacted["executionContext"] as EvidenceRecordV2["executionContext"],
   };
 }
