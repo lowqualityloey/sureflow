@@ -3,9 +3,9 @@
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
 - **Current Milestone / Epic**: M3 — Cross-Project Bounded Change Gate — CORE-ONLY — IN PROGRESS
-- **Overall Status**: M1, M1.1, and M2 accepted / complete; M3-T1/T2 accepted on `m3-core`; M3-T3 locally implemented and verified awaiting commit; M3-T4 not authorized
+- **Overall Status**: M1, M1.1, and M2 accepted / complete; M3-T1/T2 accepted on `m3-core`; M3-T3 committed and remotely validated on `m3-core`; M3-T4 locally accepted and verified, awaiting separate local commit authorization
 - **Target Release / Deadline**: M3 — no deadline recorded
-- **Current Working Branch**: `m3-core` at `5bfd27c2a2ea57da8e98d9b2ad6447de4a431418`; `origin/main` remains `675f433e77fe9bdcc91edd05aa5e64f049fad46e` and M3 is not merged into main
+- **Current Working Branch**: `m3-core` at `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; `origin/main` remains `675f433e77fe9bdcc91edd05aa5e64f049fad46e` and M3 is not merged into main
 - **Last Updated**: 2026-09-23
 
 
@@ -35,8 +35,8 @@
 - [x] **M2-T8**: End-to-end and negative acceptance — accepted / complete at `2b4d877ade0ff6be34b429e00966b0d3efd184e4` after GitHub Actions run `35630660962`
 - [x] **M3-T1**: Closed adapter/kernel boundary + EvidenceRecord v2 contract — accepted on `m3-core`; implementation `4fbe92d41940db3c7d1965a0124f6b8f9b98a40f`, hardening follow-up `46fb1e0cce39105e8b9a55f141204d181a15f955`, CI run `35699026135`, `372/372` across 23 files
 - [x] **M3-T2**: Narrow pnpm eligibility and fixed dispatch — accepted on `m3-core`; implementation `5b46501eccf146777e6d8b6277700667237df464`, lint correction `5bfd27c2a2ea57da8e98d9b2ad6447de4a431418`, CI run `35702794992`, `405/405` across 24 files with zero skips
-- [~] **M3-T3**: Bounded verification execution, cancellation, EvidenceRecord v2, and input/plan binding — implementation/remediation/local verification complete; commit and remote validation pending
-- [ ] **M3-T4**: Independent npm + pnpm acceptance and M3 closeout — not started / not authorized
+- [x] **M3-T3**: Bounded verification execution, cancellation, EvidenceRecord v2, and input/plan binding — committed at `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported
+- [~] **M3-T4**: Independent npm + pnpm acceptance and M3 closeout — local acceptance and verification complete; separate local commit authorization remains pending
 
 ### Active Milestone Task Breakdown
 
@@ -56,7 +56,7 @@
 - [x] H1: zero-cost Node 24 verification workflow — accepted; CI run `35572778970` passed on `e1c3e6f04c7585c4947eaa8ae1e1f5d401038c8c`
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
 - [x] TASK-2026-09-21-m2-real-project-change-gate: M2-T1 through M2-T8 accepted / complete; final remote acceptance recorded
-- [~] **M3 CORE-ONLY**: T1/T2 accepted on `m3-core`; T3 ready for commit review; T4 remains gated
+- [~] **M3 CORE-ONLY**: T1/T2 accepted and T3 remotely validated on `m3-core`; T4 local acceptance complete and awaiting local commit authorization
 
 ---
 
@@ -64,7 +64,7 @@
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `N/A — M3 CORE-ONLY authority is captured in the Task Record; no separate M3 specification file exists`
 - **Active Task Spec**: `docs/tasks/2026-09-22-m3-cross-project-bounded-change-gate.md`
-- **Key Files in Flight**: M3-T3 has 17 reviewed implementation/test/config files in flight plus this Task Record and the STATE projection; no M3-T4 work has started.
+- **Key Files in Flight**: M3-T4 acceptance has exactly the authorized 14-file scope recorded in the Task Record; no post-T4 or M4 work has started.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -96,8 +96,9 @@
 
 ---
 
-  - M3-T3 local verification: focused set `131/131`; full permitted-host suite `453/453` across 25 files; Linux symlink tests executed with zero skips; root typecheck, lint, build, and diff check passed; fixture pre-change application test intentionally `0/1`, fixture typecheck/lint/build passed; PromptKit references and hygiene guards passed (2026-09-23)
-  - M3-T3 harness: official PromptKit harness exit `2` with only `PREFLIGHT|INCOMPLETE|GIT_LAYOUT|.` for the linked worktree; supplemental Git-resolved worktree metadata and sensitive-path checks passed. No T3 remote acceptance exists yet (2026-09-23)
+  - M3-T3 remote validation: commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported (2026-09-23)
+  - M3-T4 local acceptance: focused public-CLI cross-project suite `7/7`; full permitted-host suite `460/460` across 26 files; both npm and pnpm disposable projects exercised public `init`, `preflight`, `run`, `status`, and `verify`; manager-mismatch, dual-lockfile, and workspace negatives halted before mutation; fixture pre-change npm/pnpm tests failed nonzero as required; fixture typecheck, lint, build, and disposable pnpm frozen-lockfile install passed; root typecheck, lint, build, and `git diff --check` passed (2026-09-23)
+  - M3-T4 hygiene: PromptKit kit reference validation passed; harness regression tests passed; direct linked-worktree preflight reported only `PREFLIGHT|INCOMPLETE|GIT_LAYOUT|.`; execution-control validation remains non-green only for 98 historical pre-M2 diagnostics; no legacy repair was attempted and that count is not an M3 quality metric (2026-09-23)
 
 ## 3A. Execution-Control Projection (Optional)
 
@@ -109,21 +110,21 @@
 - **Execution State**: `awaiting_review`
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
-- **Active Review Task**: `M3-T3`
-- **Owner / Current Actor**: `Human authority / Codex under separately gated M3-T3 authorization`
+- **Active Review Task**: `M3-T4`
+- **Owner / Current Actor**: `Human authority / Codex under acceptance-only M3-T4 authorization`
 - **Start Time**: `2026-09-22`
 - **Current Branch**: `m3-core`
-- **Current Revision**: `m3-core @ 5bfd27c2a2ea57da8e98d9b2ad6447de4a431418; origin/main remains 675f433e77fe9bdcc91edd05aa5e64f049fad46e4`
+- **Current Revision**: `m3-core @ f6f4bbd8a42df2b038531e065ce7d88241f520f4; origin/main remains 675f433e77fe9bdcc91edd05aa5e64f049fad46e4`
 - **Checkpoint Policy**: `Human plan review; separate authorization for each M3 task; checkpoint before every task transition, commit, push, scope expansion, or stop-condition response`
-- **Blockers and Resume Condition**: `T3 implementation and local acceptance evidence are complete; documentation authority reconciliation is complete; separate local commit authorization is required. T4 remains not authorized.`
-- **Verification Status**: `M3-T1 and M3-T2 are accepted on m3-core only. M3-T3 focused evidence is 131/131 and the full permitted-host suite is 453/453 across 25 files. Linux symlink tests executed with zero skips; root typecheck, lint, build, and diff check passed; fixture pre-change application test intentionally remained 0/1 while fixture typecheck/lint/build passed. Official PromptKit harness exit 2 recorded only linked-worktree GIT_LAYOUT incompleteness; supplemental worktree checks passed. No T3 remote acceptance exists.`
-- **CI Evidence**: `M3-T1 GitHub Actions run 35699026135 passed with 372/372 across 23 files. M3-T2 GitHub Actions run 35702794992 passed with 405/405 across 24 files and zero skips. T3 remote CI is pending separate authorization.`
-- **Changed-File Summary**: `The eventual M3-T3 local commit scope is exactly 17 reviewed implementation/test/config files plus docs/STATE.md and the M3 Task Record. No M2 historical docs/specs, package, dependency, CI, Laya, Kilo, or T4 files are included.`
-- **Latest Checkpoint**: `M3-T3 local implementation, remediation, authority audit, and verification complete; ready for separate local commit authorization`
+- **Blockers and Resume Condition**: `T4 local acceptance and verification are complete; separate local commit authorization is required. T4 has not been committed or pushed, and no post-M3 work has started.`
+- **Verification Status**: `M3-T1 and M3-T2 are accepted on m3-core only. M3-T3 is committed at f6f4bbd8a42df2b038531e065ce7d88241f520f4 and remotely validated by GitHub Actions run 35731683141 with 453/453 across 25 files and zero skips reported. M3-T4 local public-CLI acceptance is 7/7 and the full permitted-host suite is 460/460 across 26 files; root typecheck, lint, build, and diff check passed; both real npm and pnpm fixture checks passed, with the pre-change application tests intentionally failing nonzero. The direct linked-worktree harness preflight is incomplete only because of GIT_LAYOUT; its regression suite and supplemental worktree checks passed. T4 is not remotely accepted.`
+- **CI Evidence**: `M3-T1 GitHub Actions run 35699026135 passed with 372/372 across 23 files. M3-T2 GitHub Actions run 35702794992 passed with 405/405 across 24 files and zero skips. M3-T3 GitHub Actions run 35731683141 passed with 453/453 across 25 files and zero skips reported. M3-T4 has no remote CI acceptance.`
+- **Changed-File Summary**: `The M3-T4 local acceptance scope is exactly 14 authorized paths: .github/workflows/ci.yml; the nine files under fixtures/m3-pnpm-node-ts-project/; tests/m3T4CrossProjectAcceptance.test.ts; tsconfig.json; docs/STATE.md; and this Task Record. No M3-T4 runtime source, package, dependency, or post-M3 files are included.`
+- **Latest Checkpoint**: `M3-T4 acceptance-only implementation, public-CLI verification, regression gates, and documentation reconciliation complete; ready for separate local commit authorization`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `Obtain separate authorization for the exact 19-file M3-T3 local commit review; do not push or begin M3-T4.`
+- **Next Action**: `Obtain separate authorization for the exact 14-file M3-T4 local commit review; do not push, merge, or begin post-M3 work.`
 
 ---
 
@@ -164,7 +165,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - No technical planning blocker. M2 implementation is intentionally gated pending separate explicit M2-T1 authorization.
+  - No technical implementation blocker. M3-T4 local acceptance is complete; separate local commit authorization remains pending.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -181,9 +182,9 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. Obtain separate authorization for the exact 19-file M3-T3 local commit review.
-2. Do not push, merge, or begin M3-T4; preserve M2 historical records and limitations.
-3. M3 remains CORE-ONLY and incomplete until T3 remote acceptance and separately authorized T4 acceptance.
+1. Obtain separate authorization for the exact 14-file M3-T4 local commit review.
+2. Do not push, merge, or begin post-M3 work; preserve M2 historical records and limitations.
+3. M3 remains CORE-ONLY and incomplete until T4 commit and remote acceptance.
 
 ---
 
@@ -218,7 +219,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-22 | Codex | M2-T4 remote acceptance | Pushed `1db22b3df297af29f23890b094030e4a507fdc25` non-force to `origin/main`; GitHub Actions run `35607104678` passed with npm ci, typecheck, 215 tests across 17 files including 29 T4 tests, lint, build, diff check, and cleanliness; T4 accepted / complete; T5 authorization became the active boundary |
 | 2026-09-22 | Codex | M2-T5 authorization | Human authorized read-only Git-visible scope inspection within `src/projectScope.ts`, `tests/projectScope.test.ts`, `tsconfig.json`, and the existing M2 Task Record/STATE projection; T6-T8 remain gated |
 | 2026-09-22 | Human authority / Codex | M2 contract authority reconciliation | Human explicitly approved the implemented T1 single-target M2 contract; reconciled the M2 specification and T8 N7 mapping without changing runtime schema; richer path/capability/stop-policy declarations are deferred to a future generalized milestone; T8 commit/push remain unauthorized |
-| 2026-09-23 | Human authority / Codex | M3 CORE-ONLY authority reconciliation | Created the canonical M3 Task Record and reconciled STATE for accepted M3-T1/T2 and locally verified M3-T3; T3 local commit and T4 remain separately gated |
+| 2026-09-23 | Human authority / Codex | M3-T4 acceptance-only verification | Added the independent pnpm fixture and public-CLI acceptance harness under the exact 14-file scope; focused 7/7 and full 460/460 local gates passed; T4 commit and remote acceptance remain separately gated |
 
 ---
 

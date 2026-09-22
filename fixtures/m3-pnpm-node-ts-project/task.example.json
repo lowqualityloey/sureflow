@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "taskId": "TASK-M3-T4-PNPM-DISPLAY-NAME",
+  "adapter": "node-typescript/pnpm-scripts-v1",
+  "operation": "replace-existing-file",
+  "targetPath": "src/displayName.ts",
+  "expectedBeforeSha256": "49d49edcf5d1354df2214e30b302457a7b6e5209915d1309425c3a2020605ea3",
+  "replacementContent": "export function formatDisplayName(value: string): string {\n  return value.trim().replace(/\\s+/gu, \"-\");\n}\n",
+  "requiredVerification": [
+    "typecheck",
+    "test",
+    "lint",
+    "build"
+  ]
+}

@@ -20,6 +20,8 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
+      - run: npm install --global pnpm@9.15.4
+      - run: pnpm --version
       - run: npm ci
       - run: npm run typecheck
       - run: npm test

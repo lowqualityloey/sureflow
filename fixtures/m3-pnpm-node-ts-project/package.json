@@ -1,0 +1,18 @@
+{
+  "name": "m3-pnpm-node-ts-project",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Independent M3 pnpm bounded-replacement acceptance fixture",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "typecheck": "node --experimental-strip-types --check src/displayName.ts",
+    "test": "node --experimental-strip-types --test test/displayName.test.ts",
+    "lint": "node scripts/lint.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}
