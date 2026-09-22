@@ -1,14 +1,15 @@
 /**
- * M3-T1 closed adapter/kernel boundary tests.
+ * M3-T1 closed adapter/kernel boundary tests (evolved for M3-T2).
  *
  * Covers authorization items A–E, J, K:
  * A. unambiguous npm behavior preserved (fixed dispatch, canonical order)
- * B. adapter resolution yields one closed resolved npm contract
- * C. resolved profiles retain the existing fixed npm dispatch
+ * B. adapter resolution yields one closed resolved contract per adapter
+ *    identity (npm, and since T2 the narrow pnpm shape)
+ * C. resolved profiles retain the existing fixed dispatch shapes
  * D. callers cannot inject arbitrary executable/argv
- * E. kernel consumers need no npm-specific branching after resolution
- * J. no pnpm project is externally accepted yet
- * K. public CLI command set stays init/run/status/verify (no preflight)
+ * E. kernel consumers need no manager-specific branching after resolution
+ * J. only the closed adapter set is externally accepted (npm + narrow pnpm)
+ * K. public CLI command set is init/run/status/verify/preflight
  */
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -113,8 +114,11 @@ describe("M3-T1 closed adapter contract", () => {
     }
   });
 
-  it("B: the closed adapter identity set has exactly one member (no pnpm yet)", () => {
-    expect([...M3_ADAPTER_IDS]).toEqual(["node-typescript/npm-scripts-v1"]);
+  it("B: the closed adapter identity set has exactly the npm and narrow pnpm members", () => {
+    expect([...M3_ADAPTER_IDS]).toEqual([
+      "node-typescript/npm-scripts-v1",
+      "node-typescript/pnpm-scripts-v1",
+    ]);
   });
 
   it("B: rejects adapter disagreement and unknown identities without resolving", () => {
@@ -122,7 +126,8 @@ describe("M3-T1 closed adapter contract", () => {
       "unsupported",
     );
     expect(
-      resolveAdapterContractForIds("node-typescript/pnpm-scripts-v1", "node-typescript/pnpm-scripts-v1").kind,
+      resolveAdapterContractForIds("node-typescript/yarn-scripts-v1", "node-typescript/yarn-scripts-v1")
+        .kind,
     ).toBe("unsupported");
     expect(resolveAdapterContractForIds(null, "node-typescript/npm-scripts-v1").kind).toBe(
       "unsupported",
@@ -207,19 +212,19 @@ describe("M3-T1 closed adapter contract", () => {
     expect(describe("build")).toBe("npm run build@project-root");
   });
 
-  it("J: a pnpm task adapter is not externally accepted by the task contract", () => {
-    expect(() =>
-      parseM2TaskContract({
-        schemaVersion: 1,
-        taskId: "TASK-PNPM",
-        adapter: "node-typescript/pnpm-scripts-v1",
-        operation: "replace-existing-file",
-        targetPath: "src/a.ts",
-        expectedBeforeSha256: "a".repeat(64),
-        replacementContent: "x",
-        requiredVerification: ["test"],
-      }),
-    ).toThrow(/unsupported adapter/);
+  it("J: the closed adapter set accepts the narrow pnpm task adapter", () => {
+    const contract = parseM2TaskContract({
+      schemaVersion: 1,
+      taskId: "TASK-PNPM",
+      adapter: "node-typescript/pnpm-scripts-v1",
+      operation: "replace-existing-file",
+      targetPath: "src/a.ts",
+      expectedBeforeSha256: "a".repeat(64),
+      replacementContent: "x",
+      requiredVerification: ["test"],
+    });
+
+    expect(contract.adapter).toBe("node-typescript/pnpm-scripts-v1");
   });
 
   it("J: a pnpm-selected plan is unsupported at project detection", () => {
@@ -231,11 +236,11 @@ describe("M3-T1 closed adapter contract", () => {
     expect(outcome.kind).not.toBe("supported");
   });
 
-  it("K: public CLI command set remains exactly init/run/status/verify", () => {
-    expect([...APPROVED_COMMANDS]).toEqual(["init", "run", "status", "verify"]);
+  it("K: public CLI command set is exactly init/run/status/verify/preflight", () => {
+    expect([...APPROVED_COMMANDS]).toEqual(["init", "run", "status", "verify", "preflight"]);
   });
 
-  it("K: preflight is rejected as an unknown command with controlled exit 2", () => {
+  it("K: preflight without a task contract halts with controlled exit 2", () => {
     const root = mkdtempSync(join(tmpdir(), "sureflow-m3-t1-"));
     temporaryRoots.push(root);
     const out: string[] = [];
@@ -245,6 +250,6 @@ describe("M3-T1 closed adapter contract", () => {
     const code = runCli(["preflight", "TASK-M3-T1"], root, io);
 
     expect(code).toBe(2);
-    expect(err.join("\n")).toContain("unknown command 'preflight'");
+    expect(err.join("\n")).toContain("no M2 task contract");
   });
 });

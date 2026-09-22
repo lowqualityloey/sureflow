@@ -26,6 +26,7 @@ import type { PolicyDecision } from "./policy.js";
 import {
   M3_ADAPTER_CONTRACT_VERSION,
   M3_ADAPTER_IDS,
+  managerForAdapterId,
 } from "./projectAdapter.js";
 import type { M3AdapterId, M3CwdRole } from "./projectAdapter.js";
 
@@ -101,11 +102,14 @@ export function decodeTerminalCause(value: unknown): M3TerminalCause | null {
 /**
  * v2 execution context: the approved M3 facts that later determine how one
  * verification step ran. terminalCause is stored in canonical string form.
+ * The adapter/executable pairing is closed: each adapter identity implies
+ * exactly its own executable (npm→npm, pnpm→pnpm); crossed pairings are
+ * rejected by parseExecutionContext.
  */
 export interface EvidenceV2ExecutionContext {
   readonly adapterId: M3AdapterId;
   readonly adapterContractVersion: typeof M3_ADAPTER_CONTRACT_VERSION;
-  readonly executable: "npm";
+  readonly executable: "npm" | "pnpm";
   readonly argv: readonly string[];
   readonly argvDigest: string;
   readonly cwdRole: M3CwdRole;
@@ -203,8 +207,12 @@ export function parseExecutionContext(value: unknown): EvidenceV2ExecutionContex
   ) {
     return null;
   }
+  // Closed pairing derived from the single adapter seam: the executable must
+  // be exactly the one implied by the adapter identity. Crossed pairings
+  // (npm adapter with pnpm executable and vice versa) fail closed.
+  const expectedExecutable = managerForAdapterId(value["adapterId"] as M3AdapterId).executable;
   if (value["adapterContractVersion"] !== M3_ADAPTER_CONTRACT_VERSION) return null;
-  if (value["executable"] !== "npm") return null;
+  if (value["executable"] !== expectedExecutable) return null;
   if (!isStringArray(value["argv"])) return null;
   if (typeof value["argvDigest"] !== "string" || !/^[0-9a-f]{64}$/u.test(value["argvDigest"])) {
     return null;
@@ -218,7 +226,7 @@ export function parseExecutionContext(value: unknown): EvidenceV2ExecutionContex
   return Object.freeze({
     adapterId: value["adapterId"] as M3AdapterId,
     adapterContractVersion: M3_ADAPTER_CONTRACT_VERSION,
-    executable: "npm" as const,
+    executable: expectedExecutable,
     argv: Object.freeze([...value["argv"]]),
     argvDigest: value["argvDigest"],
     cwdRole: "project-root" as const,

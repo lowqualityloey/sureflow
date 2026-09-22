@@ -138,13 +138,13 @@ afterEach(() => {
 });
 
 describe("T10 public M1 surface", () => {
-  it("exposes exactly init, run, status, and verify plus normal help", () => {
-    expect(APPROVED_COMMANDS).toEqual(["init", "run", "status", "verify"]);
+  it("exposes exactly init, run, status, verify, and preflight plus normal help", () => {
+    expect(APPROVED_COMMANDS).toEqual(["init", "run", "status", "verify", "preflight"]);
     for (const flag of ["--help", "-h", ""]) {
       const args = flag === "" ? [] : [flag];
       const result = cli(args, tempRoot());
       expect(result.code).toBe(0);
-      expect(result.out).toContain("approved commands: init, run, status, verify");
+      expect(result.out).toContain("approved commands: init, run, status, verify, preflight");
     }
     const unknown = cli(["help"], tempRoot());
     expect(unknown.code).toBe(2);

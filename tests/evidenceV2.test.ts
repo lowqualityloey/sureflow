@@ -234,3 +234,100 @@ describe("M3-T1 EvidenceRecord v2", () => {
     expect(encoded).not.toContain(tmpdir());
   });
 });
+
+describe("M3-T2 EvidenceRecord v2 closed adapter/executable pairing", () => {
+  function pairedContext(
+    adapterId: "node-typescript/npm-scripts-v1" | "node-typescript/pnpm-scripts-v1",
+    executable: "npm" | "pnpm",
+  ): Record<string, unknown> {
+    const argv = ["test"];
+    return {
+      adapterId,
+      adapterContractVersion: 1,
+      executable,
+      argv,
+      argvDigest: digestArgv(argv),
+      cwdRole: "project-root",
+      stepLimitSeconds: M3_STEP_LIMIT_SECONDS,
+      overallBudgetSeconds: M3_OVERALL_BUDGET_SECONDS,
+      terminationGraceSeconds: M3_TERMINATION_GRACE_SECONDS,
+      terminalCause: "passed",
+    };
+  }
+
+  function pairedRecord(adapterId: Parameters<typeof pairedContext>[0], executable: "npm" | "pnpm") {
+    return {
+      schemaVersion: EVIDENCE_V2_SCHEMA_VERSION,
+      actor: "worker:m2",
+      recordedAt: "2026-09-22T00:00:00.000Z",
+      taskId: "TASK-M3-T2",
+      capability: "repo.verify",
+      policyDecision: "ALLOW",
+      target: `${adapterId}:test`,
+      result: "passed",
+      provenance: `${executable} test; shell=false`,
+      executionContext: pairedContext(adapterId, executable),
+    };
+  }
+
+  it("A: npm adapter + npm executable is accepted", () => {
+    expect(
+      parseExecutionContext(pairedContext("node-typescript/npm-scripts-v1", "npm")),
+    ).not.toBe(null);
+    expect(isEvidenceRecordV2(pairedRecord("node-typescript/npm-scripts-v1", "npm"))).toBe(true);
+  });
+
+  it("B: pnpm adapter + pnpm executable is accepted", () => {
+    const parsed = parseExecutionContext(pairedContext("node-typescript/pnpm-scripts-v1", "pnpm"));
+
+    expect(parsed).not.toBe(null);
+    expect(parsed?.executable).toBe("pnpm");
+    expect(isEvidenceRecordV2(pairedRecord("node-typescript/pnpm-scripts-v1", "pnpm"))).toBe(true);
+    expect(parseStoredEvidenceRecord(pairedRecord("node-typescript/pnpm-scripts-v1", "pnpm")).kind).toBe(
+      "v2",
+    );
+  });
+
+  it("C: npm adapter + pnpm executable is rejected", () => {
+    expect(parseExecutionContext(pairedContext("node-typescript/npm-scripts-v1", "pnpm"))).toBe(null);
+    expect(isEvidenceRecordV2(pairedRecord("node-typescript/npm-scripts-v1", "pnpm"))).toBe(false);
+  });
+
+  it("D: pnpm adapter + npm executable is rejected", () => {
+    expect(parseExecutionContext(pairedContext("node-typescript/pnpm-scripts-v1", "npm"))).toBe(null);
+    expect(isEvidenceRecordV2(pairedRecord("node-typescript/pnpm-scripts-v1", "npm"))).toBe(false);
+  });
+
+  it("E: unknown adapter or executable values are rejected", () => {
+    const valid = pairedContext("node-typescript/npm-scripts-v1", "npm");
+    expect(parseExecutionContext({ ...valid, adapterId: "node-typescript/yarn-scripts-v1" })).toBe(
+      null,
+    );
+    expect(parseExecutionContext({ ...valid, executable: "yarn" })).toBe(null);
+    expect(parseExecutionContext({ ...valid, executable: "" })).toBe(null);
+  });
+
+  it("F: pnpm execution contexts encode and digest deterministically", () => {
+    const left = pairedContext("node-typescript/pnpm-scripts-v1", "pnpm");
+    const right = pairedContext("node-typescript/pnpm-scripts-v1", "pnpm");
+    const parsedLeft = parseExecutionContext(left);
+    const parsedRight = parseExecutionContext(right);
+    expect(parsedLeft).not.toBe(null);
+    expect(parsedRight).not.toBe(null);
+    if (parsedLeft === null || parsedRight === null) return;
+
+    expect(encodeExecutionContextV2(parsedLeft)).toBe(encodeExecutionContextV2(parsedRight));
+    expect(digestExecutionContextV2(parsedLeft)).toBe(digestExecutionContextV2(parsedRight));
+    expect(encodeExecutionContextV2(parsedLeft)).toContain("adapterId=node-typescript/pnpm-scripts-v1");
+    expect(encodeExecutionContextV2(parsedLeft)).toContain("executable=pnpm");
+    expect(digestExecutionContextV2(parsedLeft)).not.toBe(
+      digestExecutionContextV2(contextFor({ argv: ["test"] })),
+    );
+  });
+
+  it("G+H: npm v2 behavior is unchanged and v1 remains readable", () => {
+    expect(isEvidenceRecordV2(recordFor(contextFor({ terminalCause: "failed:3" })))).toBe(true);
+    const parsed = parseStoredEvidenceRecord(v1Record());
+    expect(parsed.kind).toBe("v1");
+  });
+});

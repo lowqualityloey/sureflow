@@ -1,5 +1,5 @@
 /**
- * M3-T1 closed project-adapter contract.
+ * M3-T2 closed project-adapter contract.
  *
  * This module is the single resolution seam between task/project evidence and
  * manager-neutral kernel behavior:
@@ -15,20 +15,23 @@
  *       v
  *   manager-neutral kernel behavior (orchestration, verification, evidence)
  *
- * The contract is CLOSED: one compile-time-known discriminated union member,
+ * The contract is CLOSED: two compile-time-known members (npm, narrow pnpm),
  * one exhaustive switch, no registry, no plugin loader, no registration API,
  * no filesystem discovery, no runtime adapter installation, and no
- * caller-supplied executable or argv. T1 resolves only the accepted npm
- * adapter. pnpm representation and support belong to T2 and must not appear
- * externally supported here.
+ * caller-supplied executable or argv. T2 resolves only the accepted npm
+ * adapter and the narrow pnpm shape. Workspace layouts belong nowhere in M3
+ * and must not appear externally supported here.
  */
 
 import {
   M2_ADAPTER_ID,
   M2_VERIFICATION_PROFILES,
+  M3_ADAPTER_IDS,
+  M3_PNPM_ADAPTER_ID,
 } from "./taskContract.js";
 import type {
   M2VerificationProfile,
+  M3AdapterId,
   ValidatedExecutionPlan,
 } from "./taskContract.js";
 import type { DetectedNodeTypeScriptProject } from "./projectDetection.js";
@@ -37,15 +40,14 @@ import type { DetectedNodeTypeScriptProject } from "./projectDetection.js";
 export const M3_ADAPTER_CONTRACT_VERSION = 1 as const;
 
 /**
- * Closed adapter identity set. Exactly one member in T1. A future T2 pnpm
- * member may extend this union; nothing here may be extended at runtime.
+ * Closed adapter identity set. Exactly two members in T2. Re-exported from
+ * the task contract so kernel, evidence, and tests share one canonical set.
  */
-export const M3_ADAPTER_IDS = [M2_ADAPTER_ID] as const;
+export { M3_ADAPTER_IDS };
+export type { M3AdapterId };
 
-export type M3AdapterId = (typeof M3_ADAPTER_IDS)[number];
-
-/** Closed project-manager identity set. npm only in T1. */
-export type M3ProjectManager = "npm";
+/** Closed project-manager identity set. npm and the narrow pnpm shape in T2. */
+export type M3ProjectManager = "npm" | "pnpm";
 
 /** Closed cwd-role set. Verification always runs at the project root in M3. */
 export type M3CwdRole = "project-root";
@@ -64,6 +66,36 @@ const NPM_ADAPTER_DISPATCH: Readonly<Record<M2VerificationProfile, readonly stri
   });
 
 /**
+ * Fixed dispatch table for the narrow pnpm adapter: identical command
+ * shapes under the pnpm executable. Owned by the resolution seam only.
+ */
+const PNPM_ADAPTER_DISPATCH: Readonly<Record<M2VerificationProfile, readonly string[]>> =
+  Object.freeze({
+    typecheck: Object.freeze(["run", "typecheck"]),
+    test: Object.freeze(["test"]),
+    lint: Object.freeze(["run", "lint"]),
+    build: Object.freeze(["run", "build"]),
+  });
+
+/**
+ * The only place permitted to map an adapter identity to its manager and
+ * executable. Both members are compile-time known; anything else is
+ * unsupported at the resolution seam. Exported so versioned evidence codecs
+ * derive the same pairing instead of duplicating the mapping.
+ */
+export function managerForAdapterId(adapterId: M3AdapterId): {
+  readonly manager: M3ProjectManager;
+  readonly executable: "npm" | "pnpm";
+} {
+  switch (adapterId) {
+    case M3_PNPM_ADAPTER_ID:
+      return { manager: "pnpm", executable: "pnpm" };
+    case M2_ADAPTER_ID:
+      return { manager: "npm", executable: "npm" };
+  }
+}
+
+/**
  * Resolved adapter contract consumed by kernel/orchestration code after
  * resolution. Carries only fixed reviewed values: no caller input, no
  * executable/argv injection surface.
@@ -72,7 +104,7 @@ export interface ResolvedAdapterContract {
   readonly adapterId: M3AdapterId;
   readonly contractVersion: typeof M3_ADAPTER_CONTRACT_VERSION;
   readonly manager: M3ProjectManager;
-  readonly executable: "npm";
+  readonly executable: "npm" | "pnpm";
   readonly cwdRole: M3CwdRole;
   readonly verificationProfiles: readonly M2VerificationProfile[];
   readonly dispatch: Readonly<Record<M2VerificationProfile, readonly string[]>>;
@@ -95,6 +127,18 @@ function npmContract(): ResolvedAdapterContract {
     cwdRole: "project-root" as const,
     verificationProfiles: M2_VERIFICATION_PROFILES,
     dispatch: NPM_ADAPTER_DISPATCH,
+  });
+}
+
+function pnpmContract(): ResolvedAdapterContract {
+  return Object.freeze({
+    adapterId: M3_PNPM_ADAPTER_ID,
+    contractVersion: M3_ADAPTER_CONTRACT_VERSION,
+    manager: "pnpm" as const,
+    executable: "pnpm" as const,
+    cwdRole: "project-root" as const,
+    verificationProfiles: M2_VERIFICATION_PROFILES,
+    dispatch: PNPM_ADAPTER_DISPATCH,
   });
 }
 
@@ -125,10 +169,14 @@ function isNonEmptyStringArray(value: unknown): value is readonly string[] {
  */
 export function isResolvedAdapterContract(value: unknown): value is ResolvedAdapterContract {
   if (!isRecord(value)) return false;
-  if (value["adapterId"] !== M2_ADAPTER_ID) return false;
+  const adapterId = value["adapterId"];
+  if (typeof adapterId !== "string" || !(M3_ADAPTER_IDS as readonly string[]).includes(adapterId)) {
+    return false;
+  }
+  const expected = managerForAdapterId(adapterId as M3AdapterId);
   if (value["contractVersion"] !== M3_ADAPTER_CONTRACT_VERSION) return false;
-  if (value["manager"] !== "npm") return false;
-  if (value["executable"] !== "npm") return false;
+  if (value["manager"] !== expected.manager) return false;
+  if (value["executable"] !== expected.executable) return false;
   if (value["cwdRole"] !== "project-root") return false;
   const profiles = value["verificationProfiles"];
   if (
@@ -161,6 +209,8 @@ export function resolveAdapterContractForIds(
   switch (projectAdapter) {
     case M2_ADAPTER_ID:
       return Object.freeze({ kind: "resolved" as const, contract: npmContract() });
+    case M3_PNPM_ADAPTER_ID:
+      return Object.freeze({ kind: "resolved" as const, contract: pnpmContract() });
     default:
       return unsupported(`unsupported adapter identity: ${projectAdapter}`);
   }

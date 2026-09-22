@@ -23,8 +23,8 @@ import {
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { decidePolicy, type PolicyConfig } from "./policy.js";
 import {
-  M2_ADAPTER_ID,
   M2_REPLACEMENT_OPERATION,
+  M3_ADAPTER_IDS,
 } from "./taskContract.js";
 import type {
   ValidatedExecutionPlan,
@@ -136,7 +136,7 @@ function isNormalizedTargetPath(value: unknown): value is string {
 function validPlan(value: unknown): value is ValidatedExecutionPlan {
   if (!isRecord(value)) return false;
   if (
-    value.adapter !== M2_ADAPTER_ID ||
+    !(M3_ADAPTER_IDS as readonly string[]).includes(value.adapter as string) ||
     value.operation !== M2_REPLACEMENT_OPERATION ||
     !isNormalizedTargetPath(value.targetPath) ||
     typeof value.replacementContent !== "string" ||
@@ -151,7 +151,7 @@ function validPlan(value: unknown): value is ValidatedExecutionPlan {
 function validProject(value: unknown): value is DetectedNodeTypeScriptProject {
   return (
     isRecord(value) &&
-    value.adapter === M2_ADAPTER_ID &&
+    (M3_ADAPTER_IDS as readonly string[]).includes(value.adapter as string) &&
     typeof value.root === "string" &&
     isAbsolute(value.root) &&
     resolve(value.root) === value.root &&

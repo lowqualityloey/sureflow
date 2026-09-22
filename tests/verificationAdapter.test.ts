@@ -108,7 +108,7 @@ function fakeProcess(
 }
 
 interface SpawnCall {
-  readonly executable: "npm";
+  readonly executable: "npm" | "pnpm";
   readonly argv: VerificationArgv;
   readonly options: VerificationSpawnOptions;
 }

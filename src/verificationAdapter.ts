@@ -1,18 +1,21 @@
 /**
  * M2-T3 closed verification profile resolution and dispatch.
  *
- * This adapter owns only the fixed npm command shapes, canonical ordering, and
- * process-result observations. Repository npm scripts remain trusted project
- * code; shell:false constrains Sureflow's direct spawn only.
+ * This adapter owns only the fixed command shapes, canonical ordering, and
+ * process-result observations. Repository scripts remain trusted project
+ * code; shell:false constrains Sureflow's direct spawn only. The executable
+ * always comes from the resolved closed adapter contract, never from
+ * caller-supplied dispatch.
  */
 import { spawn as nodeSpawn } from "node:child_process";
 import { isAbsolute, resolve } from "node:path";
 import {
-  M2_ADAPTER_ID,
   M2_VERIFICATION_PROFILES,
+  M3_ADAPTER_IDS,
 } from "./taskContract.js";
 import type {
   M2VerificationProfile,
+  M3AdapterId,
   ValidatedExecutionPlan,
 } from "./taskContract.js";
 import type { DetectedNodeTypeScriptProject } from "./projectDetection.js";
@@ -32,13 +35,13 @@ export type VerificationArgv =
 
 export interface VerificationStep {
   readonly check: M2VerificationProfile;
-  readonly executable: "npm";
+  readonly executable: "npm" | "pnpm";
   readonly argv: VerificationArgv;
   readonly shell: false;
 }
 
 export interface VerificationPlan {
-  readonly profile: typeof M2_ADAPTER_ID;
+  readonly profile: M3AdapterId;
   readonly steps: readonly VerificationStep[];
 }
 
@@ -67,7 +70,7 @@ export interface VerificationSpawnedProcess {
 }
 
 export type VerificationSpawn = (
-  executable: "npm",
+  executable: "npm" | "pnpm",
   argv: VerificationArgv,
   options: VerificationSpawnOptions,
 ) => VerificationSpawnedProcess;
@@ -116,22 +119,26 @@ function stepForContract(
 ): VerificationStep | null {
   // The contract is trusted here: kernel entry points validate explicit
   // contracts through isResolvedAdapterContract, and internal resolution
-  // only produces the closed npm contract. Only the argv shape is
+  // only produces the closed npm/pnpm contracts. Only the argv shape is
   // re-checked, fail-closed, before spawning.
   const argv = adapterStepArgv(contract, check);
   if (!isKnownArgv(argv)) return null;
-  return Object.freeze({ check, executable: "npm", argv, shell: false });
+  return Object.freeze({ check, executable: contract.executable, argv, shell: false });
+}
+
+function isAdapterId(value: unknown): value is M3AdapterId {
+  return typeof value === "string" && (M3_ADAPTER_IDS as readonly string[]).includes(value);
 }
 
 function validProject(value: unknown): value is DetectedNodeTypeScriptProject {
   if (!isRecord(value)) return false;
-  if (value.adapter !== M2_ADAPTER_ID || typeof value.root !== "string") return false;
+  if (!isAdapterId(value.adapter) || typeof value.root !== "string") return false;
   if (!isAbsolute(value.root) || resolve(value.root) !== value.root) return false;
   return readUniqueProfiles(value.supportedChecks) !== null;
 }
 
 function validPlan(value: unknown): value is ValidatedExecutionPlan {
-  if (!isRecord(value) || value.adapter !== M2_ADAPTER_ID) return false;
+  if (!isRecord(value) || !isAdapterId(value.adapter)) return false;
   return readUniqueProfiles(value.requiredVerification) !== null;
 }
 
@@ -175,14 +182,14 @@ export function resolveVerificationPlan(
   return Object.freeze({
     kind: "resolved" as const,
     plan: Object.freeze({
-      profile: M2_ADAPTER_ID,
+      profile: contract.adapterId,
       steps: Object.freeze(steps),
     }),
   });
 }
 
 function defaultSpawn(
-  executable: "npm",
+  executable: "npm" | "pnpm",
   argv: VerificationArgv,
   options: VerificationSpawnOptions,
 ): VerificationSpawnedProcess {
@@ -239,7 +246,7 @@ export async function runVerificationPlan(
 ): Promise<readonly VerificationStepResult[]> {
   if (!validProject(project)) return Object.freeze([]);
   const candidate: unknown = plan;
-  if (!isRecord(candidate) || candidate.profile !== M2_ADAPTER_ID || !Array.isArray(candidate.steps)) {
+  if (!isRecord(candidate) || !isAdapterId(candidate.profile) || !Array.isArray(candidate.steps)) {
     return Object.freeze([]);
   }
   const requestedChecks = candidate.steps.map((step) =>
