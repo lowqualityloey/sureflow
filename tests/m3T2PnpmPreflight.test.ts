@@ -53,7 +53,6 @@ import {
   parseM2TaskContract,
 } from "../src/taskContract.js";
 import type {
-  M2VerificationProfile,
   ValidatedExecutionPlan,
 } from "../src/taskContract.js";
 import { detectProject } from "../src/projectDetection.js";
@@ -394,9 +393,12 @@ describe("M3-T2 injection and ambiguity (D, E, F)", () => {
 
     expect(resolved.kind).toBe("resolved");
     if (resolved.kind !== "resolved") return;
-    expect(resolved.plan.steps.every((step) => step.executable === "pnpm" && step.shell === false)).toBe(
-      true,
-    );
+    expect(resolved.plan.steps).toEqual([
+      { check: "typecheck", executable: "pnpm", argv: ["run", "typecheck"], shell: false },
+      { check: "test", executable: "pnpm", argv: ["test"], shell: false },
+      { check: "lint", executable: "pnpm", argv: ["run", "lint"], shell: false },
+      { check: "build", executable: "pnpm", argv: ["run", "build"], shell: false },
+    ]);
   });
 
   it("D: forged contracts with foreign executables fail closed", () => {
@@ -461,7 +463,7 @@ describe("M3-T2 injection and ambiguity (D, E, F)", () => {
   it("F: unknown or malformed packageManager values fail closed", () => {
     for (const packageManager of ["yarn@1.22.0", "pnpm", 42]) {
       const root = temporaryRoot();
-      writePnpmProject(root, FULL_SCRIPTS, { packageManager: packageManager as string });
+      writePnpmProject(root, FULL_SCRIPTS, { packageManager });
       writeTaskContract(root, { adapter: M3_PNPM_ADAPTER_ID });
 
       expect(detectProject(root, planFor(root)).kind).toBe("unsupported");
@@ -547,7 +549,8 @@ describe("M3-T2 workspace and requirement floors (G, H, P)", () => {
       {
         name: "missing required script",
         prepare: (root) => {
-          const { build: _dropped, ...scripts } = FULL_SCRIPTS;
+          const scripts: Record<string, string> = { ...FULL_SCRIPTS };
+          delete scripts.build;
           writePnpmProject(root, scripts);
         },
       },
@@ -664,7 +667,8 @@ describe("M3-T2 public preflight (I, J, K, L, M, O)", () => {
     const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as {
       scripts: Record<string, string>;
     };
-    const { lint: _dropped, ...scripts } = manifest.scripts;
+    const scripts: Record<string, string> = { ...manifest.scripts };
+    delete scripts.lint;
     writeFileSync(
       join(root, "package.json"),
       `${JSON.stringify({ ...manifest, scripts }, null, 2)}\n`,
@@ -730,11 +734,12 @@ describe("M3-T2 public preflight (I, J, K, L, M, O)", () => {
       const observed = seen[0];
       expect(observed?.project.adapter).toBe(adapter);
       expect(observed?.plan.profile).toBe(adapter);
-      expect(
-        (observed?.plan.steps ?? []).every(
-          (step) => step.executable === expectedExecutable && step.shell === false,
-        ),
-      ).toBe(true);
+      expect(observed?.plan.steps).toEqual([
+        { check: "typecheck", executable: expectedExecutable, argv: ["run", "typecheck"], shell: false },
+        { check: "test", executable: expectedExecutable, argv: ["test"], shell: false },
+        { check: "lint", executable: expectedExecutable, argv: ["run", "lint"], shell: false },
+        { check: "build", executable: expectedExecutable, argv: ["run", "build"], shell: false },
+      ]);
 
       const records = readEvidence(root)
         .filter((entry) => entry.kind === "record")
@@ -747,10 +752,13 @@ describe("M3-T2 public preflight (I, J, K, L, M, O)", () => {
         `${adapter}:build`,
       ]);
       for (const record of verifyRecords) {
-        const check = String(record["target"]).split(":")[1];
         expect(record["result"]).toBe("passed");
-        expect(record["provenance"]).toBe(`${expectedExecutable} ${check}; shell=false`);
       }
+      expect(verifyRecords.map((record) => record["provenance"])).toEqual(
+        ["typecheck", "test", "lint", "build"].map(
+          (check) => `${expectedExecutable} ${check}; shell=false`,
+        ),
+      );
       for (const record of records) {
         expect(record["schemaVersion"]).toBe(1);
         expect("executionContext" in record).toBe(false);
