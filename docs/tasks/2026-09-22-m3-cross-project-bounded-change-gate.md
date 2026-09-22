@@ -131,9 +131,9 @@ M3 CORE-ONLY implementation, acceptance, and main integration are complete. PR #
 - **Active Task Pointer**: `None`
 - **Active Review Task**: `None`
 - **Start Time**: `2026-09-22`
-- **Current Actor**: Human authority / Codex — M3 integrated and post-merge validated; documentation-only reconciliation is in progress
-- **Next Action**: Complete this documentation reconciliation and separately authorize its documentation-only commit; any branch cleanup or future milestone planning remains separately authorized.
-- **Branch / Revision**: `docs/m3-post-merge-integration` based on `origin/main @ f711876da659bb9c36745b3189eac986f94ba7ea`; local `m3-core @ 6f51237d68d8b20193a2924fbeb6a2d90801299f` remains; remote `m3-core` is absent
+- **Current Actor**: Human authority / Codex — M3 integrated and post-merge validated; no active M3 implementation task.
+- **Next Action**: No further M3 implementation action. Branch/worktree cleanup and any future milestone planning remain separately authorized.
+- **Branch / Revision**: M3 integrated code baseline: main merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`. Original accepted M3 head: `6f51237d68d8b20193a2924fbeb6a2d90801299f`. Local `m3-core` remains retained; remote `m3-core` is absent. No cause is asserted and no recreation/remediation occurred.
 - **Changed Files**:
   - `docs/STATE.md`
   - `docs/tasks/2026-09-22-m3-cross-project-bounded-change-gate.md`
@@ -174,11 +174,11 @@ M3 CORE-ONLY implementation, acceptance, and main integration are complete. PR #
 - **Commit Evidence**: T4 commit `7944b13f0268473606b1b99833f1706d1159a0ab` is present on `m3-core` with exactly the authorized 14 paths; no additional commit was created.
 - **Pull Request Evidence**: PR #1 `MERGED`; title `M3: complete cross-project bounded change gate`; original head `6f51237d68d8b20193a2924fbeb6a2d90801299f`; previous base `675f433e77fe9bdcc91edd05aa5e64f049fad46e`; normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; merged at `2026-09-22T15:55:01Z`.
 - **Release Evidence**: `N/A — release and deployment are outside M3 CORE-ONLY scope`
-- **Blocker and Resume Condition**: `No M3 implementation blocker remains. M3 is integrated and post-merge validated. Complete this documentation-only reconciliation; branch cleanup and any post-M3 work remain separately authorized.`
+- **Blocker and Resume Condition**: `No M3 implementation blocker remains. M3 is integrated and post-merge validated. Branch cleanup and any post-M3 work remain separately authorized.`
 - **Completion State**: `completed`
 - **Acceptance Results**: M3-T1 through M3-T4 were independently accepted on `m3-core`; PR #1 then merged them into `main` with normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`. Post-merge main CI run `35750536825` passed `460/460` across 26 files with focused T4 `7/7` and all required gates green.
-- **Changed-File Summary**: T4 committed exactly the authorized 14 paths; this post-merge reconciliation changes only this Task Record and `docs/STATE.md`. No M3 runtime source, package, dependency, CI, fixture, or post-M3 files are included.
-- **Completion Exception**: `N/A — CORE-ONLY implementation, acceptance, closeout, and main integration are complete; this documentation reconciliation is uncommitted pending review`
+- **Changed-File Summary**: T4 committed exactly the authorized 14 paths; post-merge record reconciliation was limited to this Task Record and `docs/STATE.md`; no runtime, tests, fixtures, CI, packages, dependencies, or post-M3 implementation were changed.
+- **Completion Exception**: `N/A — M3 CORE-ONLY implementation, acceptance, closeout, and main integration are complete.`
 - **Completion Decision and Timestamp**: `M3 T1-T4 integrated into main by PR #1 normal merge commit f711876da659bb9c36745b3189eac986f94ba7ea; post-merge CI run 35750536825 passed at 460/460 across 26 files with focused T4 7/7.`
 
 ## 7. Transition History
