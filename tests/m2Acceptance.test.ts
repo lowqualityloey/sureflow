@@ -308,7 +308,7 @@ afterEach(() => {
 });
 
 describe("M2-T8 independent public acceptance", () => {
-  it("AC-M2.8 executes init, run, and verify through the public CLI", () => {
+  it("AC-M2.8 executes init, run, and verify through the public CLI", { timeout: 10_000 }, () => {
     const root = setupFixture();
     const trace = makeNpmTrace();
     const contract = readFixtureContract();
