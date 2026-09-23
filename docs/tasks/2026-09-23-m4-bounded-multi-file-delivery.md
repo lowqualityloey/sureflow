@@ -11,7 +11,7 @@
 - **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
 - **Owner / Actor**: Human authority / Codex
 - **Execution Scope**: Documentation-only M4 planning baseline; no implementation
-- **Approval Boundary**: M4 direction and original four-file planning baseline only; this separate correction is limited to this Task Record and its linked specification; T1–T6 implementation, later commits, pushes, and acceptance remain separately gated
+- **Approval Boundary**: M4 planning baseline is accepted and integrated; this post-merge reconciliation is limited to `docs/STATE.md` and this Task Record with one local documentation commit. Push, PR, and T1–T6 implementation remain separately gated.
 - **Created**: `2026-09-23`
 - **Objective**: Specify a safe 2–5 existing-tracked-file replacement gate for one supported standalone npm/pnpm project without authorizing its implementation
 - **In Scope**:
@@ -33,6 +33,7 @@
 - **Stop Conditions**: Unapproved code or file scope; authority expansion; weakened evidence/containment; historical schema reinterpretation; transaction/sandbox overclaim; human stop
 - **Host Timer Capability**: Live host timing and forced termination are unavailable for this documentation-only planning task; existing runtime verification limits are unchanged
 - **Execution State**: `planned`
+- **Planning Baseline Status**: `accepted / integrated into main by PR #4; implementation not started`
 - **Mapped `pk:tasks` Status**: `To Do`
 - **Active Task Pointer**: `None`
 - **TDD Enforcement Mode**: `disabled`
@@ -44,24 +45,24 @@
   - `docs/STATE.md`
   - `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
   - `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
-- **Corrective Documentation Scope**: Linked M4 specification and this Task Record only; original four-file baseline scope above is historical
+- **Corrective Documentation Scope**: The prior hardening correction touched the linked M4 specification and this Task Record; this post-merge factual reconciliation touches only `docs/STATE.md` and this Task Record. The original four-file baseline scope above is historical.
 - **Scope Change Records**: `None`
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
 - **Verification Evidence**: PromptKit references, relative Markdown links, whitespace, exact four-file scope, and document secret/debug/credential/artifact scans passed. Execution-control validation found zero M4-record findings and remains non-green with 98 historical findings; linked-worktree harness reports `GIT_LAYOUT` incomplete. No runtime verification claimed.
-- **CI Evidence**: N/A — no M4 CI run or implementation exists
-- **Review Evidence**: The read-only baseline review found five blocking wording ambiguities. Human authority approved this two-document correction; re-review is required before push. M4 implementation remains gated.
-- **Commit Evidence**: The original local planning-baseline commit is retained; one separate corrective documentation commit is authorized on `codex/m4-planning`. No amend or push is authorized.
-- **Pull Request Evidence**: None — no PR authorized by this turn
+- **CI Evidence**: Planning-only PR #4 CI run `35815585170` succeeded. Post-merge main CI run `35816292161`, job `107038411878`, tested canonical merge SHA `4ae37149c0d0516499088f0ffd746d13e6bb1fde` and succeeded: Node 24, pnpm `9.15.4`, npm ci, typecheck, `460/460` tests across 26 files including focused M3-T4 `7/7`, lint, build, `git diff --check`, and tracked-tree cleanliness passed. Deprecated ESLint, two moderate npm audit findings, and the esbuild install-script approval warning were non-blocking. This is planning/integration regression CI, not M4 runtime acceptance.
+- **Review Evidence**: The initial read-only baseline review found five blocking wording ambiguities. Corrective commit `3cd51bcbd2e5adee67491bc794af7b58df35f997` resolved them; narrow re-review returned `CORRECTIONS SOUND WITH NON-BLOCKING WORDING NOTES`. No blocking planning ambiguity remained before publication. The remaining “empty-or-longer success prefix” wording note was non-blocking because the specification defines the intended empty or non-empty canonical prefix semantics. M4 implementation remains gated.
+- **Commit Evidence**: Planning baseline commit `05904b3949297b54779c04720e2b5f8020b3b9a1` and hardening commit `3cd51bcbd2e5adee67491bc794af7b58df35f997` were integrated through PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`. No M4 implementation commit exists.
+- **Pull Request Evidence**: [PR #4 — docs(m4): plan bounded multi-file delivery](https://github.com/lowqualityloey/sureflow/pull/4) merged by normal merge commit at `2026-09-23 03:56:03 UTC`; head `3cd51bcbd2e5adee67491bc794af7b58df35f997`, merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`. It contained planning documents only.
 - **Release Evidence**: None — no release authorized
 - **Blocker and Resume Condition**: M4 implementation is gated; resume only after separate human T-task authorization
-- **Completion State**: `planned`
-- **Acceptance Results**: Original baseline documentation checks passed; corrected planning wording remains subject to re-review before push. No M4 runtime behavior is accepted.
-- **Changed-File Summary**: Original baseline changed four planning Markdown files; this correction changes only its specification and Task Record. No code or protected checkout change is authorized.
+- **Completion State**: `M4 planning baseline accepted / integrated; M4 implementation not started or authorized`
+- **Acceptance Results**: Planning corrections passed narrow re-review; PR #4 CI passed, the planning PR merged, and post-merge main CI passed on the canonical merge commit. The planning baseline is canonical; no M4 runtime behavior or implementation acceptance is claimed.
+- **Changed-File Summary**: The merged planning baseline changed four Markdown files; this local post-merge reconciliation changes only `docs/STATE.md` and this Task Record. No code or protected checkout change is authorized.
 - **Completion Exception**: N/A — implementation has not started
 - **Completion Decision and Timestamp**: N/A — no M4 implementation completion decision
-- **Branch / Revision**: `codex/m4-planning` from `1106f75c550be467083f7d8408a21de6e389dba9`
-- **Planning baseline**: `origin/main` at `1106f75c550be467083f7d8408a21de6e389dba9`
+- **Branch / Revision**: Canonical `main` planning baseline at `4ae37149c0d0516499088f0ffd746d13e6bb1fde`; historical `codex/m4-planning` remains retained. Local `codex/m4-post-merge-docs` is documentation-only, not an implementation branch.
+- **Planning baseline**: `origin/main` at PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`
 
 **No M4 implementation task is authorized.**
 
@@ -257,8 +258,9 @@ not a milestone-quality metric.
 
 - **Current actor**: Human authority / Codex, planning only.
 - **Current task**: None; M4-T1 is not started.
-- **Current revision**: Accepted `origin/main` baseline
-  `1106f75c550be467083f7d8408a21de6e389dba9`.
+- **Current revision**: Canonical `origin/main` planning baseline
+  `4ae37149c0d0516499088f0ffd746d13e6bb1fde`; post-merge main CI run
+  `35816292161` passed on that commit.
 - **Current implementation evidence**: None; no M4 runtime, test, fixture,
   package, or CI file is authorized in this planning turn.
 - **Checkpoint**: Before each T task start, completion, commit, push,
