@@ -3,9 +3,9 @@
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
 - **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — PLANNING BASELINE / IMPLEMENTATION NOT AUTHORIZED
-- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete; M3-T1 through M3-T4 remain integrated into `main` via PR #1 with green post-merge CI. M4-A is selected for planning; M4-T1 through M4-T6 are gated and no M4 implementation has started.
+- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. The M4-A bounded multi-file delivery planning baseline is integrated into `main` by PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`, with green post-merge main CI run `35816292161`. M4-T1 through M4-T6 remain separately gated; no M4 implementation has started.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: `codex/m4-planning` in the separate dogfood worktree, based on accepted `origin/main @ 1106f75c550be467083f7d8408a21de6e389dba9`; the protected original checkout is outside M4 planning scope.
+- **Current Working Branch**: No M4 implementation branch is active, and no M4 implementation has started. PR #4 established the accepted planning baseline; documentation reconciliation is not an implementation branch. The live checkout and `main` HEAD are determined by Git, not this projection. The protected original checkout is outside this scope.
 - **Last Updated**: 2026-09-23
 
 
@@ -38,7 +38,7 @@
 - [x] **M3-T3**: Bounded verification execution, cancellation, EvidenceRecord v2, and input/plan binding — accepted and integrated into `main` via PR #1 at commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported
 - [x] **M3-T4**: Independent npm + pnpm acceptance and M3 closeout — accepted and integrated into `main` via PR #1; implementation commit `7944b13f0268473606b1b99833f1706d1159a0ab`; GitHub Actions run `35744104235` passed with `460/460` across 26 files and focused T4 `7/7`
 - [x] **M3 integration**: PR #1 merged by normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; post-merge main CI run `35750536825` passed with `460/460` across 26 files
-- [ ] **M4 planning baseline**: Bounded Multi-File Delivery selected and recorded in planning documents; implementation is not authorized
+- [x] **M4 planning baseline**: Bounded Multi-File Delivery selected, reviewed, merged by PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`, and validated by green post-merge main CI run `35816292161`; implementation is not authorized
 
 ### Active Milestone Task Breakdown
 
@@ -67,7 +67,7 @@
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — planning only
 - **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — all T tasks gated
-- **Key Files in Flight**: M4 planning documents only: `ROADMAP.md`, this STATE projection, M4 specification, and M4 Task Record. No M4 runtime, test, fixture, package, or CI implementation has started.
+- **Key Files in Flight**: The merged four-file M4 planning baseline is canonical on `main`. The post-merge factual reconciliation is limited to `docs/STATE.md` and the M4 Task Record. No M4 runtime, test, fixture, package, dependency, or CI implementation has started.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -105,6 +105,7 @@
   - M3-T4 remote acceptance: commit `7944b13f0268473606b1b99833f1706d1159a0ab`; GitHub Actions run `35744104235`, job `106801107733`, synthetic PR merge SHA `e76b47838af5f94f14613f57c036292cead4c723`; pinned pnpm `9.15.4`, npm ci, typecheck, npm test, lint, build, `git diff --check`, and tracked-tree cleanliness passed with `460/460` across 26 files and focused T4 `7/7` (2026-09-23)
   - M3-T4 remote warnings: deprecated ESLint, two moderate npm audit findings, and an esbuild install-script approval warning were observed; none failed a required gate and none are claimed resolved (2026-09-23)
   - M3 post-merge main validation: merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; GitHub Actions run `35750536825`, job `106823643297`, passed pinned pnpm `9.15.4`, npm ci, typecheck, `460/460` tests across 26 files, focused T4 `7/7`, lint, build, `git diff --check`, and tracked-tree cleanliness. The same non-blocking warnings remained observed (2026-09-23)
+  - M4 planning integration: PR #4 merged by normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`; post-merge main CI run `35816292161`, job `107038411878`, tested that merge commit and passed Node 24, pnpm `9.15.4`, npm ci, typecheck, `460/460` tests across 26 files, focused M3-T4 `7/7`, lint, build, `git diff --check`, and tracked-tree cleanliness. Deprecated ESLint, two moderate npm audit findings, and the esbuild install-script approval warning remained non-blocking. This is planning/integration regression CI, not M4 runtime acceptance (2026-09-23)
 
 ## 3A. Execution-Control Projection (Optional)
 
@@ -119,13 +120,13 @@
 - **Active Review Task**: `None`
 - **Owner / Current Actor**: Human authority / Codex — M4 documentation planning only; no implementation task active.
 - **Start Time**: `N/A — M4 implementation not started`
-- **Current Branch**: `codex/m4-planning` in the separate dogfood worktree; protected original Laya checkout excluded.
-- **Current Revision**: Accepted `origin/main` baseline `1106f75c550be467083f7d8408a21de6e389dba9`; M3 remains accepted and integrated by PR #1 at `f711876da659bb9c36745b3189eac986f94ba7ea`.
+- **Current Branch**: No M4 implementation branch is active; the documentation reconciliation does not create one. The protected original Laya checkout is excluded.
+- **Current Revision**: PR #4's normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde` is the stable M4 planning-baseline anchor; post-merge planning CI run `35816292161` passed on it. The live `main` HEAD is authoritative Git state, not a fixed SHA in this projection. No M4 implementation revision exists.
 - **Checkpoint Policy**: `Human review of planning baseline; separate authorization before each M4 T task, commit, push, scope expansion, or stop-condition response`
 - **Blockers and Resume Condition**: `No M3 blocker remains. M4 implementation is gated until an explicit task-specific human authorization; no task may start from this plan alone.`
-- **Verification Status**: `M4 planning documents require documentation reference, diff, exact-scope, and hygiene validation only. No M4 implementation acceptance or runtime test result is claimed. M3 historical acceptance remains recorded above. Historical pre-M2 execution-control diagnostics remain outside M4 acceptance and are not a quality metric.`
-- **Changed-File Summary**: `Planning-only candidate scope: ROADMAP.md; docs/STATE.md; docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md; docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md. No source, test, fixture, package, CI, or protected original-checkout file is in scope.`
-- **Latest Checkpoint**: `M4-A bounded multi-file delivery selected for specification; M4-T1 through M4-T6 remain unauthorized.`
+- **Verification Status**: `M4 planning PR #4 and post-merge main CI run 35816292161 passed the unchanged-runtime regression gates; this is not M4 runtime acceptance. Documentation reconciliation requires reference, diff, exact-two-file-scope, and hygiene validation. Execution-control validation remains non-green with zero M4-record findings and 98 historical findings; the linked-worktree harness remains PREFLIGHT|INCOMPLETE|GIT_LAYOUT|. and is not globally green.`
+- **Changed-File Summary**: `The merged M4 planning baseline changed ROADMAP.md, docs/STATE.md, the M4 specification, and the M4 Task Record. The post-merge factual reconciliation is limited to docs/STATE.md and the M4 Task Record. No source, test, fixture, package, CI, or protected original-checkout file is in scope.`
+- **Latest Checkpoint**: `M4 planning baseline integrated into main by PR #4 with green post-merge CI; M4-T1 through M4-T6 remain unauthorized.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
