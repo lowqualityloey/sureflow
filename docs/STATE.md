@@ -5,7 +5,7 @@
 - **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — PLANNING BASELINE / IMPLEMENTATION NOT AUTHORIZED
 - **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. The M4-A bounded multi-file delivery planning baseline is integrated into `main` by PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`, with green post-merge main CI run `35816292161`. M4-T1 through M4-T6 remain separately gated; no M4 implementation has started.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: No M4 implementation branch is active. Canonical M4 planning is on `main @ 4ae37149c0d0516499088f0ffd746d13e6bb1fde`; `codex/m4-post-merge-docs` is a local documentation-only reconciliation branch in the separate dogfood worktree. The protected original checkout is outside this scope.
+- **Current Working Branch**: No M4 implementation branch is active, and no M4 implementation has started. PR #4 established the accepted planning baseline; documentation reconciliation is not an implementation branch. The live checkout and `main` HEAD are determined by Git, not this projection. The protected original checkout is outside this scope.
 - **Last Updated**: 2026-09-23
 
 
@@ -67,7 +67,7 @@
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — planning only
 - **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — all T tasks gated
-- **Key Files in Flight**: The merged four-file M4 planning baseline is canonical on `main`. This local reconciliation updates only `docs/STATE.md` and the M4 Task Record; its changes are not yet on `main`. No M4 runtime, test, fixture, package, or CI implementation has started.
+- **Key Files in Flight**: The merged four-file M4 planning baseline is canonical on `main`. The post-merge factual reconciliation is limited to `docs/STATE.md` and the M4 Task Record. No M4 runtime, test, fixture, package, dependency, or CI implementation has started.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -120,12 +120,12 @@
 - **Active Review Task**: `None`
 - **Owner / Current Actor**: Human authority / Codex — M4 documentation planning only; no implementation task active.
 - **Start Time**: `N/A — M4 implementation not started`
-- **Current Branch**: No M4 implementation branch is active; the separate dogfood worktree is on local documentation-only branch `codex/m4-post-merge-docs`. The protected original Laya checkout is excluded.
-- **Current Revision**: Canonical M4 planning baseline is `origin/main @ 4ae37149c0d0516499088f0ffd746d13e6bb1fde`, PR #4's normal merge commit; post-merge CI run `35816292161` succeeded. No M4 implementation revision exists.
+- **Current Branch**: No M4 implementation branch is active; the documentation reconciliation does not create one. The protected original Laya checkout is excluded.
+- **Current Revision**: PR #4's normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde` is the stable M4 planning-baseline anchor; post-merge planning CI run `35816292161` passed on it. The live `main` HEAD is authoritative Git state, not a fixed SHA in this projection. No M4 implementation revision exists.
 - **Checkpoint Policy**: `Human review of planning baseline; separate authorization before each M4 T task, commit, push, scope expansion, or stop-condition response`
 - **Blockers and Resume Condition**: `No M3 blocker remains. M4 implementation is gated until an explicit task-specific human authorization; no task may start from this plan alone.`
 - **Verification Status**: `M4 planning PR #4 and post-merge main CI run 35816292161 passed the unchanged-runtime regression gates; this is not M4 runtime acceptance. Documentation reconciliation requires reference, diff, exact-two-file-scope, and hygiene validation. Execution-control validation remains non-green with zero M4-record findings and 98 historical findings; the linked-worktree harness remains PREFLIGHT|INCOMPLETE|GIT_LAYOUT|. and is not globally green.`
-- **Changed-File Summary**: `The merged M4 planning baseline changed ROADMAP.md, docs/STATE.md, the M4 specification, and the M4 Task Record. This local factual reconciliation is limited to docs/STATE.md and the M4 Task Record. No source, test, fixture, package, CI, or protected original-checkout file is in scope.`
+- **Changed-File Summary**: `The merged M4 planning baseline changed ROADMAP.md, docs/STATE.md, the M4 specification, and the M4 Task Record. The post-merge factual reconciliation is limited to docs/STATE.md and the M4 Task Record. No source, test, fixture, package, CI, or protected original-checkout file is in scope.`
 - **Latest Checkpoint**: `M4 planning baseline integrated into main by PR #4 with green post-merge CI; M4-T1 through M4-T6 remain unauthorized.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
