@@ -19,7 +19,7 @@ import { runT0Task } from "./runTask.js";
 import { verifyT0Task } from "./verifyTask.js";
 import { hasM2TaskContract, processInterruptionSource, runM2Task } from "./m2Orchestration.js";
 import { verifyM2Task } from "./m2Orchestration.js";
-import { preflightM2Task } from "./preflight.js";
+import { preflightTask } from "./preflight.js";
 import {
   EXIT_ACCEPTED,
   EXIT_CONTROLLED_HALT,
@@ -195,7 +195,7 @@ function runPreflight(argv: readonly string[], cwd: string, io: CliIo): number {
     io.err("Sureflow preflight: HALT — no M2 task contract: structural eligibility cannot be established");
     return EXIT_CONTROLLED_HALT;
   }
-  const outcome = preflightM2Task({ rootDir: cwd, requestedTaskId: taskId });
+  const outcome = preflightTask({ rootDir: cwd, requestedTaskId: taskId });
   if (outcome.kind === "eligible") {
     io.out(
       `Sureflow preflight: ELIGIBLE — ${outcome.taskId} (${outcome.adapterId}; structural eligibility only, not authorization)`,

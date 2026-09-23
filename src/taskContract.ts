@@ -91,6 +91,18 @@ export interface M4ValidatedExecutionPlan extends M4TaskContract {
   };
 }
 
+export type ValidatedPreflightExecutionPlan =
+  | ValidatedExecutionPlan
+  | M4ValidatedExecutionPlan;
+
+export class InvalidM4PreflightContractError extends Error {
+  override readonly name = "InvalidM4PreflightContractError";
+
+  constructor(cause: unknown) {
+    super("invalid M4 task contract", { cause });
+  }
+}
+
 const TASK_CONTRACT_FIELDS: readonly string[] = [
   "schemaVersion",
   "taskId",
@@ -614,10 +626,7 @@ function createValidatedM4ExecutionPlan(
   });
 }
 
-/** Read one raw v2 authority snapshot; runtime dispatch remains owned by T5. */
-export function loadValidatedM4ExecutionPlan(rootDir: string): M4ValidatedExecutionPlan {
-  const contractPath = resolveSureflowPath(rootDir, M4_TASK_CONTRACT_RELATIVE_PATH);
-  const bytes = readFileSync(contractPath);
+function parseValidatedM4ExecutionPlan(bytes: Buffer): M4ValidatedExecutionPlan {
   let rawText: string;
   try {
     rawText = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
@@ -634,4 +643,41 @@ export function loadValidatedM4ExecutionPlan(rootDir: string): M4ValidatedExecut
   }
   const contract = parseM4TaskContract(parsed);
   return createValidatedM4ExecutionPlan(contract, sha256(bytes));
+}
+
+/** Read one raw v2 authority snapshot; runtime dispatch remains owned by T5. */
+export function loadValidatedM4ExecutionPlan(rootDir: string): M4ValidatedExecutionPlan {
+  const contractPath = resolveSureflowPath(rootDir, M4_TASK_CONTRACT_RELATIVE_PATH);
+  return parseValidatedM4ExecutionPlan(readFileSync(contractPath));
+}
+
+export function loadValidatedPreflightExecutionPlan(
+  rootDir: string,
+): ValidatedPreflightExecutionPlan {
+  const contractPath = resolveSureflowPath(rootDir, M4_TASK_CONTRACT_RELATIVE_PATH);
+  const bytes = readFileSync(contractPath);
+  const rawText = bytes.toString("utf8");
+  let declaresVersionTwo = false;
+  try {
+    const scan = scanJsonObject(rawText, skipJsonWhitespace(rawText, 0), true);
+    declaresVersionTwo = scan.declaresVersionTwo;
+  } catch (error: unknown) {
+    if (!(error instanceof Error)) throw error;
+  }
+  if (declaresVersionTwo) {
+    try {
+      return parseValidatedM4ExecutionPlan(bytes);
+    } catch (error: unknown) {
+      throw new InvalidM4PreflightContractError(error);
+    }
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawText) as unknown;
+  } catch {
+    throw new Error("invalid M2 task contract: malformed JSON");
+  }
+  const contract = parseM2TaskContract(parsed);
+  return createValidatedExecutionPlan(contract, sha256(bytes));
 }

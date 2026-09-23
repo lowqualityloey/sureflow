@@ -16,10 +16,22 @@
  * `run` independently repeats every authoritative safety check; a
  * successful preflight is structural observation, never authorization.
  */
-import { loadValidatedExecutionPlan } from "./taskContract.js";
-import { detectProject } from "./projectDetection.js";
+import {
+  loadValidatedExecutionPlan,
+  loadValidatedM4ExecutionPlan,
+  loadValidatedPreflightExecutionPlan,
+  InvalidM4PreflightContractError,
+  M2_TASK_CONTRACT_SCHEMA_VERSION,
+  type M4ValidatedExecutionPlan,
+  type ValidatedExecutionPlan,
+  type ValidatedPreflightExecutionPlan,
+} from "./taskContract.js";
+import { detectProject, type ProjectDetectionRequest } from "./projectDetection.js";
+import { validateM4CompleteTargetSet } from "./completeTargetSet.js";
+import { inspectProjectBaseline } from "./projectScope.js";
 import {
   resolveAdapterContract,
+  resolveAdapterContractForIds,
 } from "./projectAdapter.js";
 import type { ResolvedAdapterContract } from "./projectAdapter.js";
 import { resolveVerificationPlan } from "./verificationAdapter.js";
@@ -54,6 +66,13 @@ export function preflightM2Task(request: PreflightRequest): PreflightOutcome {
   } catch {
     return ineligible("invalid M2 task contract");
   }
+  return preflightM2Plan(request, plan);
+}
+
+function preflightM2Plan(
+  request: PreflightRequest,
+  plan: ValidatedExecutionPlan,
+): PreflightOutcome {
   if (request.requestedTaskId !== plan.taskId) {
     return ineligible("requested taskId does not match the M2 task contract");
   }
@@ -81,4 +100,99 @@ export function preflightM2Task(request: PreflightRequest): PreflightOutcome {
     adapterId: adapterResolution.contract.adapterId,
     executable: adapterResolution.contract.executable,
   });
+}
+
+function projectDetectionView(
+  plan: M4ValidatedExecutionPlan,
+): ProjectDetectionRequest | null {
+  const target = plan.targets[0];
+  if (target === undefined) return null;
+  return Object.freeze({
+    adapter: plan.adapter,
+    targetPath: target.path,
+    requiredVerification: plan.requiredVerification,
+  });
+}
+
+function preflightM4Plan(
+  request: PreflightRequest,
+  plan: M4ValidatedExecutionPlan,
+): PreflightOutcome {
+  if (request.requestedTaskId !== plan.taskId) {
+    return ineligible("requested taskId does not match the M4 task contract");
+  }
+  const detectionPlan = projectDetectionView(plan);
+  if (detectionPlan === null) return ineligible("M4 task contract has no project target");
+
+  const detected = detectProject(request.rootDir, detectionPlan);
+  if (detected.kind !== "supported") {
+    return ineligible(`project detection ${detected.kind}: ${detected.reason}`);
+  }
+
+  const targetSet = validateM4CompleteTargetSet(detected.project.root, plan.targets);
+  if (targetSet.kind === "refused") {
+    return ineligible(`M4 complete target set refused: ${targetSet.reason}`);
+  }
+
+  const baseline = inspectProjectBaseline(detected.project);
+  if (baseline.kind !== "clean") {
+    const reason = baseline.kind === "dirty"
+      ? "project baseline is not clean"
+      : `${baseline.kind}: ${baseline.reason}`;
+    return ineligible(`M4 project baseline refused: ${reason}`);
+  }
+
+  const adapterResolution = resolveAdapterContractForIds(detected.project.adapter, plan.adapter);
+  if (adapterResolution.kind !== "resolved") {
+    return ineligible(`adapter resolution unsupported: ${adapterResolution.reason}`);
+  }
+
+  return Object.freeze({
+    kind: "eligible" as const,
+    taskId: plan.taskId,
+    adapterId: adapterResolution.contract.adapterId,
+    executable: adapterResolution.contract.executable,
+  });
+}
+
+function preflightPlan(
+  request: PreflightRequest,
+  plan: ValidatedPreflightExecutionPlan,
+): PreflightOutcome {
+  switch (plan.schemaVersion) {
+    case M2_TASK_CONTRACT_SCHEMA_VERSION:
+      return preflightM2Plan(request, plan);
+    case 2:
+      return preflightM4Plan(request, plan);
+    default:
+      return assertNever(plan);
+  }
+}
+
+function assertNever(value: never): never {
+  throw new Error(`unsupported task contract version: ${String(value)}`);
+}
+
+export function preflightM4Task(request: PreflightRequest): PreflightOutcome {
+  let plan;
+  try {
+    plan = loadValidatedM4ExecutionPlan(request.rootDir);
+  } catch {
+    return ineligible("invalid M4 task contract");
+  }
+  return preflightM4Plan(request, plan);
+}
+
+export function preflightTask(request: PreflightRequest): PreflightOutcome {
+  let plan;
+  try {
+    plan = loadValidatedPreflightExecutionPlan(request.rootDir);
+  } catch (error: unknown) {
+    return ineligible(
+      error instanceof InvalidM4PreflightContractError
+        ? "invalid M4 task contract"
+        : "invalid M2 task contract",
+    );
+  }
+  return preflightPlan(request, plan);
 }

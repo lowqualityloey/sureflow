@@ -114,14 +114,14 @@
 - **Task Record**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
 - **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
 - **Execution Scope**: `M4 planning baseline only: 2–5 declared existing tracked targets in one supported standalone npm/pnpm project; no implementation authorization`
-- **Execution State**: `planned`
-- **Mapped `pk:tasks` Status**: `To Do`
-- **Active Task Pointer**: `None`
+- **Execution State**: `in_progress`
+- **Mapped `pk:tasks` Status**: `In Progress`
+- **Active Task Pointer**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
 - **Active Review Task**: `None`
-- **Owner / Current Actor**: Human authority / Codex — M4 documentation planning only; no implementation task active.
+- **Owner / Current Actor**: Human authority / Codex — authorized M4-T2 closeout only.
 - **Start Time**: `N/A — M4 implementation not started`
 - **Current Branch**: No M4 implementation branch is active; the documentation reconciliation does not create one. The protected original Laya checkout is excluded.
-- **Current Revision**: PR #4's normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde` is the stable M4 planning-baseline anchor; post-merge planning CI run `35816292161` passed on it. The live `main` HEAD is authoritative Git state, not a fixed SHA in this projection. No M4 implementation revision exists.
+- **Current Revision**: Accepted M4-T1 boundary `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted pending the authorized local closeout commit. The T2 closeout SHA is not embedded in this projection.
 - **Checkpoint Policy**: `Human review of planning baseline; separate authorization before each M4 T task, commit, push, scope expansion, or stop-condition response`
 - **Blockers and Resume Condition**: `No M3 blocker remains. M4 implementation is gated until an explicit task-specific human authorization; no task may start from this plan alone.`
 - **Verification Status**: `M4 planning PR #4 and post-merge main CI run 35816292161 passed the unchanged-runtime regression gates; this is not M4 runtime acceptance. Documentation reconciliation requires reference, diff, exact-two-file-scope, and hygiene validation. Execution-control validation remains non-green with zero M4-record findings and 98 historical findings; the linked-worktree harness remains PREFLIGHT|INCOMPLETE|GIT_LAYOUT|. and is not globally green.`

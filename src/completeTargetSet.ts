@@ -1,0 +1,212 @@
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { lstatSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
+import { TextDecoder } from "node:util";
+import type { M4TaskTarget } from "./taskContract.js";
+
+export interface M4TargetFileIdentity {
+  readonly device: bigint;
+  readonly inode: bigint;
+}
+
+export interface M4TargetObservation {
+  readonly path: string;
+  readonly canonicalPath: string;
+  readonly identity: M4TargetFileIdentity;
+  readonly beforeSha256: string;
+}
+
+export type M4TargetSetOutcome =
+  | { readonly kind: "validated"; readonly targets: readonly M4TargetObservation[] }
+  | { readonly kind: "refused"; readonly reason: string };
+
+export interface M4TargetSetDependencies {
+  readonly readFileIdentity?: (path: string) => M4TargetFileIdentity | null;
+}
+
+type InspectedFile = {
+  readonly canonicalPath: string;
+  readonly bytes: Buffer;
+  readonly identity: M4TargetFileIdentity;
+};
+
+function refused(reason: string): M4TargetSetOutcome {
+  return Object.freeze({ kind: "refused" as const, reason });
+}
+
+function isWithin(root: string, candidate: string): boolean {
+  const fromRoot = relative(root, candidate);
+  return fromRoot === "" ||
+    (!fromRoot.startsWith(`..${sep}`) && fromRoot !== ".." && !fromRoot.startsWith(sep));
+}
+
+function validTargetPath(path: string): boolean {
+  const segments = path.split("/");
+  return path.length > 0 &&
+    !path.includes("\\") &&
+    !path.includes("\u0000") &&
+    !isAbsolute(path) &&
+    !/^[A-Za-z]:($|\/)/u.test(path) &&
+    segments.every((segment) => segment.length > 0 && segment !== "." && segment !== "..") &&
+    !segments.includes(".git") &&
+    !segments.includes(".sureflow");
+}
+
+function readIdentity(path: string): M4TargetFileIdentity | null {
+  try {
+    const file = statSync(path, { bigint: true });
+    if (!file.isFile() || file.dev < 0n || file.ino <= 0n) return null;
+    return Object.freeze({ device: file.dev, inode: file.ino });
+  } catch {
+    return null;
+  }
+}
+
+function inspectContainedFile(
+  root: string,
+  path: string,
+  readFileIdentity: (path: string) => M4TargetFileIdentity | null,
+): InspectedFile | M4TargetSetOutcome {
+  if (!validTargetPath(path)) return refused(`target ${path} is not a normalized allowed path`);
+  const lexicalPath = resolve(root, path);
+  if (!isWithin(root, lexicalPath)) return refused(`target ${path} escapes the project root`);
+
+  const segments = path.split("/");
+  for (let index = 0; index < segments.length; index += 1) {
+    const ancestor = join(root, ...segments.slice(0, index + 1));
+    try {
+      lstatSync(ancestor);
+    } catch {
+      return refused(`target ${path} is missing or cannot be inspected`);
+    }
+    try {
+      if (!isWithin(root, realpathSync(ancestor))) {
+        return refused(`target ${path} escapes the project root through a symlink`);
+      }
+    } catch {
+      return refused(`target ${path} cannot be physically resolved`);
+    }
+  }
+
+  try {
+    if (!lstatSync(lexicalPath).isFile()) return refused(`target ${path} must be a regular file`);
+  } catch {
+    return refused(`target ${path} is missing or cannot be inspected`);
+  }
+
+  let canonicalPath: string;
+  try {
+    canonicalPath = realpathSync(lexicalPath);
+  } catch {
+    return refused(`target ${path} cannot be physically resolved`);
+  }
+  if (!isWithin(root, canonicalPath)) return refused(`target ${path} escapes the project root`);
+
+  let identity: M4TargetFileIdentity | null;
+  try {
+    identity = readFileIdentity(canonicalPath);
+  } catch {
+    return refused(`target ${path} has no usable filesystem identity`);
+  }
+  if (identity === null || identity.device < 0n || identity.inode <= 0n) {
+    return refused(`target ${path} has no usable filesystem identity`);
+  }
+  try {
+    return { canonicalPath, bytes: readFileSync(lexicalPath), identity };
+  } catch {
+    return refused(`target ${path} cannot be read`);
+  }
+}
+
+function validUtf8(bytes: Uint8Array): boolean {
+  try {
+    new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sha256(bytes: Uint8Array): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+function hasExactGitTrackedPath(root: string, path: string): boolean {
+  try {
+    const result = spawnSync(
+      "git",
+      ["--literal-pathspecs", "ls-files", "-z", "--error-unmatch", "--", path],
+      { cwd: root, shell: false, stdio: ["ignore", "pipe", "ignore"] },
+    );
+    return result.error === undefined &&
+      result.status === 0 &&
+      result.signal === null &&
+      Buffer.isBuffer(result.stdout) &&
+      result.stdout.equals(Buffer.from(`${path}\u0000`, "utf8"));
+  } catch {
+    return false;
+  }
+}
+
+export function validateM4CompleteTargetSet(
+  projectRoot: string,
+  targets: readonly M4TaskTarget[],
+  dependencies: M4TargetSetDependencies = {},
+): M4TargetSetOutcome {
+  if (targets.length < 2 || targets.length > 5) {
+    return refused("target set must contain 2–5 targets");
+  }
+
+  let root: string;
+  try {
+    root = realpathSync(projectRoot);
+    if (!statSync(root).isDirectory()) return refused("project root is not a directory");
+  } catch {
+    return refused("project root cannot be physically resolved");
+  }
+
+  const normalizedPaths = new Set<string>();
+  for (const target of targets) {
+    if (normalizedPaths.has(target.path)) return refused(`duplicate target path ${target.path}`);
+    normalizedPaths.add(target.path);
+  }
+
+  const canonicalPaths = new Set<string>();
+  const identities = new Set<string>();
+  const observations: M4TargetObservation[] = [];
+  const identityReader = dependencies.readFileIdentity ?? readIdentity;
+  for (const target of targets) {
+    const file = inspectContainedFile(root, target.path, identityReader);
+    if ("kind" in file) return file;
+    if (canonicalPaths.has(file.canonicalPath)) {
+      return refused(`targets resolve to the same canonical path: ${target.path}`);
+    }
+    canonicalPaths.add(file.canonicalPath);
+
+    const identityKey = `${String(file.identity.device)}:${String(file.identity.inode)}`;
+    if (identities.has(identityKey)) return refused(`targets share a filesystem identity: ${target.path}`);
+    identities.add(identityKey);
+
+    if (!validUtf8(file.bytes)) return refused(`target ${target.path} is not valid UTF-8`);
+    const beforeSha256 = sha256(file.bytes);
+    if (beforeSha256 !== target.expectedBeforeSha256) {
+      return refused(`target ${target.path} does not match its expected preimage digest`);
+    }
+    if (sha256(Buffer.from(target.replacementContent, "utf8")) === beforeSha256) {
+      return refused(`target ${target.path} declares a no-op replacement`);
+    }
+    if (!hasExactGitTrackedPath(root, target.path)) {
+      return refused(`target ${target.path} is not an exact Git-tracked file`);
+    }
+
+    observations.push(Object.freeze({
+      path: target.path,
+      canonicalPath: file.canonicalPath,
+      identity: file.identity,
+      beforeSha256,
+    }));
+  }
+
+  return Object.freeze({ kind: "validated" as const, targets: Object.freeze(observations) });
+}
