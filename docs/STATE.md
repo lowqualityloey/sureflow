@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M3 — Cross-Project Bounded Change Gate — CORE-ONLY — MERGED / INTEGRATION VALIDATED
-- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete; M3-T1 through M3-T4 integrated into `main` via PR #1; post-merge main CI is green; no M4/post-M3 implementation has started
-- **Target Release / Deadline**: M3 — no deadline recorded
-- **Current Working Branch**: N/A for M3 implementation — M3 code is integrated into `main` via merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; no active M3 implementation branch exists. Local `m3-core` remains retained and remote `m3-core` is absent.
+- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — PLANNING BASELINE / IMPLEMENTATION NOT AUTHORIZED
+- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete; M3-T1 through M3-T4 remain integrated into `main` via PR #1 with green post-merge CI. M4-A is selected for planning; M4-T1 through M4-T6 are gated and no M4 implementation has started.
+- **Target Release / Deadline**: M4 — no deadline recorded
+- **Current Working Branch**: `codex/m4-planning` in the separate dogfood worktree, based on accepted `origin/main @ 1106f75c550be467083f7d8408a21de6e389dba9`; the protected original checkout is outside M4 planning scope.
 - **Last Updated**: 2026-09-23
 
 
@@ -38,6 +38,7 @@
 - [x] **M3-T3**: Bounded verification execution, cancellation, EvidenceRecord v2, and input/plan binding — accepted and integrated into `main` via PR #1 at commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported
 - [x] **M3-T4**: Independent npm + pnpm acceptance and M3 closeout — accepted and integrated into `main` via PR #1; implementation commit `7944b13f0268473606b1b99833f1706d1159a0ab`; GitHub Actions run `35744104235` passed with `460/460` across 26 files and focused T4 `7/7`
 - [x] **M3 integration**: PR #1 merged by normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; post-merge main CI run `35750536825` passed with `460/460` across 26 files
+- [ ] **M4 planning baseline**: Bounded Multi-File Delivery selected and recorded in planning documents; implementation is not authorized
 
 ### Active Milestone Task Breakdown
 
@@ -58,14 +59,15 @@
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
 - [x] TASK-2026-09-21-m2-real-project-change-gate: M2-T1 through M2-T8 accepted / complete; final remote acceptance recorded
 - [x] **M3 CORE-ONLY**: T1-T4 accepted / complete and integrated into `main` via PR #1; post-merge validation passed
+- [ ] **M4 bounded multi-file delivery**: T1–T6 are planned only; none is authorized or started
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `N/A — M3 CORE-ONLY authority is captured in the Task Record; no separate M3 specification file exists`
-- **Active Task Spec**: `docs/tasks/2026-09-22-m3-cross-project-bounded-change-gate.md`
-- **Key Files in Flight**: No M3 implementation files are in flight. The canonical M3 records describe the completed integrated state. No M4/post-M3 implementation has started.
+- **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — planning only
+- **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — all T tasks gated
+- **Key Files in Flight**: M4 planning documents only: `ROADMAP.md`, this STATE projection, M4 specification, and M4 Task Record. No M4 runtime, test, fixture, package, or CI implementation has started.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -106,28 +108,28 @@
 
 ## 3A. Execution-Control Projection (Optional)
 
-- **Local Task Source**: `docs/tasks/2026-09-22-m3-cross-project-bounded-change-gate.md`
-- **Task ID**: `TASK-2026-09-22-m3-cross-project-bounded-change-gate`
-- **Task Record**: `docs/tasks/2026-09-22-m3-cross-project-bounded-change-gate.md`
-- **Specification**: `N/A — M3 CORE-ONLY authority is captured in this Task Record; no separate M3 specification file exists`
-- **Execution Scope**: `M3 CORE-ONLY, separate independent npm/pnpm project shapes, one supplied bounded single-file change, no automatic repair`
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Done`
+- **Local Task Source**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
+- **Task ID**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
+- **Task Record**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
+- **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
+- **Execution Scope**: `M4 planning baseline only: 2–5 declared existing tracked targets in one supported standalone npm/pnpm project; no implementation authorization`
+- **Execution State**: `planned`
+- **Mapped `pk:tasks` Status**: `To Do`
 - **Active Task Pointer**: `None`
 - **Active Review Task**: `None`
-- **Owner / Current Actor**: Human authority / Codex — M3 integrated and post-merge validated; no active M3 implementation task.
-- **Start Time**: `2026-09-22`
-- **Current Branch**: N/A — no active M3 implementation branch.
-- **Current Revision**: M3 code integration baseline is main merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`. Local `m3-core @ 6f51237d68d8b20193a2924fbeb6a2d90801299f` remains retained; remote `m3-core` is absent.
-- **Checkpoint Policy**: `Human plan review; separate authorization for each M3 task; checkpoint before every task transition, commit, push, scope expansion, or stop-condition response`
-- **Blockers and Resume Condition**: `No M3 implementation blocker remains. M3 is integrated and post-merge validated. Any branch cleanup, M4, or other future work requires separate authorization.`
-- **Verification Status**: `M3-T1 through M3-T4 were independently accepted on m3-core and integrated into main by normal merge commit f711876da659bb9c36745b3189eac986f94ba7ea. Post-merge main CI run 35750536825 with job 106823643297 passed pinned pnpm 9.15.4, npm ci, typecheck, npm test 460/460 across 26 files, focused T4 7/7, lint, build, diff check, and tracked-tree cleanliness. The direct linked-worktree harness remains incomplete only because of GIT_LAYOUT; its regression suite and supplemental worktree checks passed. Current M3 diagnostics are 0; 98 historical pre-M2 diagnostics remain outside M3 acceptance.`
-- **Changed-File Summary**: `The M3-T4 local acceptance scope was exactly 14 authorized paths: .github/workflows/ci.yml; the nine files under fixtures/m3-pnpm-node-ts-project/; tests/m3T4CrossProjectAcceptance.test.ts; tsconfig.json; docs/STATE.md; and this Task Record. This post-merge reconciliation changes only docs/STATE.md and this Task Record; no M3 runtime source, package, dependency, or post-M3 files are included.`
-- **Latest Checkpoint**: `PR #1 merged by normal merge commit f711876da659bb9c36745b3189eac986f94ba7ea; post-merge main CI run 35750536825 passed 460/460 across 26 files.`
+- **Owner / Current Actor**: Human authority / Codex — M4 documentation planning only; no implementation task active.
+- **Start Time**: `N/A — M4 implementation not started`
+- **Current Branch**: `codex/m4-planning` in the separate dogfood worktree; protected original Laya checkout excluded.
+- **Current Revision**: Accepted `origin/main` baseline `1106f75c550be467083f7d8408a21de6e389dba9`; M3 remains accepted and integrated by PR #1 at `f711876da659bb9c36745b3189eac986f94ba7ea`.
+- **Checkpoint Policy**: `Human review of planning baseline; separate authorization before each M4 T task, commit, push, scope expansion, or stop-condition response`
+- **Blockers and Resume Condition**: `No M3 blocker remains. M4 implementation is gated until an explicit task-specific human authorization; no task may start from this plan alone.`
+- **Verification Status**: `M4 planning documents require documentation reference, diff, exact-scope, and hygiene validation only. No M4 implementation acceptance or runtime test result is claimed. M3 historical acceptance remains recorded above. Historical pre-M2 execution-control diagnostics remain outside M4 acceptance and are not a quality metric.`
+- **Changed-File Summary**: `Planning-only candidate scope: ROADMAP.md; docs/STATE.md; docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md; docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md. No source, test, fixture, package, CI, or protected original-checkout file is in scope.`
+- **Latest Checkpoint**: `M4-A bounded multi-file delivery selected for specification; M4-T1 through M4-T6 remain unauthorized.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `No further M3 implementation action. Branch/worktree cleanup and any future milestone planning remain separately authorized.`
+- **Next Action**: `M4-T1 requires separate human authorization; no implementation task is active.`
 
 ---
 
@@ -168,7 +170,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - No technical M3 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. Branch/worktree cleanup and any M4 work remain separately authorized.
+  - No technical M3 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4 planning is authorized, but M4 implementation and any branch/worktree cleanup remain separately gated.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -187,7 +189,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ## 7. Next Immediate Actions (Queued)
 1. No further M3 implementation action is required.
 2. Any branch/worktree cleanup requires separate authorization.
-3. Any M4 or other post-M3 planning/implementation requires separate authorization.
+3. M4-T1 through M4-T6 implementation and all remote actions require separate authorization.
 
 ---
 
