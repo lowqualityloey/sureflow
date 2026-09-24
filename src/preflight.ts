@@ -26,15 +26,31 @@ import {
   type ValidatedExecutionPlan,
   type ValidatedPreflightExecutionPlan,
 } from "./taskContract.js";
-import { detectProject, type ProjectDetectionRequest } from "./projectDetection.js";
-import { validateM4CompleteTargetSet } from "./completeTargetSet.js";
-import { inspectProjectBaseline } from "./projectScope.js";
+import {
+  detectProject,
+  type DetectedNodeTypeScriptProject,
+  type ProjectDetectionRequest,
+} from "./projectDetection.js";
+import {
+  validateM4CompleteTargetSet,
+  type M4TargetSetDependencies,
+  type M4TargetSetOutcome,
+} from "./completeTargetSet.js";
+import {
+  inspectProjectBaseline,
+  type ProjectBaselineResult,
+  type ProjectScopeDependencies,
+} from "./projectScope.js";
 import {
   resolveAdapterContract,
   resolveAdapterContractForIds,
 } from "./projectAdapter.js";
 import type { ResolvedAdapterContract } from "./projectAdapter.js";
-import { resolveVerificationPlan } from "./verificationAdapter.js";
+import { resolveM4VerificationPlan } from "./m4VerificationBinding.js";
+import {
+  resolveVerificationPlan,
+  type VerificationPlan,
+} from "./verificationAdapter.js";
 
 export interface PreflightRequest {
   readonly rootDir: string;
@@ -49,6 +65,23 @@ export type PreflightOutcome =
       readonly executable: ResolvedAdapterContract["executable"];
     }
   | { readonly kind: "ineligible"; readonly reason: string };
+
+export type M4ExecutionPreflight =
+  | {
+      readonly kind: "ready";
+      readonly plan: M4ValidatedExecutionPlan;
+      readonly project: DetectedNodeTypeScriptProject;
+      readonly targetSet: Extract<M4TargetSetOutcome, { readonly kind: "validated" }>;
+      readonly baseline: Extract<ProjectBaselineResult, { readonly kind: "clean" }>;
+      readonly adapterContract: ResolvedAdapterContract;
+      readonly verificationPlan: VerificationPlan;
+    }
+  | { readonly kind: "ineligible"; readonly reason: string };
+
+export interface M4ExecutionPreflightDependencies {
+  readonly targetSet?: M4TargetSetDependencies;
+  readonly scope?: ProjectScopeDependencies;
+}
 
 function ineligible(reason: string): PreflightOutcome {
   return Object.freeze({ kind: "ineligible" as const, reason });
@@ -118,40 +151,70 @@ function preflightM4Plan(
   request: PreflightRequest,
   plan: M4ValidatedExecutionPlan,
 ): PreflightOutcome {
+  const result = preflightM4Execution(request, plan);
+  if (result.kind !== "ready") return ineligible(result.reason);
+  return Object.freeze({
+    kind: "eligible" as const,
+    taskId: plan.taskId,
+    adapterId: result.adapterContract.adapterId,
+    executable: result.adapterContract.executable,
+  });
+}
+
+export function preflightM4Execution(
+  request: PreflightRequest,
+  plan: M4ValidatedExecutionPlan,
+  dependencies: M4ExecutionPreflightDependencies = {},
+): M4ExecutionPreflight {
   if (request.requestedTaskId !== plan.taskId) {
-    return ineligible("requested taskId does not match the M4 task contract");
+    return { kind: "ineligible", reason: "requested taskId does not match the M4 task contract" };
   }
   const detectionPlan = projectDetectionView(plan);
-  if (detectionPlan === null) return ineligible("M4 task contract has no project target");
+  if (detectionPlan === null) {
+    return { kind: "ineligible", reason: "M4 task contract has no project target" };
+  }
 
   const detected = detectProject(request.rootDir, detectionPlan);
   if (detected.kind !== "supported") {
-    return ineligible(`project detection ${detected.kind}: ${detected.reason}`);
+    return { kind: "ineligible", reason: `project detection ${detected.kind}: ${detected.reason}` };
   }
 
-  const targetSet = validateM4CompleteTargetSet(detected.project.root, plan.targets);
+  const targetSet = validateM4CompleteTargetSet(
+    detected.project.root,
+    plan.targets,
+    dependencies.targetSet,
+  );
   if (targetSet.kind === "refused") {
-    return ineligible(`M4 complete target set refused: ${targetSet.reason}`);
+    return { kind: "ineligible", reason: `M4 complete target set refused: ${targetSet.reason}` };
   }
 
-  const baseline = inspectProjectBaseline(detected.project);
+  const baseline = inspectProjectBaseline(detected.project, dependencies.scope);
   if (baseline.kind !== "clean") {
     const reason = baseline.kind === "dirty"
       ? "project baseline is not clean"
       : `${baseline.kind}: ${baseline.reason}`;
-    return ineligible(`M4 project baseline refused: ${reason}`);
+    return { kind: "ineligible", reason: `M4 project baseline refused: ${reason}` };
   }
 
   const adapterResolution = resolveAdapterContractForIds(detected.project.adapter, plan.adapter);
   if (adapterResolution.kind !== "resolved") {
-    return ineligible(`adapter resolution unsupported: ${adapterResolution.reason}`);
+    return { kind: "ineligible", reason: `adapter resolution unsupported: ${adapterResolution.reason}` };
   }
-
+  const verification = resolveM4VerificationPlan(detected.project, plan, adapterResolution.contract);
+  if (verification.kind !== "resolved") {
+    return {
+      kind: "ineligible",
+      reason: `verification profile resolution unsupported: ${verification.missingChecks.join(", ") || "invalid plan"}`,
+    };
+  }
   return Object.freeze({
-    kind: "eligible" as const,
-    taskId: plan.taskId,
-    adapterId: adapterResolution.contract.adapterId,
-    executable: adapterResolution.contract.executable,
+    kind: "ready" as const,
+    plan,
+    project: detected.project,
+    targetSet,
+    baseline,
+    adapterContract: adapterResolution.contract,
+    verificationPlan: verification.plan,
   });
 }
 
