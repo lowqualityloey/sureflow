@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — M4-T1–T5 are accepted and committed in their authorized scopes; T6 is not started / unauthorized; M4 remains incomplete
-- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. M4-T1 is accepted and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`; M4-T3 is accepted and committed at `70efa30aac32e77e845a53a6a1b6bda2567a2b89`; M4-T4 is accepted and committed at `d0473d52ab23936e0b4d308b84cdc107c17e67b7`. M4-T5 is accepted and closed by its exact 19-file local closeout commit on `codex/m4-t5`; its full SHA is in local Git history and the final report, not embedded self-referentially. T6 remains not started / unauthorized. M4 is incomplete and nothing has been pushed.
+- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — M4-T1–T6 are accepted and complete in their authorized scopes; T1–T5 are committed, and T6 is closed by this local final closeout. M4 is complete locally; nothing has been pushed.
+- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. M4-T1 is accepted and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`; M4-T3 is accepted and committed at `70efa30aac32e77e845a53a6a1b6bda2567a2b89`; M4-T4 is accepted and committed at `d0473d52ab23936e0b4d308b84cdc107c17e67b7`; M4-T5 is accepted and committed at `92a33428adcb5d0321d2ac986fc0f641d3340731`; M4-T6 is human-accepted and closed by this local final closeout. M4 is complete locally; nothing has been pushed.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: `codex/m4-t5`, at the accepted local T5 closeout commit; nothing has been pushed.
+- **Current Working Branch**: `codex/m4-t6`, at the local final M4 closeout commit; its full SHA is in local Git history and the final report. Nothing has been pushed.
 - **Last Updated**: 2026-09-25
 
 
@@ -63,16 +63,16 @@
 - [x] **M4-T2**: Complete-set preflight — accepted / committed at `79f149996523b9104c3071a2c151cd289e805e07`
 - [x] **M4-T3**: Deterministic ordered write coordinator — accepted and committed at `70efa30aac32e77e845a53a6a1b6bda2567a2b89`
 - [x] **M4-T4**: Read-only post-write certification accepted and committed at `d0473d52ab23936e0b4d308b84cdc107c17e67b7`
-- [x] **M4-T5**: Accepted and closed by the exact 19-file local closeout commit
-- [ ] **M4-T6**: Not started / unauthorized
+- [x] **M4-T5**: Accepted and closed by exact 19-file local commit `92a33428adcb5d0321d2ac986fc0f641d3340731`
+- [x] **M4-T6**: Human-accepted and closed by the exact seven-file local final M4 closeout; M4 is complete locally, with nothing pushed
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — canonical M4 behavior; T5 integrated accepted T2/T3/T4 components under the existing shared lock and exact 17-path authorization
-- **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — T1–T5 accepted and committed; T6 unauthorized
-- **Key Files in Flight**: Exactly the 17 T5 runtime/test/config paths recorded in the Task Record, plus this Task Record and `docs/STATE.md` for control-state/evidence reconciliation. No other path is authorized.
+- **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — canonical M4 behavior; all six authorized M4 tasks are complete
+- **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — M4-T1–T6 accepted and complete locally; T6 final closeout is recorded in this Task Record and STATE projection
+- **Key Files in Flight**: None. The completed T6 closeout contains exactly `tests/m4T6Acceptance.test.ts`, `tests/m4T6FailureAcceptance.test.ts`, `tests/helpers/m4T6AcceptanceProject.ts`, `tests/helpers/m4T6ProjectInspection.ts`, `tsconfig.json`, the Task Record, and `docs/STATE.md`; no runtime source changed during T6.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -118,24 +118,24 @@
 - **Task ID**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
 - **Task Record**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
 - **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
-- **Execution Scope**: `M4-T5 in exactly the 17 runtime/test/config paths listed by SCOPE-2026-09-25-m4-t5-implementation, plus docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md and docs/STATE.md for control-state/evidence reconciliation`
-- **Execution State**: `in_progress`
-- **Mapped `pk:tasks` Status**: `In Progress`
-- **Active Task Pointer**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
+- **Execution Scope**: `M4-T6 acceptance in exactly tests/m4T6Acceptance.test.ts, tests/m4T6FailureAcceptance.test.ts, tests/helpers/m4T6AcceptanceProject.ts, tests/helpers/m4T6ProjectInspection.ts, and tsconfig.json; docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md and docs/STATE.md reconciled T6 evidence; final local closeout contained exactly these seven paths; runtime source is unchanged`
+- **Execution State**: `completed`
+- **Mapped `pk:tasks` Status**: `Done`
+- **Active Task Pointer**: `None`
 - **Active Review Task**: `None`
-- **Owner / Current Actor**: Human authority / Codex — M4-T5 implementation and verification are accepted; the exact 19-file local closeout commit was authorized. T6 and push are unauthorized.
-- **Start Time**: `2026-09-24; M4-T5 control-state transition (time not recorded)`
-- **Current Branch**: `codex/m4-t5`; nothing has been pushed.
-- **Current Revision**: Branch `codex/m4-t5` is at the local T5 closeout commit; its full SHA is in Git history and the final report, not embedded self-referentially. Nothing has been pushed.
-- **Checkpoint Policy**: `Human review before each M4 task transition, completion, commit, push, scope expansion, or stop-condition response; T5 closed in the exact 17 runtime/test/config paths plus the two control-state files; no T6 or push is authorized.`
-- **Blockers and Resume Condition**: `No T5 blocker remains. T5 is accepted and committed in authorized scope; T6 remains unauthorized and M4 remains incomplete.`
-- **Verification Status**: `With Node 24.20.0 / npm 11.19.0, focused T5 tests passed 15/15 across four files; selected T1–T4 and M2/M3 regressions passed 264/264 across 16 files; full npm test passed 570/570 across 37 files. Typecheck, lint, build, and git diff --check passed. PromptKit reference validation passed for 240 Markdown files; the execution-control fixture harness passed 23 isolated contracts; fixed-scope/security reported no findings; targeted secret/credential and debug/probe scans had no matches. The execution-control validator exited 1 for 98 unrelated historical findings across six records and had zero M4-specific findings. All 16 governed source/test files are below 250 pure LOC (maximum 242). The final worktree contains exactly the 17 authorized runtime/test/config paths plus these two control-state files; package.json and package-lock.json are unchanged, with no unexpected artifact. Repository-root .sureflow/ was pre-existing ignored state and was not modified by T5; .sureflow/task.json and .omo/ are absent, and T5 acceptance uses disposable temporary projects. Git-backed fixture tests passed unchanged under the previously approved host route after default-sandbox spawnSync git EPERM. The Bun no-excuse script could not resolve TypeScript; no dependency was installed.`
-- **Changed-File Summary**: `T5 changed exactly the 17 authorized runtime/test/config paths listed in the Task Record, plus the Task Record and docs/STATE.md for control-state/evidence reconciliation. All governed source/test files satisfy the 250-pure-LOC limit. package.json and package-lock.json are unchanged.`
-- **Latest Checkpoint**: `T5 is accepted and closed by the exact 19-file local commit. T6 is not started / unauthorized, M4 remains incomplete, and nothing has been pushed.`
+- **Owner / Current Actor**: Human authority / Codex — T6 is accepted and the exact seven-file final M4 closeout is authorized and committed locally. No runtime source changed during T6; nothing has been pushed.
+- **Start Time**: `2026-09-25; M4-T6 control-state transition (time not recorded)`
+- **Current Branch**: `codex/m4-t6`; nothing has been pushed.
+- **Current Revision**: Branch `codex/m4-t6` is based at accepted T5 boundary `92a33428adcb5d0321d2ac986fc0f641d3340731`; the final local M4 closeout commit is current HEAD, with its full SHA in Git history and the final report rather than embedded self-referentially. Nothing has been pushed.
+- **Checkpoint Policy**: `Human review preceded each M4 task transition and acceptance. T6 is accepted and closed in the five exact test/helper/config paths plus the two authorized control-state documents. Runtime source was not changed; no push is authorized.`
+- **Blockers and Resume Condition**: `No implementation or closeout blocker remains. The accepted final-state-write durability limitation is recorded: public run HALTs without PASS/ACCEPT, while authoritative persisted state may remain running; later read-only verify does not accept the task, and no rollback is claimed. M4 is complete locally; nothing has been pushed.`
+- **Verification Status**: `With Node 24.20.0 / npm 11.19.0, T5 focused tests passed 15/15, selected T1–T4 and M2/M3 regressions passed 264/264, and full npm test passed 570/570 across 37 files; typecheck, lint, build, PromptKit, 23-contract execution-control harness, fixed-scope/security, and hygiene gates passed. Human-accepted T6 focused public acceptance passed 13/13 across two files: independent npm 2-target, npm 5-target, and pnpm 2-target projects, alternate valid verification declaration order, and nine fail-closed scenarios. Full npm test passed 583/583 across 39 files; typecheck, lint, build, and git diff --check passed. PromptKit references, 23 execution-control fixture contracts, fixed-scope/security preflight, and security harness passed; secret/credential and debug/probe scans had no matches. The default execution-control validator reports 98 unrelated historical findings and zero M4-specific findings; strict mode reports 105 unrelated historical findings and zero M4-specific findings. T6 test/helper pure LOC are 107, 175, 208, and 79, all below 250. package.json and package-lock.json are unchanged; no unexpected artifact was found. Repository-root .sureflow/ was pre-existing ignored state and untouched; .sureflow/task.json and .omo/ are absent; acceptance uses isolated temporary projects. Git-backed tests ran unchanged under the previously approved host route after default-sandbox spawnSync git EPERM. Required pnpm 10.33.0 came from the local Corepack cache with network disabled and no install. Public verify is read-only. On the deliberately failed final task-state write, public run exits 2/HALT without PASS or ACCEPT; authoritative state may remain running. A later read-only verify can PASS proof but does not accept or transition the task; no rollback is claimed. No runtime source, dependency, package, or fixture path changed during T6.`
+- **Changed-File Summary**: `T5 changed exactly its 17 authorized runtime/test/config paths plus the Task Record and docs/STATE.md. The final T6 closeout changed exactly seven authorized files: tests/m4T6Acceptance.test.ts, tests/m4T6FailureAcceptance.test.ts, tests/helpers/m4T6AcceptanceProject.ts, tests/helpers/m4T6ProjectInspection.ts, tsconfig.json, the Task Record, and docs/STATE.md. No runtime source, package, dependency, or fixture path changed during T6.`
+- **Latest Checkpoint**: `M4-T1 through T6 are accepted and complete locally; T6 is closed by the exact seven-file final closeout. Nothing has been pushed.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `Stop at the accepted M4-T5 boundary. Do not start T6 or push without separate authorization.`
+- **Next Action**: `M4 is complete locally. Stop at this boundary; do not begin another milestone or push without separate authorization.`
 
 ---
 
@@ -176,7 +176,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - No technical M3 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T1 through T5 are accepted and committed locally. T6 and push remain unauthorized; M4 is incomplete.
+  - No technical M3 or M4 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T1 through T6 are accepted and complete locally in authorized scope. The accepted T6 final-state-write durability limitation is documented in the Task Record; no push occurred.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -195,7 +195,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ## 7. Next Immediate Actions (Queued)
 1. No further M3 implementation action is required.
 2. Any branch/worktree cleanup requires separate authorization.
-3. Stop at the accepted M4-T5 boundary. M4 remains incomplete; do not start T6 or push without separate authorization.
+3. M4 is complete locally. Do not begin another milestone or push without separate authorization.
 
 ---
 
@@ -248,6 +248,11 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-25 | Human authority / Codex | M4-T5 runtime implementation authorization | Accepted the read-only scope-discovery report and authorized exactly the 17 runtime/test/config paths recorded in the Task Record. Phase A M2 extraction precedes Phase B; T6 and push remain unauthorized |
 | 2026-09-25 | Codex | M4-T5 implementation and local verification | Completed the authorized Phase A M2 extraction and Phase B shared-lock v2 integration; 15 focused T5 tests, 264 selected T1–T4/M2/M3 regressions, and 570 full-suite tests passed. Typecheck, lint, and build passed; pending human acceptance, with T6/commit/push unauthorized |
 | 2026-09-25 | Human authority / Codex | M4-T5 acceptance and local closeout commit | Accepted T5 implementation and verification; authorized and created the exact 19-file local commit after final Level-2 gates. M4 remains incomplete; T6 and push remain unauthorized |
+| 2026-09-25 | Human authority / Codex | M4-T6 control-state transition and read-only acceptance-scope discovery | T5 is accepted and committed at `92a33428adcb5d0321d2ac986fc0f641d3340731`; authorized exactly the Task Record and `docs/STATE.md` for T6 transition and read-only discovery. T6 implementation awaits exact-path authorization; M4 remains incomplete and nothing has been pushed |
+| 2026-09-25 | Human authority / Codex | M4-T6 acceptance implementation authorization | Accepted the T6 transition/discovery and authorized exactly two acceptance tests, one independent-project helper, and `tsconfig.json`; the Task Record and STATE remain authorized for evidence reconciliation. Runtime source, commit, and push remain unauthorized |
+| 2026-09-25 | Human authority / Codex | M4-T6 size-gated inspection-helper split authorization | Accepted the 256-line helper size halt and authorized exactly `tests/helpers/m4T6ProjectInspection.ts` to split inspection/assertion support from project creation/execution. The resulting T6 test/helper/config scope is exactly five paths; runtime source, dependencies, commit, and push remain unauthorized |
+| 2026-09-25 | Codex | M4-T6 implementation and local verification | Completed the exact five authorized test/helper/config paths; focused public acceptance passed 13/13, full suite 583/583 across 39 files, and typecheck/lint/build plus recorded scope and hygiene gates passed. Human acceptance remains pending; M4 is incomplete, with no commit or push |
+| 2026-09-25 | Human authority / Codex | M4-T6 human acceptance and final local closeout | Accepted T6 and authorized the exact seven-file final closeout commit. M4-T1–T6 are accepted and complete locally; documented the final-state-write limitation; no runtime source changed during T6 and nothing was pushed |
 
 ---
 
