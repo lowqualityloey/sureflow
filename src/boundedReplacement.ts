@@ -5,23 +5,17 @@
  * not inspect whole-project Git scope, aggregate evidence, or orchestrate
  * verification. The atomic rename is not a durability or transaction claim.
  */
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import {
-  chmodSync,
-  closeSync,
-  fchmodSync,
   lstatSync,
-  openSync,
   readFileSync,
   realpathSync,
-  renameSync,
   statSync,
-  unlinkSync,
-  writeFileSync,
 } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { decidePolicy, type PolicyConfig } from "./policy.js";
+import { replaceSingleFile, type AtomicRename as SingleFileAtomicRename } from "./singleFileReplacement.js";
 import {
   M2_REPLACEMENT_OPERATION,
   M3_ADAPTER_IDS,
@@ -56,7 +50,7 @@ export type TrackedTargetProbe = (
   targetPath: string,
 ) => TrackedTargetProbeResult;
 
-export type AtomicRename = (temporaryPath: string, targetPath: string) => void;
+export type AtomicRename = SingleFileAtomicRename;
 
 export interface BoundedReplacementDependencies {
   readonly trackedTargetProbe?: TrackedTargetProbe;
@@ -248,48 +242,6 @@ function defaultTrackedTargetProbe(cwd: string, targetPath: string): TrackedTarg
   }
 }
 
-function replaceFileAtomically(
-  targetPath: string,
-  replacementBytes: Buffer,
-  originalMode: number,
-  atomicRename: AtomicRename,
-): void {
-  const directory = dirname(targetPath);
-  const temporaryPath = join(
-    directory,
-    `.${basename(targetPath)}.tmp-${String(process.pid)}-${randomUUID()}`,
-  );
-  let fileDescriptor: number | undefined;
-  let ownsTemporary = false;
-  try {
-    fileDescriptor = openSync(temporaryPath, "wx", originalMode);
-    ownsTemporary = true;
-    chmodSync(temporaryPath, originalMode);
-    fchmodSync(fileDescriptor, originalMode);
-    writeFileSync(fileDescriptor, replacementBytes);
-    closeSync(fileDescriptor);
-    fileDescriptor = undefined;
-    atomicRename(temporaryPath, targetPath);
-    ownsTemporary = false;
-  } catch (error: unknown) {
-    if (fileDescriptor !== undefined) {
-      try {
-        closeSync(fileDescriptor);
-      } catch {
-        // Preserve the original failure.
-      }
-    }
-    if (ownsTemporary) {
-      try {
-        unlinkSync(temporaryPath);
-      } catch {
-        // Cleanup is limited to this invocation's owned temporary.
-      }
-    }
-    throw error;
-  }
-}
-
 function validateCurrentTarget(
   project: DetectedNodeTypeScriptProject,
   plan: ValidatedExecutionPlan,
@@ -399,12 +351,12 @@ export function applyBoundedReplacement(
   if ("kind" in currentTarget) return currentTarget;
   const replacementBytes = Buffer.from(plan.replacementContent, "utf8");
   try {
-    replaceFileAtomically(
-      currentTarget.path,
+    replaceSingleFile({
+      targetPath: currentTarget.path,
       replacementBytes,
-      currentTarget.mode,
-      dependencies.atomicRename ?? renameSync,
-    );
+      originalMode: currentTarget.mode,
+      atomicRename: dependencies.atomicRename,
+    });
   } catch {
     return refused("bounded replacement failed before completion");
   }

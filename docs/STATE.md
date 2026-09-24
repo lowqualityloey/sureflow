@@ -2,11 +2,11 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — PLANNING BASELINE / IMPLEMENTATION NOT AUTHORIZED
-- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. The M4-A bounded multi-file delivery planning baseline is integrated into `main` by PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`, with green post-merge main CI run `35816292161`. M4-T1 through M4-T6 remain separately gated; no M4 implementation has started.
+- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — M4-T3 implementation and runtime verification accepted in the exact six-path runtime/test/config scope; this local closeout commit closes T3 only
+- **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. M4-T1 is accepted and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`. M4-T3 implementation and runtime verification are accepted; its authorized local closeout commit closes T3 only. M4-T4 through M4-T6 remain not started / not authorized. M4 is incomplete and nothing has been pushed.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: No M4 implementation branch is active, and no M4 implementation has started. PR #4 established the accepted planning baseline; documentation reconciliation is not an implementation branch. The live checkout and `main` HEAD are determined by Git, not this projection. The protected original checkout is outside this scope.
-- **Last Updated**: 2026-09-23
+- **Current Working Branch**: `codex/m4-t3`, based at the accepted M4-T2 boundary `79f149996523b9104c3071a2c151cd289e805e07`. M4-T3 implementation and local verification are accepted; this authorized local closeout commit closes T3 only. Nothing has been pushed.
+- **Last Updated**: 2026-09-24
 
 
 ---
@@ -38,7 +38,7 @@
 - [x] **M3-T3**: Bounded verification execution, cancellation, EvidenceRecord v2, and input/plan binding — accepted and integrated into `main` via PR #1 at commit `f6f4bbd8a42df2b038531e065ce7d88241f520f4`; GitHub Actions run `35731683141` passed with `453/453` across 25 files and zero skips reported
 - [x] **M3-T4**: Independent npm + pnpm acceptance and M3 closeout — accepted and integrated into `main` via PR #1; implementation commit `7944b13f0268473606b1b99833f1706d1159a0ab`; GitHub Actions run `35744104235` passed with `460/460` across 26 files and focused T4 `7/7`
 - [x] **M3 integration**: PR #1 merged by normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; post-merge main CI run `35750536825` passed with `460/460` across 26 files
-- [x] **M4 planning baseline**: Bounded Multi-File Delivery selected, reviewed, merged by PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`, and validated by green post-merge main CI run `35816292161`; implementation is not authorized
+- [x] **M4 planning baseline**: Bounded Multi-File Delivery selected, reviewed, merged by PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`, and validated by green post-merge main CI run `35816292161`; implementation was not authorized at that initial planning baseline and was later authorized task by task
 
 ### Active Milestone Task Breakdown
 
@@ -59,15 +59,18 @@
 - [x] H2: Node 24 type alignment — accepted; CI run `35574889277` passed on `505daa10f43410a6eefb28a5b758af94227c1fbe`
 - [x] TASK-2026-09-21-m2-real-project-change-gate: M2-T1 through M2-T8 accepted / complete; final remote acceptance recorded
 - [x] **M3 CORE-ONLY**: T1-T4 accepted / complete and integrated into `main` via PR #1; post-merge validation passed
-- [ ] **M4 bounded multi-file delivery**: T1–T6 are planned only; none is authorized or started
+- [x] **M4-T1**: Contract v2 — accepted / committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`
+- [x] **M4-T2**: Complete-set preflight — accepted / committed at `79f149996523b9104c3071a2c151cd289e805e07`
+- [x] **M4-T3**: Deterministic ordered write coordinator — implemented and runtime-verified in the exact six authorized runtime/test/config paths; accepted, with this local closeout commit closing T3 only
+- [ ] **M4-T4–T6**: Not started / not authorized
 
 ---
 
 ## 3. Active Working Set
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — planning only
-- **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — all T tasks gated
-- **Key Files in Flight**: The merged four-file M4 planning baseline is canonical on `main`. The post-merge factual reconciliation is limited to `docs/STATE.md` and the M4 Task Record. No M4 runtime, test, fixture, package, dependency, or CI implementation has started.
+- **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — canonical M4 behavior; exact T3 runtime paths are authorized in the Task Record
+- **Active Task Spec**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` — M4-T3 implementation and runtime verification accepted within exact authorized scope; this local closeout commit closes T3 only
+- **Key Files in Flight**: Exactly `src/completeTargetSet.ts`, `src/boundedReplacement.ts`, `src/singleFileReplacement.ts`, `src/m4WriteCoordinator.ts`, `tests/m4T3WriteCoordinator.test.ts`, `tsconfig.json`, this Task Record, and `docs/STATE.md`; no other path or T4+ behavior is authorized.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -113,24 +116,24 @@
 - **Task ID**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
 - **Task Record**: `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
 - **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
-- **Execution Scope**: `M4 planning baseline only: 2–5 declared existing tracked targets in one supported standalone npm/pnpm project; no implementation authorization`
+- **Execution Scope**: `M4-T3 implementation in exactly src/completeTargetSet.ts, src/boundedReplacement.ts, src/singleFileReplacement.ts, src/m4WriteCoordinator.ts, tests/m4T3WriteCoordinator.test.ts, and tsconfig.json; Task Record and docs/STATE.md remain authorized for T3 control-state/scope/evidence reconciliation`
 - **Execution State**: `in_progress`
 - **Mapped `pk:tasks` Status**: `In Progress`
 - **Active Task Pointer**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
 - **Active Review Task**: `None`
-- **Owner / Current Actor**: Human authority / Codex — authorized M4-T2 closeout only.
-- **Start Time**: `N/A — M4 implementation not started`
-- **Current Branch**: No M4 implementation branch is active; the documentation reconciliation does not create one. The protected original Laya checkout is excluded.
-- **Current Revision**: Accepted M4-T1 boundary `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted pending the authorized local closeout commit. The T2 closeout SHA is not embedded in this projection.
-- **Checkpoint Policy**: `Human review of planning baseline; separate authorization before each M4 T task, commit, push, scope expansion, or stop-condition response`
-- **Blockers and Resume Condition**: `No M3 blocker remains. M4 implementation is gated until an explicit task-specific human authorization; no task may start from this plan alone.`
-- **Verification Status**: `M4 planning PR #4 and post-merge main CI run 35816292161 passed the unchanged-runtime regression gates; this is not M4 runtime acceptance. Documentation reconciliation requires reference, diff, exact-two-file-scope, and hygiene validation. Execution-control validation remains non-green with zero M4-record findings and 98 historical findings; the linked-worktree harness remains PREFLIGHT|INCOMPLETE|GIT_LAYOUT|. and is not globally green.`
-- **Changed-File Summary**: `The merged M4 planning baseline changed ROADMAP.md, docs/STATE.md, the M4 specification, and the M4 Task Record. The post-merge factual reconciliation is limited to docs/STATE.md and the M4 Task Record. No source, test, fixture, package, CI, or protected original-checkout file is in scope.`
-- **Latest Checkpoint**: `M4 planning baseline integrated into main by PR #4 with green post-merge CI; M4-T1 through M4-T6 remain unauthorized.`
+- **Owner / Current Actor**: Human authority / Codex — authorized M4-T3 closeout in exactly the six runtime/test/config paths and two control-state documents; no T4+ or push authority.
+- **Start Time**: `2026-09-24; T3 control-state transition (time not recorded)`
+- **Current Branch**: `codex/m4-t3`; nothing has been pushed.
+- **Current Revision**: Accepted M4-T2 commit `79f149996523b9104c3071a2c151cd289e805e07`.
+- **Checkpoint Policy**: `Human review before each M4 task transition, completion, commit, push, scope expansion, or stop-condition response; task authorization does not authorize a commit or push.`
+- **Blockers and Resume Condition**: `No T3 implementation-path blocker remains; implementation and local runtime verification are accepted in the exact six authorized runtime/test/config paths. The local closeout commit is authorized subject to the specified gates. Stop afterward; T4–T6 remain unauthorized.`
+- **Verification Status**: `T2 runtime acceptance remains recorded in the Task Record. T3 focused coordinator tests passed 16/16; bounded replacement regression tests passed 30/30; full npm test passed 529/529 across 30 files. npm run typecheck, npm run lint, and npm run build passed under Node 24.20.0 / npm 11.19.0. Disposable Git fixtures failed to launch under the default sandbox with spawnSync git EPERM and passed unchanged under the previously approved host path. Final diff check and PromptKit reference validation (240 Markdown files) passed; the 23-contract execution-control fixture harness and fixed-scope harness-security scan passed. The execution-control validator retained 98 unrelated historical findings across six records and reported no M4-specific finding. Credential-pattern and debug/probe scans had no matches. Exact-scope/artifact inspection found only the six authorized runtime/test/config paths plus these two control-state files; package manifests are unchanged, .sureflow/task.json and .omo are absent, pre-existing ignored repository-root .sureflow state was untouched, and dist is the ignored build output. No T4+ behavior is authorized.`
+- **Changed-File Summary**: `The active M4-T3 scope is exactly src/completeTargetSet.ts, src/boundedReplacement.ts, src/singleFileReplacement.ts, tests/m4T3WriteCoordinator.test.ts, tsconfig.json, src/m4WriteCoordinator.ts, the Task Record, and docs/STATE.md. No other runtime, test, fixture, package, dependency, CI, or T4+ implementation is authorized.`
+- **Latest Checkpoint**: `M4-T3 implementation and runtime verification accepted within exact authorized scope on 2026-09-24; this local closeout commit closes T3 only. Current branch base remains accepted T2 commit 79f149996523b9104c3071a2c151cd289e805e07.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `M4-T1 requires separate human authorization; no implementation task is active.`
+- **Next Action**: `Complete the canonical T3 closeout gates, commit exactly the eight authorized files, and stop; do not begin T4+ or push.`
 
 ---
 
@@ -171,7 +174,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - No technical M3 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4 planning is authorized, but M4 implementation and any branch/worktree cleanup remain separately gated.
+  - No technical M3 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T3 implementation and local runtime verification are accepted within the six explicitly authorized paths; this local closeout commit closes T3 only. T4–T6 and branch/worktree cleanup remain separately gated.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -190,7 +193,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ## 7. Next Immediate Actions (Queued)
 1. No further M3 implementation action is required.
 2. Any branch/worktree cleanup requires separate authorization.
-3. M4-T1 through M4-T6 implementation and all remote actions require separate authorization.
+3. M4-T1, M4-T2, and M4-T3 are accepted; this local closeout commit closes T3 only. M4-T4 through M4-T6 remain not started / not authorized, as do all remote actions.
 
 ---
 
@@ -231,6 +234,8 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-23 | Human authority / Codex | M3 PR readiness and integration | PR #1 was marked ready, its final body metadata was reconciled, and it was merged with normal merge commit `f711876da659bb9c36745b3189eac986f94ba7ea`; the remote `m3-core` branch was later observed absent while local `m3-core` remained, with no recreation or remediation performed |
 | 2026-09-23 | Human authority / Codex | M3 post-merge validation | Main CI run `35750536825`, job `106823643297`, passed pnpm `9.15.4`, npm ci, typecheck, `460/460` tests across 26 files, focused T4 `7/7`, lint, build, diff check, and tracked-tree cleanliness; M3 integration is validated |
 | 2026-09-23 | Human authority / Codex | Post-merge documentation reconciliation | Reconciled the canonical STATE projection and M3 Task Record to the completed PR #1 merge and green post-merge main CI; no M4/post-M3 feature work was introduced |
+| 2026-09-24 | Human authority / Codex | M4-T3 control-state transition authorization | T2 accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`; authorized this Task Record and STATE projection only. T3 runtime paths are absent from the canonical plan and await explicit scope authorization; T4+ and push remain unauthorized |
+| 2026-09-24 | Human authority / Codex | M4-T3 exact implementation scope authorization | Authorized exactly `src/completeTargetSet.ts`, `src/boundedReplacement.ts`, new `src/singleFileReplacement.ts`, new `src/m4WriteCoordinator.ts`, new `tests/m4T3WriteCoordinator.test.ts`, and `tsconfig.json`; the two control-state files remain authorized for T3 scope/evidence reconciliation. T4+ and push remain unauthorized |
 
 ---
 

@@ -12,10 +12,10 @@
 - **Milestone**: M4 — Bounded Multi-File Delivery
 - **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md`
 - **Owner / Actor**: Human authority / Codex
-- **Execution Scope**: M4-T2 closeout only; exact ten-file scope is listed under `In Scope` and reconciled in §1.1. The accepted eight-file runtime implementation is unchanged.
-- **Approval Boundary**: The M4 planning baseline was initially documentation-only. T1 and T2 were subsequently authorized separately; this T2 closeout is authorized. T3–T6 and push remain unauthorized.
+- **Execution Scope**: M4-T3 implementation in exactly six runtime/test/config paths: `src/completeTargetSet.ts`, `src/boundedReplacement.ts`, `src/singleFileReplacement.ts`, `src/m4WriteCoordinator.ts`, `tests/m4T3WriteCoordinator.test.ts`, and `tsconfig.json`; the previously authorized control-state paths remain this Task Record and `docs/STATE.md`.
+- **Approval Boundary**: The M4 planning baseline was initially documentation-only. T1 and T2 were subsequently authorized, completed, accepted, and committed. T3 implementation was explicitly authorized only in the exact six runtime/test/config paths listed above, alongside the already-authorized control-state documents. T3 is now implementation-complete and accepted; its local closeout commit is explicitly authorized subject to the canonical T3 commit gate. T4–T6 and push remain unauthorized.
 - **Created**: `2026-09-23`
-- **Objective**: Complete the separately authorized M4-T2 read-only complete-set preflight while preserving the historical M4 planning baseline and T1 boundary.
+- **Objective**: Implement deterministic bounded multi-file mutation for an already-eligible schema-v2 complete target set, preserving T1/T2 authority and read-only preflight invariants; report truthful partial-write refusal without rollback, retry, or transaction claims.
 - **Initial Planning In Scope (2026-09-23)**:
   - `ROADMAP.md`
   - `docs/STATE.md`
@@ -37,9 +37,9 @@
   - Automatic rollback, generalized project mutation, autonomy, providers/MCP/skills, deployment, or PromptKit migration in M4
 - **Dependencies**: Accepted M1–M3, closed npm/pnpm adapters, existing lock/containment/replacement/scope/evidence boundaries; no new dependency
 - **Risk**: High — partial writes and false-positive acceptance require complete-set preflight and aggregate proof
-- **Verification Condition**: Exact ten-file T2 closeout scope; focused and full tests, typecheck, lint, build, diff check, and record/scope/harness/security hygiene pass. No T3+ implementation.
+- **Verification Condition**: Exact six-path T3 runtime/test/config scope plus the two authorized control-state files; focused T3 and M2/M4 regression tests, full `npm test`, typecheck, lint, build, diff check, PromptKit/reference validation, M4 execution-control and fixed-scope harness checks, secret/probe/artifact scans, and final exact-scope inspection pass. No T4+ behavior; commit only if the canonical T3 commit gate is satisfied.
 - **Mode**: `Gated Mode`
-- **Batch Authorization**: None; T1 and T2 were separately authorized. No T3+ authorization.
+- **Batch Authorization**: None; T1 and T2 were separately authorized and accepted. T3 is separately authorized only for its exact six runtime/test/config paths and the two previously authorized control-state documents; no T4+ or push authorization.
 - **Soft Checkpoint**: At each separately authorized T task completion or human review
 - **Hard Checkpoint**: Before each task transition, commit, push, scope expansion, or acceptance decision
 - **Event-Driven Checkpoints**: Planning approval, implementation authorization, test failure, review, commit, push, remote CI, scope change, handoff
@@ -50,9 +50,9 @@
 - **Mapped `pk:tasks` Status**: `In Progress`
 - **Active Task Pointer**: `TASK-2026-09-23-m4-bounded-multi-file-delivery`
 - **TDD Enforcement Mode**: `disabled`
-- **Start Time**: `Not recorded; T2 closeout active as of 2026-09-24`
-- **Current Actor**: Human authority / Codex — authorized M4-T2 closeout only.
-- **Next Action**: Stop after the authorized local T2 closeout; M4-T3 requires separate explicit authorization, and no push is authorized.
+- **Start Time**: `2026-09-24; T3 control-state transition (time not recorded)`
+- **Current Actor**: Human authority / Codex — authorized M4-T3 closeout in exactly the six runtime/test/config paths and two control-state documents; no T4+ or push authority.
+- **Next Action**: Complete the canonical T3 closeout gates, commit exactly the eight authorized files if they pass, then stop. Do not begin T4+ or push.
 - **Initial Planning Changed Files**:
   - `ROADMAP.md`
   - `docs/STATE.md`
@@ -70,22 +70,22 @@
   - `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`
   - `docs/STATE.md`
 - **Historical Corrective Documentation Scope**: The prior hardening correction touched the linked M4 specification and this Task Record; the post-merge factual reconciliation touched only `docs/STATE.md` and this Task Record. The original four-file baseline scope above is historical.
-- **Scope Change Records**: [SCOPE-2026-09-24-m4-t2-closeout-1](#SCOPE-2026-09-24-m4-t2-closeout-1), [SCOPE-2026-09-24-m4-t2-closeout-2](#SCOPE-2026-09-24-m4-t2-closeout-2)
+- **Scope Change Records**: [SCOPE-2026-09-24-m4-t2-closeout-1](#SCOPE-2026-09-24-m4-t2-closeout-1), [SCOPE-2026-09-24-m4-t2-closeout-2](#SCOPE-2026-09-24-m4-t2-closeout-2), [SCOPE-2026-09-24-m4-t3-transition](#SCOPE-2026-09-24-m4-t3-transition), [SCOPE-2026-09-24-m4-t3-implementation](#SCOPE-2026-09-24-m4-t3-implementation)
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
-- **Verification Evidence**: M4-T2 focused tests passed `15/15`; full `npm test` passed `513/513` across 29 files. `npm run typecheck`, `npm run lint`, `npm run build`, and `git diff --check` passed. The execution-control validator resolved all five M4-specific findings and retained 98 unrelated historical findings across six records; its 23-contract fixture harness and PromptKit reference validation passed. Harness, scope, secret/credential, debug/probe, and unwanted-artifact checks passed. Runtime: Node `24.20.0`, npm `11.19.0`. The default sandbox returned `spawnSync git EPERM` for disposable fixtures; focused/full tests passed unchanged under approved host execution. Preflight remains read-only. Repository-root `.sureflow/` was pre-existing ignored state, untouched by T2; `.sureflow/task.json` is absent, and acceptance uses isolated temporary roots. `package.json` and `package-lock.json` are unchanged.
+- **Verification Evidence**: M4-T2 focused tests passed `15/15`; full `npm test` passed `513/513` across 29 files. `npm run typecheck`, `npm run lint`, `npm run build`, and `git diff --check` passed. The execution-control validator resolved all five M4-specific findings and retained 98 unrelated historical findings across six records; its 23-contract fixture harness and PromptKit reference validation passed. Harness, scope, secret/credential, debug/probe, and unwanted-artifact checks passed. Runtime: Node `24.20.0`, npm `11.19.0`. The default sandbox returned `spawnSync git EPERM` for disposable fixtures; focused/full tests passed unchanged under approved host execution. Preflight remains read-only. Repository-root `.sureflow/` was pre-existing ignored state, untouched by T2; `.sureflow/task.json` is absent, and acceptance uses isolated temporary roots. `package.json` and `package-lock.json` are unchanged. The M4-T3 control-state transition checks on `2026-09-24` passed: execution-control validation emitted no M4-specific findings (98 unrelated historical findings across six records remain), PromptKit reference validation passed, `git diff --check` passed, the Bash execution-control fixture harness passed 23 isolated contracts, and the fixed-scope harness-security scan reported no findings.
 - **CI Evidence**: Planning-only PR #4 CI run `35815585170` succeeded. Post-merge main CI run `35816292161`, job `107038411878`, tested canonical merge SHA `4ae37149c0d0516499088f0ffd746d13e6bb1fde` and succeeded: Node 24, pnpm `9.15.4`, npm ci, typecheck, `460/460` tests across 26 files including focused M3-T4 `7/7`, lint, build, `git diff --check`, and tracked-tree cleanliness passed. Deprecated ESLint, two moderate npm audit findings, and the esbuild install-script approval warning were non-blocking. This is planning/integration regression CI, not M4 runtime acceptance.
-- **Review Evidence**: The initial planning review and corrective re-review are recorded below and remain historical. The T2 implementation report was subsequently reviewed and accepted by the user; no independent code review is claimed.
-- **Commit Evidence**: Planning commits `05904b3949297b54779c04720e2b5f8020b3b9a1` and `3cd51bcbd2e5adee67491bc794af7b58df35f997` were integrated through PR #4 at `4ae37149c0d0516499088f0ffd746d13e6bb1fde`. M4-T1 was later accepted at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`. The T2 local closeout is authorized with subject `feat(m4): add complete-set preflight`; no push is authorized.
+- **Review Evidence**: The initial planning review and corrective re-review are recorded below and remain historical. The T2 implementation report was subsequently reviewed and accepted by the user. The T3 read-only scope-discovery report was accepted before implementation; the completed T3 implementation and verification report has now been reviewed and accepted by the user. No independent code review is claimed.
+- **Commit Evidence**: Planning commits `05904b3949297b54779c04720e2b5f8020b3b9a1` and `3cd51bcbd2e5adee67491bc794af7b58df35f997` were integrated through PR #4 at `4ae37149c0d0516499088f0ffd746d13e6bb1fde`. M4-T1 was accepted at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`. M4-T2 was accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07` (`feat(m4): add complete-set preflight`). M4-T3 closeout commit is explicitly authorized by the 2026-09-24 acceptance, conditional on the canonical gates; Git supplies its SHA, which is not embedded in this self-referential record. Nothing has been pushed.
 - **Pull Request Evidence**: [PR #4 — docs(m4): plan bounded multi-file delivery](https://github.com/lowqualityloey/sureflow/pull/4) merged by normal merge commit at `2026-09-23 03:56:03 UTC`; head `3cd51bcbd2e5adee67491bc794af7b58df35f997`, merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde`. It contained planning documents only.
 - **Release Evidence**: None — no release authorized
-- **Blocker and Resume Condition**: No T2 blocker remains within the authorized scope. M4-T3 requires separate explicit human authorization.
-- **Completion State**: M4 is not complete; T1 is accepted/committed, T2 is accepted for local closeout, and T3–T6 are not started or authorized.
-- **Acceptance Results**: The initial planning baseline was accepted and integrated. M4-T1 was completed, verified, accepted, and committed at the recorded SHA. M4-T2 passed the evidence in Verification Evidence and is accepted; M4 as a whole is not complete.
-- **Changed-File Summary**: The current T2 closeout contains exactly the ten files under Changed Files: eight accepted implementation/test/configuration files plus Task Record and `docs/STATE.md` reconciliations. No other file is in scope.
+- **Blocker and Resume Condition**: No T3 implementation-path blocker remains; implementation and runtime verification are complete and accepted within the six exact paths. The local T3 closeout commit is authorized only after the specified gates pass. Stop after that commit; T4–T6 remain not started / not authorized.
+- **Completion State**: M4 is not complete; T1 and T2 are accepted and committed, M4-T3 implementation and local verification are accepted and its authorized local closeout commit closes this task boundary, and T4–T6 remain not started / not authorized.
+- **Acceptance Results**: The initial planning baseline was accepted and integrated. M4-T1 was completed, verified, accepted, and committed at the recorded SHA. M4-T2 passed the evidence in Verification Evidence and was accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`. M4-T3 implementation and verification were accepted on `2026-09-24`; its local closeout commit is authorized subject to the recorded gates. M4 as a whole is not complete.
+- **Changed-File Summary**: The completed T2 closeout contained exactly the ten files under Changed Files. The active T3 scope is exactly the six runtime/test/config paths in Execution Scope plus this Task Record and `docs/STATE.md`; no other file is authorized.
 - **Completion Exception**: None; this is a completed T2 subtask, not M4 completion.
-- **Completion Decision and Timestamp**: M4 remains incomplete; T2 accepted for closeout on `2026-09-24`.
-- **Branch / Revision**: `codex/m4-t2`, based on the accepted T1 boundary `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`. Git determines the local T2 closeout revision; this record does not embed its own commit SHA.
+- **Completion Decision and Timestamp**: M4 remains incomplete; T2 was accepted and committed, and M4-T3 implementation/verification was accepted on `2026-09-24`; this authorized local closeout commit closes T3 only.
+- **Branch / Revision**: `codex/m4-t3`, from accepted T2 boundary `79f149996523b9104c3071a2c151cd289e805e07`; the T3 closeout revision is reported by Git and not embedded in this commit. Nothing has been pushed.
 - **Planning baseline**: PR #4 normal merge commit `4ae37149c0d0516499088f0ffd746d13e6bb1fde` is a stable historical anchor, not a claim about the live `main` HEAD
 
 **At the initial planning baseline, no M4 implementation task was authorized.**
@@ -95,8 +95,20 @@
 M4 was initially created in the documentation-only planning state recorded above. Implementation was later authorized task by task:
 
 - **M4-T1:** Completed, verified, accepted, and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05` on `2026-09-23` (`feat(m4): add v2 task contract support`).
-- **M4-T2:** Subsequently explicitly authorized. Its implementation is complete and accepted; this ten-file local closeout is authorized. No push is authorized.
-- **M4 status:** Not complete. M4-T3 through M4-T6 are not started and remain unauthorized.
+- **M4-T2:** Subsequently explicitly authorized, completed, accepted, and committed at `79f149996523b9104c3071a2c151cd289e805e07`. No push is authorized.
+- **M4 status:** Not complete. M4-T3 implementation is explicitly authorized in the exact six runtime/test/config paths recorded below, implemented, locally verified, and accepted; its local closeout commit is authorized subject to the gates. M4-T4 through M4-T6 remain not started and unauthorized.
+
+### M4-T3 authorization and control-state transition (2026-09-24)
+
+M4-T3 was explicitly authorized after M4-T2 was accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`. The active transition is limited to this Task Record and `docs/STATE.md`. Its objective is deterministic bounded multi-file mutation for an already-eligible schema-v2 complete target set, preserving T1/T2 authority and read-only complete-set preflight. The canonical T3 plan describes behavior but does not identify exact implementation paths; runtime implementation remains unstarted pending separate exact-path authorization. T4–T6 remain not started / not authorized, M4 remains incomplete, and nothing has been pushed.
+
+### M4-T3 implementation authorization (2026-09-24)
+
+After the control-state transition, human authority explicitly authorized M4-T3 implementation in exactly these six runtime/test/config paths: `src/completeTargetSet.ts`, `src/boundedReplacement.ts`, new `src/singleFileReplacement.ts`, new `src/m4WriteCoordinator.ts`, new `tests/m4T3WriteCoordinator.test.ts`, and `tsconfig.json`. The Task Record and `docs/STATE.md` remain authorized only for M4-T3 scope/state/evidence reconciliation. Preserve M2 behavior; revalidate each target against its frozen T2 observation; execute in canonical normalized-path order; stop on first refusal or write failure; report completed prefix, failed target, and unattempted suffix; do not rollback, retry, persist state/evidence, invoke project verification, or claim multi-file atomicity. T4+ and push remain unauthorized. No additional path may be edited without explicit scope expansion.
+
+**M4-T3 implementation and local verification (2026-09-24; pending human review/acceptance):** The focused coordinator suite passed `16/16`, including 2- and 5-target success, bytewise UTF-8 ordering, stale first/later target refusals, identity/canonical/trackedness refusal, thrown trackedness-probe fail-closed behavior, later rename failure with owned-temp cleanup and no rollback/suffix write, mode preservation, callback ordering/failure, and no project verification. Existing `tests/boundedReplacement.test.ts` passed `30/30`. Full `npm test` passed `529/529` across 30 files, covering M4-T1/T2 and relevant M2/M3 regressions. `npm run typecheck`, `npm run lint`, and `npm run build` passed with Node `24.20.0` / npm `11.19.0`. Disposable Git fixture tests returned `spawnSync git EPERM` before assertions in the default sandbox, then passed unchanged through the previously approved host execution path. An initial parallel broad regression run timed out two existing M2 CLI fixture tests under fixture contention; the isolated full-suite rerun passed both. Final closeout checks passed `git diff --check`, PromptKit reference validation over 240 Markdown files, the 23-contract execution-control fixture harness, and fixed-scope harness-security scan; the execution-control validator reported 98 unrelated historical findings across six records and no finding for this M4 record/projection. Targeted credential-pattern and debug/probe scans found no matches. Exact-scope inspection found only the six authorized runtime/test/config paths plus the Task Record and `docs/STATE.md`; package manifests were unchanged. Repository-root `.sureflow/` was pre-existing ignored state, not created or modified by T3; `.sureflow/task.json` is absent, disposable project tests use system temporary roots, and `.omo/` is absent. `dist/` is the ignored build output. No T4+ behavior was implemented; no package/dependency/fixture changes were made; no commit or push occurred.
+
+**M4-T3 acceptance and closeout authorization (2026-09-24):** Human authority reviewed and accepted the T3 implementation and verification report as implementation-complete, authorized the local closeout commit of exactly the six runtime/test/config paths plus the two control-state files after the specified gates pass, and directed that work stop afterward. M4 remains incomplete; T4–T6 and push remain unauthorized.
 <a id="SCOPE-2026-09-24-m4-t2-closeout-1"></a>
 
 **SCOPE-2026-09-24-m4-t2-closeout-1:** Human authority separately approved adding only this Task Record to the accepted eight-file T2 implementation scope. The complete closeout scope is exactly the nine files listed under `In Scope`; the runtime implementation is unchanged.
@@ -115,6 +127,13 @@ M4 was initially created in the documentation-only planning state recorded above
 - **Execution environment:** The focused and full fixture tests needed approved host execution because default-sandbox Git subprocesses returned `spawnSync git EPERM`. The tests passed unchanged under the qualified host environment.
 - **Preflight boundary:** Preflight remains read-only; no M4-T3 or later behavior was implemented.
 - **Repository-local `.sureflow/`:** It was pre-existing ignored state and was not created or modified by T2; repository-root `.sureflow/task.json` is absent. T2 acceptance used isolated temporary project roots and does not rely on repository-root `.sureflow/` contents. The preflight loader reads the task contract under the root supplied by its caller; it does not write project files.
+<a id="SCOPE-2026-09-24-m4-t3-transition"></a>
+
+**SCOPE-2026-09-24-m4-t3-transition:** Human authority explicitly authorized the T3 task transition and active scope representation in exactly `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md` and `docs/STATE.md`. The canonical T3 plan does not list exact implementation paths, so none are inferred or included in this authorization; request explicit file-scope authorization before runtime edits. T4–T6 and push remain unauthorized.
+
+<a id="SCOPE-2026-09-24-m4-t3-implementation"></a>
+
+**SCOPE-2026-09-24-m4-t3-implementation:** Human authority subsequently authorized M4-T3 implementation in exactly `src/completeTargetSet.ts`, `src/boundedReplacement.ts`, `src/singleFileReplacement.ts`, `src/m4WriteCoordinator.ts`, `tests/m4T3WriteCoordinator.test.ts`, and `tsconfig.json`. The previously authorized Task Record and `docs/STATE.md` remain limited to T3 control-state/scope/evidence reconciliation. No other path, T4+ behavior, commit outside the canonical T3 commit gate, or push is authorized.
 
 ## 2. Objective and scope
 
@@ -219,13 +238,14 @@ are marked complete below; this does not authorize T3 or later work.
   version-2 set while preserving version-1 behavior. One invalid target must
   cause zero target writes. **Status:** Implementation complete and accepted;
   the authorized closeout is local only, and no push is authorized.
-- [ ] **M4-T3 — Deterministic ordered write coordinator.** Bytewise normalized
+- [x] **M4-T3 — Deterministic ordered write coordinator.** Bytewise normalized
   path order, fresh per-target apply-time validation against its frozen
   physical identity and literal trackedness, accepted per-file temporary/
   rename semantics, truthful completed-prefix/first-refusal reporting using
   the closed `refused:<code>` set, cleanup only of owned temp files, and no
   rollback/retry. Exercise first/later stale or identity-changed targets
-  plus injected later rename failure.
+  plus injected later rename failure. **Status:** Implementation and verification
+  accepted; the authorized local closeout commit completes T3 only.
 - [ ] **M4-T4 — Set-based scope and aggregate write-evidence verification.**
   Exact Git-visible set equality; strict one-tuple-per-target successful
   evidence, empty-or-longer success prefix plus one first refusal and zero
@@ -253,10 +273,15 @@ are marked complete below; this does not authorize T3 or later work.
   T0/M2/M3 compatibility and full repository gates. Local success is not
   remote acceptance.
 
-**Task transition rule:** T1 through T6 remain unauthorized until separately
-approved. A completed task does not automatically authorize the next task.
-Commit, push, PR, merge, release, and any scope enlargement each require the
-separate approval applicable at that point.
+**Task transition rule:** Each T task requires separate approval. T1 and T2
+are accepted and committed; T3 implementation is explicitly authorized in the
+exact six runtime/test/config paths recorded in §1 plus the two control-state
+documents for T3 reconciliation. T3 implementation and runtime verification
+are complete and accepted; this local T3 closeout commit is explicitly
+authorized subject to the canonical gates. T4–T6 remain unauthorized. A
+completed task does not automatically authorize the next task. Push, PR,
+merge, release, and any further scope enlargement each require the separate
+approval applicable at that point.
 
 ## 4. Acceptance and verification contract
 
@@ -310,15 +335,13 @@ not a milestone-quality metric.
 
 ## 5. State, checkpoints, and stop conditions
 
-- **Current actor**: Human authority / Codex, authorized M4-T2 closeout only.
-- **Current task**: M4-T2 complete and accepted; no M4-T3 task is active.
-- **Current revision**: M4-T1 boundary `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`.
-  The T2 closeout is authorized as a local ten-file commit; no push is
-  authorized. This record does not embed a self-referential closeout SHA; Git
-  determines the live branch revision.
+- **Current actor**: Human authority / Codex, authorized M4-T3 closeout in the six exact paths listed in §1 plus this Task Record and `docs/STATE.md`; no T4+ or push authority.
+- **Current task**: M4-T3 implementation and runtime verification accepted; the explicitly authorized local closeout commit is gated on final checks. T4–T6 remain unauthorized.
+- **Current revision**: Accepted M4-T2 commit `79f149996523b9104c3071a2c151cd289e805e07` on `codex/m4-t3`; nothing has been pushed.
 - **Current implementation evidence**: T1 and T2 status and T2 verification
-  evidence are recorded in §1.1 and the implementation chain above. M4-T3+
-  remain unstarted and unauthorized.
+  evidence are recorded in §1.1 and the implementation chain above. T3 is
+  implemented, runtime-verified, and accepted in the exact paths recorded in
+  §1. T4–T6 remain unstarted and unauthorized.
 - **Checkpoint**: Before each T task start, completion, commit, push,
   acceptance, scope change, or human handoff; no automatic transition.
 - **Stop conditions**: Any request to broaden 2–5 existing tracked files,
@@ -326,8 +349,8 @@ not a milestone-quality metric.
   default-deny or evidence requirements, claim transaction/rollback/sandbox
   guarantees, change historical v1/v2 semantics, or cross an unapproved task
   boundary. Stop and seek explicit human authority.
-- **Next action**: No further implementation is authorized by this closeout.
-  M4-T3 requires separate explicit human authorization; no push is authorized.
+- **Next action**: Pass the canonical T3 closeout gates, commit exactly the
+  authorized eight files, then stop. T4+ and push are unauthorized.
 
 ## 6. Transition history
 
@@ -339,4 +362,6 @@ not a milestone-quality metric.
 
 **Planning-only event (2026-09-23; no state change):** Five review blockers were corrected in the specification and Task Record; execution remained `planned`.
 
-**Later task events while M4 remained `in_progress`:** T1 was completed, verified, accepted, and committed on 2026-09-23. T2 was subsequently authorized, completed, and accepted on 2026-09-24; its local closeout is authorized, with no push or T3+ work authorized.
+**M4-T3 authorization event (2026-09-24; execution state unchanged):** After M4-T2 was accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`, human authority authorized the M4-T3 control-state transition in the exact two-document scope recorded above. The canonical plan does not identify T3 implementation paths; code implementation remains unstarted pending separate exact-path authorization.
+
+**Later task events while M4 remained `in_progress`:** T1 was completed, verified, accepted, and committed on 2026-09-23. T2 was subsequently authorized, completed, accepted, and committed at `79f149996523b9104c3071a2c151cd289e805e07` on 2026-09-24. T3 was first authorized for the two-file control-state transition, then separately authorized for exactly the six runtime/test/config paths recorded above; implementation and local verification completed and were accepted on 2026-09-24. This local closeout commit closes T3 only; T4–T6 and push remain unauthorized.
