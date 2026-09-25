@@ -197,9 +197,10 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 ## 4. Deterministic package architecture
 
 ```text
-approved identity/version
-  -> clean package output
-  -> package-only TypeScript compilation
+identity-independent T1 build/bin contract (separate authorization required)
+  -> authenticated package identity before T2
+  -> T2 approved identity/version manifest and package allowlist
+  -> clean final package output + package-only TypeScript compilation
   -> npm pack
   -> complete tarball inspection + SHA-256/integrity capture
   -> install exact tarball in independent runner
@@ -313,14 +314,16 @@ out of scope unless separately selected later.
 
 ## 10. Dependency-ordered work breakdown
 
-- **T0 - Distribution decision preflight**: Resolve authenticated npm identity
-  and permission, final package name, approved version, initial dist-tag policy,
-  initial support claim, and authorized dogfood project. STOP if any required
-  decision is unresolved. Do not publish.
-- **T1 - Deterministic package/bin contract**: Implement package-specific clean
-  build, public CLI shebang, required compiled runtime, and stale-output
-  prevention.
-- **T2 - Bounded package manifest**: Apply the approved identity/version,
+- **T0 - Distribution decision preflight**: Record decision state and
+  downstream prerequisites. Package identity must be authenticated before T2
+  or T6; dogfood selection is required before T5; separate publication
+  authority is required before T6. Do not publish.
+- **T1 - Deterministic package/bin contract**: After separate authorization,
+  implement the identity-independent package-specific clean build, public CLI
+  shebang, required compiled runtime, and stale-output prevention. T1 must not
+  change package name/version/tags, `package.json`, or `package-lock.json`.
+- **T2 - Bounded package manifest**: Only after authenticated package identity
+  is resolved, apply the approved identity/version,
   metadata, positive content allowlist, and lockfile synchronization. Add no
   dependency without separate justification.
 - **T3 - Exact-tarball acceptance**: Pack, inspect every entry, capture artifact
@@ -378,14 +381,13 @@ paths is authorized by this planning record.
 
 ## 12. Open human decisions and readiness gate
 
-T0 must resolve all six before implementation metadata changes:
-
-1. Authenticated npm identity and final package name.
-2. Approval of `0.1.0` or another first version.
-3. Initial validation and promotion dist-tag policy.
-4. Initial supported-platform claim.
-5. Independent dogfood project and mutation authority.
-6. Separate publication authority.
+T0 records decision state and downstream prerequisites; it does not require all
+later-task decisions or external authority to be consumed immediately. Package
+identity must be verified through a human-controlled authenticated check before
+T2 or T6. Dogfood selection and mutation authority are required before T5.
+Publication authority is separately required before T6. Identity-independent
+T1 may be considered for separate authorization without changing
+`package.json`, `package-lock.json`, identity, version, or dist-tags.
 
 The Distribution / First-Use gate remains OPEN until the accepted exact
 artifact, installed-package flows, dogfood, separately authorized publication,

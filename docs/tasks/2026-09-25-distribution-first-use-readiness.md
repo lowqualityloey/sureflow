@@ -13,9 +13,9 @@
 - **Assumption Record Links**: `None`
 - **Specification**: [Distribution / First-Use Readiness](../specs/2026-09-25-distribution-first-use-readiness.md)
 - **External Reference**: `N/A - local planning records remain authoritative`
-- **Owner / Actor**: Human authority owns every execution and publication decision; Codex is authorized only to create these planning/control records.
-- **Execution Scope**: Exactly `docs/specs/2026-09-25-distribution-first-use-readiness.md`, this Task Record, and `docs/STATE.md` at baseline `main` / `449f1ad0957e67a3f2e0ee6eea09b68513c1c8f9`.
-- **Approval Boundary**: The original authorization covered planning/control records only. Human authority accepted those records and now authorizes exactly one local commit of these three paths with message `docs(distribution): plan first-use readiness`. Push, T0, package implementation, npm authentication or ownership claim, version/tag change, source/test/CI/README change, publication, release automation, and M5 remain unauthorized.
+- **Owner / Actor**: Human authority owns every execution and publication decision; Codex is authorized only to reconcile the T0 control records and T1 prerequisite wording in the specification.
+- **Execution Scope**: Exactly this Task Record and `docs/STATE.md` for T0 decision/status reconciliation, plus the specification only to clarify that identity-independent T1 does not require package identity or metadata changes. Baseline: `main` / `f293d20715c98d461acae01aa33c527528ca985a`.
+- **Approval Boundary**: This authorization covers control-record reconciliation only. T0 is recorded complete as a decision preflight with package identity blocked, dogfood deferred, and publication reserved for T6. T1 implementation, npm authentication, package metadata changes, dogfood mutation, T2-T6 execution, commit, push, release automation, and M5 remain unauthorized.
 - **Created**: 2026-09-25
 
 ## 2. Objective and boundaries
@@ -24,32 +24,32 @@
 - **In Scope**:
   - The specification, this canonical Task Record, and minimal STATE projection.
   - Preferred/fallback package-identity decision process.
-  - Proposed version/tag sequence, deterministic package contract, exact-artifact invariant, installed-package acceptance, first-use acceptance, dogfood requirement, package-only CI boundary, and T0-T6 gates.
+  - Approved first version/tag sequence and platform baseline; deterministic package contract, exact-artifact invariant, installed-package acceptance, first-use acceptance, deferred dogfood requirement, package-only CI boundary, and T0-T6 gates.
 - **Explicit Non-Goals**:
   - Any implementation or modification outside the three planning/control paths.
   - Final package identity, npm authentication, name claiming, package/version/tag mutation, publication, or release automation.
   - Task-authoring wizard, interactive generator, autonomous task creation, new mutation capability, adapter expansion, M5, or another milestone.
   - Rewriting M1-M4 history or changing their accepted behavior.
-- **Dependencies**: M1-M4 and post-M4 remediation complete; ROADMAP Distribution / First-Use gate OPEN; Node 24/npm 11/Linux evidence baseline; required human decisions listed in T0.
+- **Dependencies**: M1-M4 and post-M4 remediation complete; ROADMAP Distribution / First-Use gate OPEN; Node 24/npm 11/Linux evidence baseline; authenticated package identity before T2/T6; dogfood selection before T5; separate publication authority before T6.
 - **Risk**: `High` - this work eventually changes a public executable/package contract and may perform irreversible registry operations. Gated tasks, exact-artifact identity, independent acceptance, and separate publication/tag authority mitigate the risk.
-- **Verification Condition**: For this planning authorization, exactly the three authorized paths differ; Markdown references and local links resolve; `git diff --check` passes; no package/source/test/CI metadata changes; M1-M4 remain complete; gate remains OPEN; M5 and publication remain unauthorized.
+- **Verification Condition**: Only the two control records and, if needed, the T1 prerequisite clarification in the specification differ; Markdown references and local links resolve; `git diff --check` passes; no package/source/test/CI metadata changes; M1-M4 remain complete; gate remains OPEN; implementation, publication, and M5 remain unauthorized.
 
 ## 3. Gated dependency-ordered task breakdown
 
-- [ ] **T0 - Distribution decision preflight**: Authenticated npm identity/permission, final package name, approved version, initial dist-tag policy, initial support claim, and authorized dogfood project. STOP while any decision is unresolved. No login, claim, metadata mutation, or publication is currently authorized.
-- [ ] **T1 - Deterministic package/bin contract**: Package-specific clean build, public CLI shebang, required compiled runtime, and stale-output prevention. Exact paths require separate authorization.
-- [ ] **T2 - Bounded package manifest**: Approved identity/version, metadata, positive package-content allowlist, and lockfile synchronization; no dependency additions without separate justification and authority.
-- [ ] **T3 - Exact-tarball acceptance**: `npm pack`, complete content inspection, hash/integrity capture, exact-tarball installation, and installed-bin smoke tests.
-- [ ] **T4 - Independent first-use acceptance**: Installed-tarball help/init, schema-v2 accepted flow, fail-closed flow, and target-root correctness.
-- [ ] **T5 - Dogfood and release-readiness reconciliation**: Approved external-project dogfood and current-facing documentation/evidence preparation; no publication.
-- [ ] **T6 - Separately authorized publication and registry proof**: Publish only the exact accepted tarball after explicit authority; prove version-qualified invocation; separately authorize tag promotion; prove unversioned invocation if documented; reconcile the ROADMAP gate only after complete evidence.
+- [x] **T0 - Distribution decision preflight**: Complete as a decision preflight. Version `0.1.0`, the `next` then separately authorized `latest` policy, and the initial Linux / Node 24 / npm 11 / Git support baseline are resolved. Package identity is blocked pending authenticated npm evidence; dogfood is deferred until before T5; publication is reserved for separately authorized T6. No authentication, metadata mutation, dogfood mutation, or publication occurred.
+- [ ] **T1 - Deterministic package/bin contract**: READY FOR SEPARATE AUTHORIZATION; not started. May address identity-independent clean build, public CLI shebang, required compiled runtime, and stale-output prevention only. Must not change package name, version, dist-tags, `package.json`, or `package-lock.json`, authenticate, or publish.
+- [ ] **T2 - Bounded package manifest**: BLOCKED until package identity is resolved through a human-controlled authenticated npm check; then apply the approved identity/version, metadata, positive package-content allowlist, and lockfile synchronization. No dependency additions without separate justification and authority.
+- [ ] **T3 - Exact-tarball acceptance (not started / unauthorized)**: `npm pack`, complete content inspection, hash/integrity capture, exact-tarball installation, and installed-bin smoke tests.
+- [ ] **T4 - Independent first-use acceptance (not started / unauthorized)**: Installed-tarball help/init, schema-v2 accepted flow, fail-closed flow, and target-root correctness.
+- [ ] **T5 - Dogfood and release-readiness reconciliation (not started / unauthorized)**: Select an approved external project only after the required read-only compatibility check, then perform separately authorized dogfood and current-facing documentation/evidence preparation; no publication.
+- [ ] **T6 - Separately authorized publication and registry proof (not started / unauthorized)**: Publish only the exact accepted tarball after explicit authority; prove version-qualified invocation; separately authorize tag promotion; prove unversioned invocation if documented; reconcile the ROADMAP gate only after complete evidence.
 
 Each task needs separate explicit scope/authority. Completion of one task never
 authorizes the next, and T6 is not implicitly authorized by T1-T5.
 
 ## 4. Acceptance criteria
 
-- [ ] **AC-1 - Authority and decisions**: T0 records authenticated package permission and explicit human decisions for identity, version, dist-tags, platform claim, dogfood project, and publication boundary before implementation metadata changes.
+- [ ] **AC-1 - Authority and decisions**: T0 records approved version, dist-tag policy, and initial platform baseline, plus the identity blocker, deferred dogfood decision, and T6 publication boundary. Authenticated identity is required before T2/T6; dogfood selection is required before T5; separate publication authority is required before T6. T1 does not change package metadata and may be separately authorized independently.
 - [ ] **AC-2 - Deterministic bounded package**: A clean package-only build emits the required runtime with a valid Node shebang, no stale modules, no source-checkout dependency, and a positive content allowlist excluding internal/development material and secrets.
 - [ ] **AC-3 - Exact artifact**: One tarball is fully inspected and identified by path/name, SHA-256, and npm integrity when available; every later acceptance, dogfood, and publication action consumes those exact bytes. Any rebuild invalidates acceptance.
 - [ ] **AC-4 - Installed-package first use**: An independent runner installs the exact tarball and its installed `.bin` completes `--help -> init -> task creation -> preflight -> run -> status -> verify` against a separate supported project.
@@ -66,7 +66,7 @@ authorizes the next, and T6 is not implicitly authorized by T1-T5.
 - **Soft Checkpoint**: After each separately authorized T task and before presenting evidence for human review.
 - **Hard Checkpoint**: Before metadata/version changes, external-project mutation, commit, push, npm authentication, package publication, dist-tag mutation, ROADMAP gate closure, or transition to another T task.
 - **Event-Driven Checkpoints**: Identity/permission result, scope discovery, package-content discrepancy, artifact rebuild/hash change, installed-bin failure, first-use failure, dogfood decision/failure, publication request, registry/tag result, or scope expansion.
-- **Stop Conditions**: Unresolved T0 decision; unexpected baseline/scope; required path not authorized; dependency addition without justification; stale or leaking artifact; checkout-dependent execution; unsupported platform claim; artifact rebuild after acceptance; missing publication/tag authority; failed gate requiring broader scope; any M5 work.
+- **Stop Conditions**: Missing authenticated identity before T2/T6; missing dogfood selection/authority before T5; missing separate publication authority before T6; unexpected baseline/scope; required path not authorized; dependency addition without justification; stale or leaking artifact; checkout-dependent execution; unsupported platform claim; artifact rebuild after acceptance; failed gate requiring broader scope; any M5 work. These downstream blockers do not themselves block an independently authorized T1 that makes no package metadata changes.
 - **Host Timer Capability**: Live host timing and forced termination are unavailable; checkpoints are manual.
 
 ## 6. State and active ownership
@@ -75,8 +75,8 @@ authorizes the next, and T6 is not implicitly authorized by T1-T5.
 - **Mapped `pk:tasks` Status**: `To Do`
 - **Active Task Pointer**: `None`
 - **Start Time**: `N/A - implementation has not started`
-- **Current Actor**: Human authority / Codex - planning records only
-- **Next Action**: After this authorized local commit, await separate human authorization for T0. Do not start T0 or implementation now.
+- **Current Actor**: Human authority / Codex - T0 control-record reconciliation only
+- **Next Action**: Await separate human authorization before T1. Do not start implementation, authenticate to npm, change package metadata, mutate a dogfood project, publish, or begin M5.
 
 ### Transition history
 
@@ -84,14 +84,21 @@ authorizes the next, and T6 is not implicitly authorized by T1-T5.
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | N/A | planned | 2026-09-25 | Human authority / Codex | Read-only investigation accepted and exact three-file planning/control scope authorized; implementation and publication remain unauthorized. | [Planning specification](../specs/2026-09-25-distribution-first-use-readiness.md) |
 
-## 7. Open human decisions
+### T0 decision update (2026-09-26)
 
-1. Authenticated npm identity and final package name: preferred `sureflow` if legitimately publishable; fallback `@lowqualityloey/sureflow`.
-2. Approval of proposed `0.1.0` or another first distributable version.
-3. Initial non-default validation tag and later promotion policy.
-4. Initial supported-platform claim; current demonstrated baseline is Linux / Node 24 / npm 11.
-5. Independent external dogfood project and mutation authority.
-6. Separate publication authority and later registry/tag authority.
+Human authority approved version `0.1.0`, the `next` then separately authorized
+`latest` policy, and the Linux / Node 24 / npm 11 / Git baseline. T0 is complete
+as a decision preflight with identity blocked, dogfood deferred, and publication
+reserved for T6. T1 is ready for separate authorization but has not started.
+
+## 7. Decision status and remaining human decisions
+
+1. Authenticated npm identity and final package name remain unresolved: preferred `sureflow`; fallback `@lowqualityloey/sureflow`. Before T2, the maintainer must authenticate personally; after separate authorization, a read-only check must verify `npm whoami`, the authenticated username, registry visibility of `sureflow`, the authenticated user's scope, and whether the fallback matches that namespace. Never store or expose passwords, OTPs, tokens, or `.npmrc` credentials. Registry E404 is not ownership evidence.
+2. First planned public version: approved as `0.1.0`.
+3. Tag policy: first separately authorized publication uses `next`; version-qualified acceptance follows; promoting that exact version to `latest` requires separate explicit authorization. Document unversioned `npx` only after `latest` behavior is proven.
+4. Initial support baseline approved as Linux / Node 24 / npm 11 / Git / currently supported standalone Node/TypeScript project shapes. macOS and Windows remain unclaimed until installed-package acceptance exists.
+5. Dogfood project remains unselected and mutation authority is absent. `fast-jev-compaction` is not selected because write authority is not established. `job-tracker` remains a candidate; before selection, require a separately authorized read-only compatibility check, especially whether the fixed `npm test` path exits deterministically.
+6. Publication is reserved exclusively for separately authorized T6.
 
 Registry 404 does not settle ownership. No open decision may be silently treated
 as approved.
@@ -107,24 +114,24 @@ as approved.
 
 ## 9. Evidence and completion gate
 
-- **Changed Files**: Planning authorization only: specification, this Task Record, and `docs/STATE.md`.
+- **Changed Files**: T0 control-record reconciliation: this Task Record and `docs/STATE.md`; the specification may change only for the identity-independent T1 prerequisite clarification.
 - **Scope Change Records**: `None`
 - **Checkpoint Records**: `None`
 - **Handoff Records**: `None`
-- **Verification Evidence**: Exact three-path scope and `git diff --check` passed. PromptKit reference validation passed for 240 Markdown files; local-link validation passed for all three changed planning/control files. The execution-control validator reports zero findings for this Task Record/specification/STATE projection and retains exactly 98 unrelated historical findings. The read-only execution-control fixture harness passed its regression and 23 isolated contracts. No product-test or implementation evidence is claimed or required for this planning-only authorization.
+- **Verification Evidence**: This reconciliation changes exactly the three authorized documentation paths. `git diff --check`, PromptKit reference validation (240 Markdown files), changed-file local links (three files), and the execution-control fixture harness (23 isolated contracts) passed. The execution-control validator reports zero Distribution-specific findings and 98 unrelated historical findings (nonzero repository-wide result); those historical findings were not changed. No product tests were run because this is control-record-only reconciliation.
 - **Behavior IDs**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Intent Register**: `N/A - TDD Enforcement Mode disabled`
 - **TDD Execution Evidence**: `N/A - implementation not authorized`
 - **TDD Exception Verification**: Documentation/control planning uses link, reference, scope, and diff validation.
 - **CI Evidence**: `N/A - no CI change or run authorized`
-- **Review Evidence**: Human authority accepted the planning records and authorized one local commit of exactly the three paths listed in this record.
-- **Commit Evidence**: One local commit is authorized with message `docs(distribution): plan first-use readiness`; its full SHA will be available from Git history. Push remains unauthorized.
+- **Review Evidence**: Human authority approved the T0 decision values and authorized control-record reconciliation only. T1 still requires separate authorization.
+- **Commit Evidence**: One local control-record commit is authorized with message `docs(distribution): reconcile t0 decisions`; its full SHA is available from Git history after creation. Push remains unauthorized.
 - **Pull Request Evidence**: `N/A - PR not authorized`
 - **Release Evidence**: `N/A - publication and tag changes not authorized`
-- **Blocker and Resume Condition**: T0 and every implementation/publication task require separate explicit human scope/authority. The six human decisions remain open.
-- **Branch / Revision**: `main`, based on planning baseline `449f1ad0957e67a3f2e0ee6eea09b68513c1c8f9`; the authorized planning commit's SHA is available from Git history. No push is authorized.
+- **Blocker and Resume Condition**: T0 decision preflight is complete. T1 awaits separate authorization; T2/T6 are blocked on authenticated package identity; T5 awaits a dogfood decision and authority; T6 awaits separate publication authority. The readiness gate remains OPEN.
+- **Branch / Revision**: `main`, based on `f293d20715c98d461acae01aa33c527528ca985a`; one local control-record commit is authorized, while push remains unauthorized.
 - **Completion State**: `planned`
 - **Acceptance Results**: `Not run - implementation not authorized`
-- **Changed-File Summary**: `Exactly three planning/control records; no package or runtime behavior change.`
+- **Changed-File Summary**: `Only authorized control records and, if necessary, T1 prerequisite wording; no package or runtime behavior change.`
 - **Completion Exception**: `N/A - planning record remains open for review`
-- **Completion Decision and Timestamp**: `N/A - workstream gate remains OPEN`
+- **Completion Decision and Timestamp**: `N/A - this control reconciliation awaits review; workstream gate remains OPEN`
