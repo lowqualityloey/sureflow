@@ -2,11 +2,11 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — experimental source-built local CLI for bounded changes in supported Node.js/TypeScript projects
-- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — and the separate post-M4 size remediation are complete and integrated into `main` by PR #6 normal merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`. Merge-commit CI run `36096310188` passed. PR #7 then merged the final STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. No active next milestone is authorized.
+- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — and the separate post-M4 size remediation remain complete. Distribution / First-Use Readiness is an unnumbered planning-only workstream with its ROADMAP gate OPEN; no M5 or next capability milestone is selected or authorized.
 - **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. M4-T1 is accepted and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`; M4-T3 is accepted and committed at `70efa30aac32e77e845a53a6a1b6bda2567a2b89`; M4-T4 is accepted and committed at `d0473d52ab23936e0b4d308b84cdc107c17e67b7`; M4-T5 is accepted and committed at `92a33428adcb5d0321d2ac986fc0f641d3340731`; M4-T6 is human-accepted and closed. M4 remains complete. The separate post-M4 size remediation is complete at `4c07b77245b6c4f72d435214e071e4b9741824f8`; prior STATE reconciliation commits `b6b7144b61b4b0544d8586d3b0dfb10636549d12` and `a56dc7296a6a3bb9a36dfcfa70473b9eb7621905` remain in history. PR #6 merged the published `codex/m4-t6` branch into `main` at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. No M4-T7 or next milestone is authorized.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: `main`; the ten-file documentation/onboarding reconciliation is the authorized local closeout scope. Its baseline was `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`; no runtime, dependency, or next-milestone work is part of this closeout.
-- **Last Updated**: 2026-09-25
+- **Current Working Branch**: `main`; the accepted planning/control records are based on `449f1ad0957e67a3f2e0ee6eea09b68513c1c8f9`. One local commit of exactly the three authorized paths is approved; no push, T0, implementation, publication, version/tag change, or M5 work is authorized.
+- **Last Updated**: 2026-09-26
 
 
 ---
@@ -69,13 +69,16 @@
 ### Separate Post-M4 Work (M4 remains complete)
 - [x] **TASK-2026-09-25-post-m4-size-remediation**: pre-push programming-workflow size compliance only; complete, human-accepted, and committed at `4c07b77245b6c4f72d435214e071e4b9741824f8`. All closeout gates passed and all three material size-policy findings are resolved. M4 remains complete; no behavioral changes or M4-T7/next-milestone work is authorized. A later separate authorization published `codex/m4-t6` and opened PR #6 to `main`; PR #6 was merged by normal merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`, and merge-commit CI run `36096310188` passed.
 
+### Distribution / First-Use Readiness (unnumbered; gate OPEN)
+- [ ] **TASK-2026-09-25-distribution-first-use-readiness**: Full planning record and gated T0-T6 breakdown are ready for review. This is not M5 or M4.1. Implementation has not started; package identity, version, dist-tags, platform claim, dogfood project, publication, and every implementation path require separate human authority.
+
 ---
 
 ## 3. Current and Historical Working Sets
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: None. The completed `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` remains a closed behavioral/invariant reference.
-- **Active Task Spec**: None. M4 and the separate post-M4 size remediation are complete.
-- **Current Documentation Reconciliation**: Authorized current-facing documentation/onboarding scope is exactly `README.md`, `ROADMAP.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `SECURITY.md`, `docs/STATE.md`, `PROMPTKIT.md`, `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`, `docs/tasks/2026-09-25-post-m4-size-remediation.md`, and `package.json`. No runtime, test, fixture, workflow, lockfile, or dependency change is in scope.
+- **Active RFC / Spec**: `docs/specs/2026-09-25-distribution-first-use-readiness.md` — planning only; gate OPEN.
+- **Active Task Spec**: `docs/tasks/2026-09-25-distribution-first-use-readiness.md` — planned / To Do; T0 awaits separate authorization.
+- **Current Planning Scope**: Exactly the Distribution / First-Use specification, Task Record, and `docs/STATE.md`. No runtime, package, test, CI, README, fixture, workflow, lockfile, dependency, registry, or M5 change is authorized.
 - **Historical Accepted Remediation Scope**: Exactly `src/completeTargetSet.ts`, `src/m4TargetInspection.ts`, `src/boundedReplacement.ts`, `src/boundedReplacementTarget.ts`, `tests/m4T1TaskContract.test.ts`, `tests/m4T1TaskContractLoader.test.ts`, `tsconfig.json`, `docs/tasks/2026-09-25-post-m4-size-remediation.md`, and `docs/STATE.md`. This completed scope is historical, not active authorization.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
@@ -118,28 +121,28 @@
 
 ## 3A. Execution-Control Projection (Optional)
 
-- **Local Task Source**: `docs/tasks/2026-09-25-post-m4-size-remediation.md`
-- **Task ID**: `TASK-2026-09-25-post-m4-size-remediation`
-- **Task Record**: `docs/tasks/2026-09-25-post-m4-size-remediation.md`
-- **Specification**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — completed M4 behavior/invariant baseline
-- **Execution Scope**: `Exactly the seven authorized source/test/config paths and these two control-state paths: docs/tasks/2026-09-25-post-m4-size-remediation.md and docs/STATE.md. M4 remains complete; no M4-T7 or behavioral change. At remediation closeout, one separate local commit of the accepted nine-file scope was authorized; a later authorization published codex/m4-t6 and PR #6 merged it into main by normal merge commit 3400af5d8bccde510dc1b48835f4f1b0eab31d4c. Merge-commit CI run 36096310188 passed; no next-milestone work is authorized.`
-- **Execution State**: `completed`
-- **Mapped `pk:tasks` Status**: `Done`
+- **Local Task Source**: `docs/tasks/2026-09-25-distribution-first-use-readiness.md`
+- **Task ID**: `TASK-2026-09-25-distribution-first-use-readiness`
+- **Task Record**: `docs/tasks/2026-09-25-distribution-first-use-readiness.md`
+- **Specification**: `docs/specs/2026-09-25-distribution-first-use-readiness.md`
+- **Execution Scope**: `Planning/control records only: the Distribution / First-Use specification, Task Record, and docs/STATE.md. Likely implementation paths are recorded for later authorization but are not active scope.`
+- **Execution State**: `planned`
+- **Mapped `pk:tasks` Status**: `To Do`
 - **Active Task Pointer**: `None`
 - **Active Review Task**: `None`
-- **Owner / Current Actor**: `Human authority / Codex`
-- **Start Time**: `2026-09-24 18:56 UTC`
+- **Owner / Current Actor**: `Human authority / Codex - planning records only`
+- **Start Time**: `N/A - implementation has not started`
 - **Current Branch**: `main`.
-- **Current Revision**: `The documentation/onboarding reconciliation is committed locally on main as this record's closeout; the commit SHA is available from Git history rather than embedded self-referentially. No push, PR, or M5 work is authorized.`
-- **Checkpoint Policy**: `The three size-compliance splits and their verification are complete. The local remediation commit was later separately published; PR #6 merged it into main at 3400af5d8bccde510dc1b48835f4f1b0eab31d4c and merge-commit CI passed. PR #7 merged the STATE reconciliation at 1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5. No M4-T7 or next milestone is authorized.`
-- **Blockers and Resume Condition**: `No technical M4 or remediation blocker remains. PR #6 is closed/merged into main at 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; merge-commit CI run 36096310188 passed. No M4-T7 or next milestone is authorized.`
-- **Verification Status**: `Node 24.20.0/npm 11.19.0; focused T1/M4/M2/M3 regression selection passed 259/259 across 12 files; full npm test passed 583/583 across 40 files; typecheck, lint, build, pure-LOC, PromptKit references, 23 execution-control fixture contracts, fixed-scope/security, secret-pattern, debug/probe, and diff checks passed. Default/strict execution-control results retain historical unrelated findings only; exact counts are recorded in the Task Record.`
-- **Changed-File Summary**: `Exact nine-file accepted remediation scope; separate structural/policy closeout commit; no intentional behavior change.`
-- **Latest Checkpoint**: `M4-T1 through T6 and the post-M4 size remediation remain complete and integrated into main. PR #6 merged by normal merge commit 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; its merge-commit CI run 36096310188 passed. PR #7 merged the final STATE reconciliation at 1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5. No M4-T7 or next milestone is authorized.`
+- **Current Revision**: `Planning changes are based on main at 449f1ad0957e67a3f2e0ee6eea09b68513c1c8f9; their single local closeout commit is authorized and its SHA is available from Git history. No push, T0, implementation, publication, tag mutation, or M5 is authorized.`
+- **Checkpoint Policy**: `Separate authorization is required before T0 and before every later T task. Hard-stop before metadata/version changes, external-project mutation, commit, push, npm authentication, publication, dist-tag mutation, ROADMAP gate closure, or M5 selection.`
+- **Blockers and Resume Condition**: `The gate remains OPEN. Resume only after human review and separate authorization of T0. T0 must resolve authenticated identity/permission, final name, version, tag policy, platform claim, dogfood project, and publication boundary before implementation metadata changes.`
+- **Verification Status**: `Exact three-path scope and git diff --check passed. PromptKit references passed for 240 Markdown files; local links passed for all three changed files; the execution-control fixture harness passed 23 isolated contracts. The execution-control validator has zero Distribution / First-Use findings and retains exactly 98 unrelated historical findings. No product-test or implementation evidence is claimed.`
+- **Changed-File Summary**: `Exactly three planning/control paths; no package, runtime, test, CI, dependency, version, registry, or M5 change.`
+- **Latest Checkpoint**: `Human accepted the exact three planning/control records and authorized one local closeout commit. Workstream remains unnumbered, planned / To Do, gate OPEN; T0, implementation, publication, and push remain unauthorized.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `No further M4 implementation action remains; M4 and the post-M4 size remediation are complete and integrated into main. No M4-T7 or next milestone is authorized.`
+- **Next Action**: `Planning records are accepted. Await separate T0 authorization; do not begin T0, implementation, publication, or M5.`
 
 ---
 
@@ -181,6 +184,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
   - No technical M3 or M4 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T1 through T6 and the post-M4 size remediation are accepted and integrated into `main` by PR #6 merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. PR #7 merged the final STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. The accepted T6 final-state-write durability limitation remains documented in the Task Record. No M4-T7 or next milestone is authorized.
+  - Distribution / First-Use implementation is gated on separate T0 authorization and six human decisions: authenticated package identity, version, dist-tag policy, platform claim, dogfood project, and publication authority. This is a planning gate, not an M4 defect or M5 authorization.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -197,9 +201,8 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. No further M3 implementation action is required.
-2. Any branch/worktree cleanup requires separate authorization.
-3. M4 and the accepted post-M4 size remediation are complete and integrated into `main`; PR #6 merged at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`, and PR #7 merged the STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. Do not begin M4-T7 or another milestone without separate authorization.
+1. Planning records are accepted; T0 requires separate authorization to resolve the six human decisions without publishing.
+3. Keep the Distribution / First-Use gate OPEN; do not begin implementation, registry/tag mutation, publication, M5, or another milestone without separate authorization.
 
 ---
 
@@ -259,6 +262,8 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-25 | Human authority / Codex | M4-T6 human acceptance and final local closeout | Accepted T6 and authorized the exact seven-file final closeout commit. M4-T1–T6 are accepted and complete locally; documented the final-state-write limitation; no runtime source changed during T6 and nothing was pushed |
 | 2026-09-25 | Codex | Post-M4 pre-push size remediation implementation and local verification | Completed the exact nine-file structural-only scope; all six governed files are below 250 pure LOC; focused regression passed 259/259 and full suite 583/583 across 40 files; typecheck, lint, build, and applicable local gates passed. Awaiting human acceptance; M4 remains complete and nothing has been committed or pushed |
 | 2026-09-25 | Human authority / Codex | Post-M4 pre-push size remediation acceptance and local closeout | Human accepted the exact nine-file structural remediation, confirmed all six files below 250 pure LOC, and authorized one separate local commit using `refactor(m4): satisfy pre-push size limits`; M4 remains complete and nothing is pushed |
+| 2026-09-25 | Human authority / Codex | Distribution / First-Use planning records | Accepted the read-only feasibility investigation and authorized exactly the Full planning specification, canonical Task Record, and STATE projection. The unnumbered readiness gate remains OPEN; T0, implementation, publication, registry/tag changes, commit, push, and M5 remain separately unauthorized. |
+| 2026-09-26 | Human authority / Codex | Distribution / First-Use planning-record acceptance | Accepted the exact three planning/control records and authorized one local commit with message `docs(distribution): plan first-use readiness`. T0, implementation, publication, registry/tag changes, push, and M5 remain unauthorized. |
 
 ---
 
