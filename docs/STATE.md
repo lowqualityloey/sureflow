@@ -67,7 +67,7 @@
 - [x] **M4-T6**: Human-accepted and closed by the exact seven-file local final M4 closeout; M4 is complete locally, with nothing pushed
 
 ### Separate Post-M4 Work (M4 remains complete)
-- [x] **TASK-2026-09-25-post-m4-size-remediation**: pre-push programming-workflow size compliance only; accepted and complete in the separately authorized nine-file scope. Its separately authorized local commit is pending final closeout gates. No behavioral changes or M4-T7; nothing pushed.
+- [x] **TASK-2026-09-25-post-m4-size-remediation**: pre-push programming-workflow size compliance only; complete, human-accepted, and locally committed at `4c07b77245b6c4f72d435214e071e4b9741824f8`. All closeout gates passed and all three material size-policy findings are resolved. M4 remains complete; no behavioral changes or M4-T7/next-milestone work is authorized. Nothing is pushed; push requires separate authorization.
 
 ---
 
