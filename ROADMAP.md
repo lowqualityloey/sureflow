@@ -88,24 +88,26 @@ installation as a product capability, hermetic execution, descendant process
 isolation, automatic repair/retry, provider integration, skills, MCP, or
 generalized orchestration.
 
-## Current M4 selection and other candidates
+## Implemented M4 and other candidates
 
-Capability A is **SELECTED** for M4 planning only. Implementation requires
-separate authorization for every gated task. The remaining capabilities in
-this section are **CANDIDATE** and are not selected or authorized.
+Capability A is **IMPLEMENTED** through M4-T1–T6 and integrated into `main`.
+The remaining capabilities in this section are **CANDIDATE** and are not
+selected or authorized.
 
-### A. Bounded multi-file delivery — SELECTED
+### A. Bounded multi-file delivery — IMPLEMENTED
 
-Allow one authorized task to replace exact bytes in 2–5 declared existing
-tracked files in one standalone supported npm or narrow pnpm project. All
-targets must pass complete-set preflight before any project write; apply-time
-revalidation, deterministic path order, exact Git-visible set verification,
-and per-path evidence are required. A later failure may leave an applied
-prefix: the set is not transactional and has no automatic rollback.
+Schema-v2 tasks can replace exact bytes in 2–5 declared existing tracked files
+in one supported standalone Node/TypeScript npm or narrow pnpm project.
+Complete-set preflight runs before project writes; apply-time revalidation,
+deterministic path order, exact Git-visible set certification, per-target
+readback/evidence, and declared verification checks are part of the bounded
+flow. A later failure may leave an applied prefix: the set is not transactional
+and has no automatic rollback. Schema-v1 single-target behavior remains
+supported.
 
 The [M4 specification](docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md)
-and [Task Record](docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md)
-define the selected planning boundary. No M4 implementation has started.
+defines the behavioral baseline; the [Task Record](docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md)
+records the accepted implementation and closeout evidence.
 
 ### B. JIT skills and knowledge layer — CANDIDATE
 
@@ -156,7 +158,8 @@ presentation may answer:
 Possible presentation concepts are `TL;DR`, `STATUS`, `VERIFIED`,
 `UNCERTAINTY`, `CHANGES`, and `NEXT`. Presentation is a projection of
 structured truth and must never become authority: **structured truth → concise
-human projection**. Selecting M4-A does not implement or discard this candidate.
+human projection**. Implementing M4-A does not implement or discard this
+candidate.
 
 ### G. Evidence-derived telemetry and measurement — CANDIDATE
 
@@ -168,7 +171,7 @@ and CPAC inputs.
 Every value must retain a provenance classification: `measured`, `derived`,
 `estimated`, `heuristic`, or `unavailable`. Estimated telemetry must never be
 presented as measured: **runtime facts → provenance-aware measurement**. No
-mandatory cloud telemetry platform is implied. Selecting M4-A does not
+mandatory cloud telemetry platform is implied. Implementing M4-A does not
 implement or discard this candidate.
 
 ## Deferred capabilities
@@ -290,14 +293,13 @@ cost-control requirements that must be resolved first.
 
 ## Milestone labeling
 
-M4 selects bounded multi-file delivery for planning; implementation is not
-authorized. Later capabilities such as bounded sequential autonomy and
-parallel workers remain unassigned candidates. Milestone numbers must not be
-frozen merely because they have been discussed.
+M1, M1.1, M2, M3, M4, and the separate post-M4 size remediation are complete.
+No M4-T7 or next milestone is authorized. Future capabilities remain candidates
+or deferred work until separately selected, scoped, and authorized.
 
 ## Current boundary
 
-M3 is complete, merged, documented, and cleaned up. M4-A is selected and has a
-planning baseline, but no M4 implementation task or later capability is
-authorized by this roadmap. Future implementation requires a separate task
-authorization, bounded scope, verification evidence, and human acceptance.
+M4 is integrated into `main`. PR #6 integrated the implementation and PR #7
+reconciled the current STATE projection; see [docs/STATE.md](docs/STATE.md)
+and the completed [M4 Task Record](docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md).
+No next milestone is currently authorized.

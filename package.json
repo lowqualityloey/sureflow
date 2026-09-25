@@ -1,7 +1,7 @@
 {
   "name": "sureflow",
   "version": "0.0.0-m1",
-  "description": "Deterministic engineering control plane for AI coding agents (M1: local task gate).",
+  "description": "Experimental local CLI for bounded changes in supported Node.js and TypeScript projects.",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "engines": {
