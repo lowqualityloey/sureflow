@@ -27,6 +27,13 @@ import type {
   ValidatedExecutionPlan,
 } from "./taskContract.js";
 
+// allow: SIZE_OK — one closed read-only project-shape detector owns npm/pnpm evidence; target-set checks live separately.
+
+export type ProjectDetectionRequest = Pick<
+  ValidatedExecutionPlan,
+  "adapter" | "requiredVerification" | "targetPath"
+>;
+
 export interface DetectedNodeTypeScriptProject {
   readonly adapter: M3AdapterId;
   readonly root: string;
@@ -177,7 +184,7 @@ function parseJsonObject(text: string, label: string): ParsedJsonObject {
   return { ok: true, value };
 }
 
-function checkPlanAuthority(plan: ValidatedExecutionPlan): ProjectDetectionOutcome | null {
+function checkPlanAuthority(plan: ProjectDetectionRequest): ProjectDetectionOutcome | null {
   const adapter = isRecord(plan) && typeof plan.adapter === "string" ? plan.adapter : undefined;
   if (adapter === undefined || !(M3_ADAPTER_IDS as readonly string[]).includes(adapter)) {
     return unsupported("task plan selects an unsupported adapter");
@@ -235,7 +242,7 @@ function readPackageManagerClaim(
 /** Detect one supported project shape without executing any project code. */
 export function detectProject(
   rootDir: string,
-  plan: ValidatedExecutionPlan,
+  plan: ProjectDetectionRequest,
 ): ProjectDetectionOutcome {
   const authorityFailure = checkPlanAuthority(plan);
   if (authorityFailure !== null) return authorityFailure;
