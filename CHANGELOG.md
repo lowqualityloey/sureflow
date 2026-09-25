@@ -13,13 +13,16 @@ once Sureflow has a released implementation.
 ### Added
 
 - Initial project documentation and architectural specification.
-- M1 local task-gate implementation: `init`, `run`, `status`, and `verify`.
+- M1–M4 local CLI implementation for bounded tasks on supported Node/TypeScript
+  projects, including schema-v1 single-file and schema-v2 2–5-file contracts.
 - Executable deterministic `fixtures/t0-basic/` acceptance fixture.
+- M4 complete-set preflight, ordered bounded writes, post-write scope
+  certification, per-target evidence, and integrated npm/pnpm task flow.
 
 ### Changed
 
-- M1 closeout documentation now records AC-1 through AC-8 evidence,
-  authoritative runtime-state boundaries, and known limitations.
+- Current-facing documentation now distinguishes accepted M1–M4 behavior
+  from future architecture and gives a first-time source-build/use path.
 
 ### Fixed
 
@@ -35,8 +38,8 @@ once Sureflow has a released implementation.
 
 ## Release policy
 
-Until an implementation exists, documentation and architecture changes may be
-recorded under `[Unreleased]`.
+Until the first implementation release is published, documentation and
+implementation changes may be recorded under `[Unreleased]`.
 
 Once releases begin:
 

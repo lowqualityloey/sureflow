@@ -10,16 +10,30 @@ Security therefore cannot depend on prompts alone.
 > **Prompts express intent. Policies enforce authority. Runtime boundaries
 > enforce security where possible.**
 
-## M1 implemented security boundary
+## Implemented security boundaries through M4
 
-M1 enforces default-deny policy, hard-jails `repo.read` and `repo.write`
-paths, uses closed `npm-test` dispatch for `repo.test`, and redacts covered
-persisted event/evidence fields before append. Protected operations halt at
-`REQUIRE_APPROVAL`; no runtime approval-delivery mechanism exists. The
-repo.test cwd boundary is not an OS sandbox, and executed test code may still
-access host filesystem or network resources. M1 has no arbitrary shell,
-network, Git remote, multi-agent, MCP/provider, scheduler, or cloud runtime.
-These are bounded implementation facts, not a claim of perfect security.
+The source-built local CLI implements bounded controls, not a general
+isolation boundary:
+
+- M1 has default-deny policy, path jails for its local read/write capabilities,
+  fixed test dispatch, redaction of covered persisted evidence fields, and
+  terminal halts for protected operations. It has no approval-delivery
+  mechanism.
+- M2–M4 require an eligible supported project, a clean Git baseline, normalized
+  in-boundary existing tracked-file targets, exact preimage hashes, bounded
+  replacements, and exact post-write Git-visible scope certification.
+- Schema-v2 requires a closed 2–5 target set and complete-set preflight before
+  project writes. Run-time locking, readback, verification, and evidence are
+  part of the accepted flow; a failed later write can leave an applied prefix.
+
+This is not an OS/filesystem/network sandbox. Fixed npm/pnpm dispatch still
+executes the project's configured scripts in the host environment; those
+scripts may access resources available to the process. Sureflow does not
+currently provide arbitrary-shell access as a task capability, remote Git
+operations, deployment, autonomous multi-agent execution, MCP/provider
+integration, skills runtime, or a cloud service. These are bounded
+implementation facts, not a claim of perfect security.
+
 ## Security objectives
 
 Sureflow aims to:
@@ -416,18 +430,17 @@ A future implementation should publish a project-specific private security
 contact and disclosure process. Report exploitable vulnerabilities privately
 when possible before public disclosure.
 
-## Security roadmap
+## Implemented controls and future security work
 
-1. Capability enforcement
-2. Policy evaluation
-3. Explicit human authorization
-4. Secret redaction
-5. Git operation controls
-6. Skill trust model
-7. MCP capability filtering
-8. Negative security tests
-9. Provenance/audit records
-10. Runtime enforcement for high-risk actions
+The accepted M1–M4 implementation includes local policy/capability checks,
+protected-operation halts, covered-field redaction, Git baseline and changed
+set checks, bounded target validation, fixed verification dispatch, and
+persisted evidence for supported task flows.
+
+Future work may extend security controls for skills, MCP/providers, generalized
+host adapters, deployment, remote Git operations, and OS-level isolation. Those
+systems are not part of the current runtime and require separate design and
+authorization.
 
 > **The model may request an action. Policy decides whether it is allowed.
 > Runtime controls enforce the boundary. Humans retain authority over

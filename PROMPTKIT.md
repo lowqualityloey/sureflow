@@ -25,26 +25,26 @@ intake-status: [unanswered | partial | complete]
 
 ## 1. Project Overview & Domain
 - **Project Name**: Sureflow
-- **Domain / Purpose**: Deterministic engineering control plane for AI coding agents (context, policy, capabilities, orchestration, evidence, verification, durable state, human authority)
-- **Primary Users**: Developers using AI coding agents via CLI (`sureflow init/run/status/verify` in M1)
+- **Domain / Purpose**: Experimental source-built local CLI for bounded changes in supported Node.js/TypeScript projects; implementation is limited to the accepted M1–M4 behavior.
+- **Primary Users**: Developers who want local project checks, bounded existing-file replacements, and verification evidence through `init`, `preflight`, `run`, `status`, and `verify`.
 
 ---
 
 ## 2. Active Technology Stack
-- **Language & Runtime**: TypeScript (`strict: true`, no `any` in production code), Node.js 24.x (exact pin via `engines` + lockfile in T1) — human decisions M-D1 + §9 2026-09-20, recorded in `docs/adrs/2026-09-20-stack-and-m1-boundary.md`
-- **Frontend Framework**: N/A - CLI/control-plane runtime, no UI in M1
-- **Styling & Design System**: N/A - no UI in M1
-- **State & Data Fetching**: N/A - authoritative state is `.sureflow/state/` JSON (M-D4); no database in M1
-- **Backend & Database**: N/A - local JSON state + JSONL evidence/events; no database in M1
+- **Language & Runtime**: TypeScript (`strict: true`); Node.js `^24.0.0` and npm `>=11` per `package.json` (Node engine is a range, not an exact pin). The package lock pins development dependencies.
+- **Frontend Framework**: N/A — local CLI, no UI
+- **Styling & Design System**: N/A — no UI
+- **State & Data Fetching**: Local `.sureflow/` JSON state, task contracts, and evidence; no database
+- **Backend & Database**: N/A — standalone local CLI, no server or database
 - **Testing**: Vitest (unit) — human §9 decision 2026-09-20; typecheck `tsc --noEmit`; lint ESLint
 
 ---
 
 ## 3. Project Commands & Evidence-Gated Verification
 PromptKit OS enforces Evidence-Gated Verification. Every completion claim requires executed evidence matching the task ceremony level:
-- **Fast Tier (Level 0/1)**: `npx tsc --noEmit` (human §9: `tsc --noEmit`)
+- **Fast Tier (Level 0/1)**: `npm run typecheck`
 - **Required Tier (Level 1/2)**: `npm test` (Vitest — human §9 decision 2026-09-20)
-- **Extended Tier (Level 2/3)**: `npm test && npx eslint .` (ESLint — human §9 decision 2026-09-20)
+- **Extended Tier (Level 2/3)**: `npm test`, `npm run typecheck`, `npm run lint`, and `npm run build`, selected to match the task.
 - **Cross-OS Execution Bridge (Optional)**: `N/A`
 
 ### 3a. Active Stack Playbooks (JIT Loaded)
@@ -52,27 +52,27 @@ PromptKit OS enforces Evidence-Gated Verification. Every completion claim requir
 - **Active Playbooks**: `[e.g. docs/stacks/fullstack-nextjs.md, docs/stacks/database-turso.md | N/A]`
 
 - **Standard Commands**:
-  - **Install**: `npm install` (npm — human §9 decision 2026-09-20)
-  - **Dev Server**: `N/A - CLI/control-plane runtime, no dev server in M1`
+  - **Install**: `npm ci` (in the Sureflow source checkout)
+  - **Build**: `npm run build`
+  - **Typecheck**: `npm run typecheck`
+  - **Test**: `npm test`
+  - **Lint**: `npm run lint`
+  - **Dev Server**: N/A — CLI, no dev server
 
 ---
 
 ## 4. Monorepo & Workspace Topology (If Applicable)
 > Set to `N/A (Standalone Repository)` if not operating within a multi-package monorepo.
 
-- **Workspace Manager**: [e.g. Turborepo, pnpm workspaces, Nx, Bun workspaces, or N/A]
+- **Workspace Manager**: N/A — standalone repository, not a workspace or monorepo
 - **Package Graph & Directory Map**:
-  - `apps/web`: Next.js frontend application (`@repo/web`)
-  - `apps/api`: Backend API service (`@repo/api`)
-  - `packages/db`: Database client, migrations, and Drizzle/Prisma schemas (`@repo/db`)
-  - `packages/ui`: Shared design system and Tailwind components (`@repo/ui`)
-  - `packages/auth`: Shared authentication utilities and session policies (`@repo/auth`)
+  - `src/`: CLI and bounded local task runtime
+  - `tests/`: unit and integration tests
+  - `fixtures/`: isolated T0/M2/M3/M4 acceptance projects
+  - `docs/`: architecture, current state, and task records
 
 - **Scoped Workspace Commands (`--filter`)**:
-  - **Dev Specific App**: `pnpm --filter web dev` (or `turbo run dev --filter=web`)
-  - **Test Specific Package**: `pnpm --filter @repo/db test` (or `turbo run test --filter=@repo/db`)
-  - **Typecheck Package**: `pnpm --filter web typecheck`
-  - **Build Specific Target**: `pnpm --filter web build` (or `turbo run build --filter=web...`)
+  - N/A — no workspace packages
 
 - **Strict Architectural Import Boundaries**:
   - [ ] **Presentation Isolation**: `packages/ui` must never import from application targets (`apps/*`) or server-only packages (`packages/db`).
@@ -85,9 +85,11 @@ PromptKit OS enforces Evidence-Gated Verification. Every completion claim requir
 ## 5. Active MCP Capabilities (Optional)
 > Record detected or configured Model Context Protocol (MCP) servers (via Docker Desktop MCP, stdio `npx`, or native client configs). PromptKit OS follows a **Progressive Enhancement** model: MCP tools serve as optional accelerators. When available, assistants prioritize native MCP tool calls; when unavailable, assistants seamlessly fall back to structured Markdown and terminal CLI commands with zero errors.
 
+> Sureflow's current product runtime does not integrate MCP or external model/provider services. The fields below describe optional PromptKit host tooling only, not Sureflow capabilities.
+
 - **Reasoning / Scratchpad MCP**: [e.g. `sequential-thinking` (`@modelcontextprotocol/server-sequential-thinking`) for `pk:debug` hypothesis branching & `pk:plan` tradeoffs | N/A]
 - **Documentation / Web Reader MCP**: [e.g. `fetch` (`@modelcontextprotocol/server-fetch`) or Jina reader for clean primary doc lookups | N/A]
-- **Task Tracking System**: [Local Markdown (docs/tasks/ + docs/STATE.md) | GitHub Issues | Jira (manual import, no auto-push) | Linear (manual import, no auto-push)]
+- **Task Tracking System**: Local Markdown (`docs/tasks/` + `docs/STATE.md`)
 - **Task Tracking Selector (machine-readable)**: `tracking: local` (options: `local|github|jira|linear`; Jira/Linear = manual import, board is projection only, Local Task Record authoritative)
 - **GitHub MCP**: [e.g. `github-mcp-server` for PR creation, issue reading, commit search | N/A]
 - **Database MCP**: [e.g. `postgres-mcp` or `sqlite-mcp` for read-only schema discovery & `pk:data` checks | N/A]

@@ -49,28 +49,42 @@ Sureflow is designed around:
 
 ---
 
-## 2A. M1 implemented boundary and limitations
+## Implementation status
 
-M1 is the completed local vertical slice, not the full architecture described
-in this document. Its public surface is exactly `init`, `run`, `status`, and
-`verify`. Runtime authority is `.sureflow/state/`; `docs/STATE.md` and other
-PromptKit records are process documentation only. The implemented capabilities
-are `repo.read`, `repo.write`, and closed-profile `repo.test` (`npm test`,
-`shell: false`, cwd at the bounded T0 fixture root). Policy is default-deny;
-protected operations terminally return `REQUIRE_APPROVAL` with zero execution
-and no M1 approval-delivery mechanism.
+The source-built CLI currently implements bounded local task flows through
+M4 for supported standalone Node/TypeScript projects. Section 2A records the
+implemented M1–M4 boundary. Unless a section is explicitly marked implemented,
+the architecture below describes design direction rather than shipped
+runtime behavior.
 
-M1 appends execution history to events and one terminal verification-applicable
-record to evidence, uses deterministic T4 PASS/FAIL/UNKNOWN verification, and
-permits only one automatic retry for an initial started-process nonzero exit.
-The T0 fixture owns acceptance input. No OS sandbox is claimed for the test
-process; no arbitrary shell, network, Git remote, multi-agent, MCP/provider,
-skill runtime, scheduler, cloud service, persisted verdict history, run IDs,
-attempt IDs, latest-wins semantics, evidence repair, or generalized fixture or
-retry framework is implemented.
+## 2A. M1–M4 implemented boundary and limitations
 
-All other sections describe architectural intent or future boundaries and
-must not be read as claims about the current M1 runtime.
+The current product is an experimental local TypeScript CLI with five public
+commands: `init`, `preflight`, `run`, `status`, and `verify`. It supports
+an M1 local task path plus M2–M4 bounded changes in standalone Node/TypeScript
+projects using npm or the accepted narrow pnpm shape.
+
+- Schema v1 authorizes one existing tracked-file replacement.
+- Schema v2 authorizes an exact set of 2–5 existing tracked-file replacements.
+- Preflight is read-only eligibility evidence, not mutation authorization.
+- A run revalidates the complete target set, applies ordered bounded writes,
+  checks the exact Git-visible scope, reads back target bytes, runs only the
+  declared supported verification profiles, and records evidence.
+- A later write or verification failure can leave earlier authorized targets
+  changed. The operation is not transactional and has no automatic rollback.
+- Verification commands execute project-defined npm/pnpm scripts in the host
+  environment. Sureflow does not provide an OS, filesystem, or network sandbox.
+
+M1 retains its T0 local task-gate behavior, including the fixed
+`repo.read`/`repo.write`/closed test profile and its documented retry
+semantics. PromptKit records such as `docs/STATE.md` are process documentation,
+not runtime authority.
+
+No autonomous multi-agent execution, dynamic worker orchestration, skills
+runtime, MCP/provider integration, generalized host or stack adapters,
+deployment orchestration, arbitrary shell capability, or generalized repair
+loop is implemented. Other sections are architectural direction unless
+explicitly identified as accepted runtime behavior.
 
 ## 3. High-Level Architecture
 
@@ -1192,23 +1206,43 @@ IDE or agent slash commands may expose the same operations.
 
 They are presentation-layer aliases, not the architectural core.
 
-M1 currently implements only `sureflow init`, `sureflow run <taskId>`,
-`sureflow status`, and `sureflow verify <taskId>`. The other commands and task
-operations shown above remain future architectural intent and are not part of
-the shipped M1 runtime.
+The current source CLI implements:
+
+```bash
+sureflow init
+sureflow preflight <taskId>
+sureflow run <taskId>
+sureflow status
+sureflow verify <taskId>
+```
+
+The other example commands and task operations above remain future
+architectural intent.
 
 ---
 
 ## 37. Installation
 
-The intended installation experience is:
+There is no published npm implementation package. Build from the repository:
 
 ```bash
-npx sureflow init
+git clone https://github.com/lowqualityloey/sureflow.git
+cd sureflow
+npm ci
+npm run build
 ```
 
-Initialization should detect the project environment and create only the
-minimum required Sureflow state/configuration.
+To initialize another supported project, run the built CLI with that project
+as the current working directory:
+
+```bash
+cd /path/to/your/project
+node /path/to/sureflow/dist/src/cli.js init
+```
+
+`init` creates the local `.sureflow/` control-plane state; it does not create
+`.sureflow/task.json`. Create the task contract separately. `npx sureflow`
+remains a future package workflow, not a currently available install path.
 
 Sureflow should not require:
 

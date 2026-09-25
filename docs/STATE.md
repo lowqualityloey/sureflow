@@ -1,11 +1,11 @@
 # Project State & Living Execution Tracker
 
 ## 1. Executive Summary & Current Position
-- **Project Name**: Sureflow — engineering control plane for AI coding agents
-- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — and the separate post-M4 size remediation are complete and integrated into `main` by PR #6 normal merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`. Merge-commit CI run `36096310188` passed. PR #6 is closed/merged; no M4-T7 or next milestone is authorized.
+- **Project Name**: Sureflow — experimental source-built local CLI for bounded changes in supported Node.js/TypeScript projects
+- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — and the separate post-M4 size remediation are complete and integrated into `main` by PR #6 normal merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`. Merge-commit CI run `36096310188` passed. PR #7 then merged the final STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. No active next milestone is authorized.
 - **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. M4-T1 is accepted and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`; M4-T3 is accepted and committed at `70efa30aac32e77e845a53a6a1b6bda2567a2b89`; M4-T4 is accepted and committed at `d0473d52ab23936e0b4d308b84cdc107c17e67b7`; M4-T5 is accepted and committed at `92a33428adcb5d0321d2ac986fc0f641d3340731`; M4-T6 is human-accepted and closed. M4 remains complete. The separate post-M4 size remediation is complete at `4c07b77245b6c4f72d435214e071e4b9741824f8`; prior STATE reconciliation commits `b6b7144b61b4b0544d8586d3b0dfb10636549d12` and `a56dc7296a6a3bb9a36dfcfa70473b9eb7621905` remain in history. PR #6 merged the published `codex/m4-t6` branch into `main` at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. No M4-T7 or next milestone is authorized.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: `docs/m4-post-merge-state`, a documentation-only branch based on merged `origin/main` at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`. PR #6 is closed/merged; no M4-T7 or next milestone is authorized.
+- **Current Working Branch**: `main`; the ten-file documentation/onboarding reconciliation is the authorized local closeout scope. Its baseline was `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`; no runtime, dependency, or next-milestone work is part of this closeout.
 - **Last Updated**: 2026-09-25
 
 
@@ -71,11 +71,12 @@
 
 ---
 
-## 3. Active Working Set
+## 3. Current and Historical Working Sets
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
-- **Active RFC / Spec**: `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` — canonical M4 behavior; all six authorized M4 tasks are complete
-- **Active Task Spec**: `docs/tasks/2026-09-25-post-m4-size-remediation.md` — separate pre-push size-compliance task; the completed M4 record and specification remain closed behavioral/invariant references.
-- **Accepted Remediation Scope**: Exactly `src/completeTargetSet.ts`, `src/m4TargetInspection.ts`, `src/boundedReplacement.ts`, `src/boundedReplacementTarget.ts`, `tests/m4T1TaskContract.test.ts`, `tests/m4T1TaskContractLoader.test.ts`, `tsconfig.json`, `docs/tasks/2026-09-25-post-m4-size-remediation.md`, and `docs/STATE.md`. No other path is authorized.
+- **Active RFC / Spec**: None. The completed `docs/specs/2026-09-23-m4-bounded-multi-file-delivery.md` remains a closed behavioral/invariant reference.
+- **Active Task Spec**: None. M4 and the separate post-M4 size remediation are complete.
+- **Current Documentation Reconciliation**: Authorized current-facing documentation/onboarding scope is exactly `README.md`, `ROADMAP.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `SECURITY.md`, `docs/STATE.md`, `PROMPTKIT.md`, `docs/tasks/2026-09-23-m4-bounded-multi-file-delivery.md`, `docs/tasks/2026-09-25-post-m4-size-remediation.md`, and `package.json`. No runtime, test, fixture, workflow, lockfile, or dependency change is in scope.
+- **Historical Accepted Remediation Scope**: Exactly `src/completeTargetSet.ts`, `src/m4TargetInspection.ts`, `src/boundedReplacement.ts`, `src/boundedReplacementTarget.ts`, `tests/m4T1TaskContract.test.ts`, `tests/m4T1TaskContractLoader.test.ts`, `tsconfig.json`, `docs/tasks/2026-09-25-post-m4-size-remediation.md`, and `docs/STATE.md`. This completed scope is historical, not active authorization.
 - **Verification Commands (Scoped)**:
   - Unit Tests: H6-focused selection → 10 passed (15 non-H6 tests excluded by name filter) in `tests/runTask.test.ts`; GitHub Actions full suite → 133 passed across 13 files (2026-09-21)
   - Typecheck: `npm run typecheck` → exit 0 (2026-09-21)
@@ -128,13 +129,13 @@
 - **Active Review Task**: `None`
 - **Owner / Current Actor**: `Human authority / Codex`
 - **Start Time**: `2026-09-24 18:56 UTC`
-- **Current Branch**: `docs/m4-post-merge-state`, based on merged origin/main commit 3400af5d8bccde510dc1b48835f4f1b0eab31d4c for this documentation-only reconciliation.
-- **Current Revision**: `The remediation task's revision anchor remains M4 closeout HEAD 749032864120c32b90d7b8d909b059cd93c89a92; remediation commit 4c07b77245b6c4f72d435214e071e4b9741824f8 and prior STATE commits b6b7144b61b4b0544d8586d3b0dfb10636549d12 and a56dc7296a6a3bb9a36dfcfa70473b9eb7621905 remain in history. PR #6 merged the published branch into main at 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; merge-commit CI run 36096310188 passed.`
-- **Checkpoint Policy**: `After each of the three splits and before final verification; hard checkpoint before human acceptance handoff. The local remediation commit was separately published, PR #6 was merged into main by normal merge commit 3400af5d8bccde510dc1b48835f4f1b0eab31d4c, and merge-commit CI passed. No M4-T7 or next milestone is authorized.`
+- **Current Branch**: `main`.
+- **Current Revision**: `The documentation/onboarding reconciliation is committed locally on main as this record's closeout; the commit SHA is available from Git history rather than embedded self-referentially. No push, PR, or M5 work is authorized.`
+- **Checkpoint Policy**: `The three size-compliance splits and their verification are complete. The local remediation commit was later separately published; PR #6 merged it into main at 3400af5d8bccde510dc1b48835f4f1b0eab31d4c and merge-commit CI passed. PR #7 merged the STATE reconciliation at 1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5. No M4-T7 or next milestone is authorized.`
 - **Blockers and Resume Condition**: `No technical M4 or remediation blocker remains. PR #6 is closed/merged into main at 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; merge-commit CI run 36096310188 passed. No M4-T7 or next milestone is authorized.`
 - **Verification Status**: `Node 24.20.0/npm 11.19.0; focused T1/M4/M2/M3 regression selection passed 259/259 across 12 files; full npm test passed 583/583 across 40 files; typecheck, lint, build, pure-LOC, PromptKit references, 23 execution-control fixture contracts, fixed-scope/security, secret-pattern, debug/probe, and diff checks passed. Default/strict execution-control results retain historical unrelated findings only; exact counts are recorded in the Task Record.`
 - **Changed-File Summary**: `Exact nine-file accepted remediation scope; separate structural/policy closeout commit; no intentional behavior change.`
-- **Latest Checkpoint**: `M4-T1 through T6 and the post-M4 size remediation remain complete and integrated into main. PR #6 was merged by normal merge commit 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; merge-commit CI run 36096310188 passed. No M4-T7 or next milestone is authorized.`
+- **Latest Checkpoint**: `M4-T1 through T6 and the post-M4 size remediation remain complete and integrated into main. PR #6 merged by normal merge commit 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; its merge-commit CI run 36096310188 passed. PR #7 merged the final STATE reconciliation at 1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5. No M4-T7 or next milestone is authorized.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
@@ -159,7 +160,7 @@
 ---
 
 ## 4. Locked Technical Invariants (Do Not Undo)
-- Sureflow invariants (carried from ARCHITECTURE.md §§7/41 + user brief, preserved as design intent, not implemented code): control plane owns authority; minimum sufficient context; risk/context independent; workflows = intent, policies = authority; capabilities = actions; skills = knowledge, never authority; workers disposable, state durable; multi-agent optional + cost-gated; evidence > model confidence; verification stays deterministic; explicit human approval for protected ops; MCP optional external provider; Git/tasks/evidence/events/state distinct; CLI = intent, router = topology; token efficiency never overrides correctness; CPAC > raw token minimization; every subsystem justifies complexity.
+- Sureflow principles (carried from ARCHITECTURE.md §§7/41 and the user brief; implementation status varies by milestone): control plane owns authority; minimum sufficient context; risk/context independent; workflows = intent, policies = authority; capabilities = actions; skills = knowledge, never authority; workers disposable, state durable; multi-agent optional + cost-gated; evidence > model confidence; verification stays deterministic; explicit human approval for protected ops; MCP optional external provider; Git/tasks/evidence/events/state distinct; CLI = intent, router = topology; token efficiency never overrides correctness; CPAC > raw token minimization; every subsystem justifies complexity. M1–M4 implement only the bounded behaviors documented in README.md and ROADMAP.md; broader architecture remains future design.
 - Discovery constraint: no stack invented — CONTRIBUTING.md forbids assuming runtime/PM/CI before adoption (observed 2026-09-20).
 - Human M-D1..M-D5 (2026-09-20, `docs/adrs/2026-09-20-stack-and-m1-boundary.md`): TS+Node stack; local tracking for M1; 5 protected ops + max-1-retry-then-HALT; `.sureflow/state/` authoritative, `docs/STATE.md` never runtime state; isolated `fixtures/t0-basic/`, never own source tree as fixture.
 - Human M-D6..M-D13 (2026-09-21, `docs/adrs/2026-09-21-m1-t6-preflight-contracts.md`): terminal `REQUIRE_APPROVAL`; T8 before T6; closed `npm-test` dispatch; no OS-sandbox claim; fixed process-result mapping; only initial started-process nonzero exit retries; verification follows terminal retry resolution; fixture expectation remains independent.
@@ -179,7 +180,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
-  - No technical M3 or M4 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T1 through T6 and the post-M4 size remediation are accepted and integrated into `main` by PR #6 merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. The accepted T6 final-state-write durability limitation remains documented in the Task Record. No M4-T7 or next milestone is authorized.
+  - No technical M3 or M4 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T1 through T6 and the post-M4 size remediation are accepted and integrated into `main` by PR #6 merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. PR #7 merged the final STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. The accepted T6 final-state-write durability limitation remains documented in the Task Record. No M4-T7 or next milestone is authorized.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -198,7 +199,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ## 7. Next Immediate Actions (Queued)
 1. No further M3 implementation action is required.
 2. Any branch/worktree cleanup requires separate authorization.
-3. M4 and the accepted post-M4 size remediation are complete and integrated into `main` by PR #6 merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`. Do not begin M4-T7 or another milestone without separate authorization.
+3. M4 and the accepted post-M4 size remediation are complete and integrated into `main`; PR #6 merged at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`, and PR #7 merged the STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. Do not begin M4-T7 or another milestone without separate authorization.
 
 ---
 

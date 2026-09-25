@@ -12,7 +12,7 @@
 - **External Reference**: `N/A`
 - **Owner / Actor**: Human authority / Codex
 - **Execution Scope**: Repository `/home/heyloey/personal/sureflow`, branch `codex/m4-t6`, accepted M4 base HEAD `749032864120c32b90d7b8d909b059cd93c89a92`; exactly the nine paths listed below. M4 remains historically complete.
-- **Approval Boundary**: Initial authorization covered only this post-M4 size-compliance remediation in the nine listed paths; commit and push were not then authorized. On 2026-09-25, human acceptance separately authorized exactly one local commit of this accepted nine-file scope after final closeout gates. No M4 reopening, M4-T7, product behavior change, additional path, or push is authorized. Stop and request scope expansion before editing any other path.
+- **Approval Boundary**: Initial authorization covered only this post-M4 size-compliance remediation in the nine listed paths; commit and push were not then authorized. On 2026-09-25, human acceptance separately authorized exactly one local commit of this accepted nine-file scope after final closeout gates. A later separate authorization published the branch and PR #6 merged it into `main`; this later event is recorded in §7. No M4 reopening, M4-T7, product behavior change, additional path, or next milestone is authorized.
 - **Created**: `2026-09-25`
 
 ## 2. Objective and Boundaries
@@ -37,7 +37,7 @@
   - Reopening M4, creating M4-T7, or changing the closed M4 Task Record.
   - Changes to `src/singleFileReplacement.ts`, other runtime/test/config files, package manifests, dependencies, fixtures, CLI, orchestration, evidence, locks, task-state semantics, or any M4 task behavior.
   - Addressing either out-of-scope audit observation: (1) T6 does not directly call public `verify` immediately after the deliberately failed final-state write; (2) shared lock-release-integrity failure can leave durable `accepted` state while public `run` returns HALT.
-  - At initial authorization, commit, push, release, and remote mutation were excluded. Subsequent human acceptance authorizes one local commit of the exact nine-file scope only; push, release, and remote mutation remain unauthorized.
+  - At initial authorization, commit, push, release, and remote mutation were excluded. Subsequent human acceptance authorized one local commit of the exact nine-file scope only; push was still unauthorized at that closeout and was later authorized separately as recorded in §7. No release or further milestone is authorized.
 - **Dependencies**: M4 completed and accepted at `749032864120c32b90d7b8d909b059cd93c89a92`; the M4 specification is the behavior/invariant reference. No package or dependency changes.
 - **Risk**: Medium — extraction crosses existing import boundaries; unchanged public exports and focused M4/M2/M3 regression suites mitigate risk.
 - **Verification Condition**: Measure pure LOC with the prescribed AWK rule and require each of the six governed source/test files to be below 250. Preserve all existing assertions and public import paths. Pass focused T1 contract/loader, M4 complete-set/T2/T3, bounded-replacement/single-file/M2/M3 regressions; full `npm test`; typecheck, lint, build, and `git diff --check`; PromptKit references; execution-control validator and fixture harness; fixed-scope/security, secret/credential, debug/probe, unwanted-artifact, and exact-nine-file checks. Use Node `24.20.0` and npm `11.19.0`. Require human acceptance before commit. After acceptance, run final closeout gates and create only the separately authorized exact-nine-file local commit; do not push.
@@ -74,8 +74,8 @@
 - **Mapped `pk:tasks` Status**: `Done`
 - **Active Task Pointer**: `None`
 - **Start Time**: `2026-09-24 18:56 UTC`
-- **Current Actor**: Human authority / Codex
-- **Next Action**: No further milestone work or push is authorized; the accepted closeout is limited to the separately authorized exact-nine-file local commit.
+- **Current Actor**: Human authority / Codex — remediation complete and integrated into `main` through PR #6; PR #7 merged the final STATE reconciliation.
+- **Next Action**: None. The accepted remediation is complete, published, and integrated into `main` through PR #6. No further milestone work is authorized.
 
 ### Transition History
 
@@ -104,13 +104,23 @@
 - **TDD Exception Verification**: `N/A - Code Work`
 - **CI Evidence**: `N/A - no remote CI run authorized`
 - **Review Evidence**: `Human authority accepted the behavior-preserving structural remediation and authorized one local commit of exactly this nine-file scope; no independent review is claimed.`
-- **Commit Evidence**: `Separate local remediation commit authorized with message refactor(m4): satisfy pre-push size limits; full SHA is reported from local Git at closeout. Nothing is pushed.`
-- **Pull Request Evidence**: `N/A - no PR authorized`
+- **Commit Evidence**: `At remediation closeout, a local commit was authorized with message refactor(m4): satisfy pre-push size limits; full SHA is recorded in local history. Push was not authorized at that time; later publication is recorded in §7.`
+- **Pull Request Evidence**: `No PR was authorized at remediation closeout. A later separate authorization published codex/m4-t6 and PR #6 merged it into main at 3400af5d8bccde510dc1b48835f4f1b0eab31d4c; PR #7 merged the final STATE reconciliation.`
 - **Release Evidence**: `N/A - policy-compliance remediation only; no release authorized`
-- **Blocker and Resume Condition**: `None; accepted remediation is complete. No further milestone work or push is authorized without a separate request.`
-- **Branch / Revision**: `codex/m4-t6; separate local post-M4 remediation descendant of accepted M4 base HEAD 749032864120c32b90d7b8d909b059cd93c89a92; unpushed.`
+- **Blocker and Resume Condition**: `None; accepted remediation is complete and integrated. No further milestone work is authorized.`
+- **Branch / Revision**: The remediation was completed on `codex/m4-t6` and integrated into `main` by PR #6 merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; PR #7 later merged the final STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`.
 - **Completion State**: `completed`
 - **Acceptance Results**: `AC-1 through AC-4 met and human-accepted; exact scope and required local gates passed.`
 - **Changed-File Summary**: `Exact nine-file remediation scope in a separate structural/policy commit; three over-limit responsibilities split with no intentional behavior change.`
 - **Completion Exception**: `None`
-- **Completion Decision and Timestamp**: `Human acceptance and exact local commit authorization received 2026-09-25; commit follows final closeout gates; push remains unauthorized.`
+- **Completion Decision and Timestamp**: `Human acceptance and exact local commit authorization received 2026-09-25; push was not authorized at closeout and was later separately authorized and completed as recorded in §7.`
+
+## 7. Post-closeout publication and integration update (2026-09-25)
+
+At remediation closeout, the accepted nine-file commit was local and push was
+not authorized. Human authority later separately authorized publication of
+`codex/m4-t6`; PR #6 merged the completed M4 and remediation branch into
+`main` at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`. Merge-commit CI run
+`36096310188` passed. PR #7 then merged the final STATE reconciliation at
+`1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. M4 and the remediation remain
+complete; no next milestone is authorized.
