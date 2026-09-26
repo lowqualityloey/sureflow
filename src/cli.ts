@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * Sureflow CLI (M1/M2 surface: init, run, status, verify; M3 adds preflight).
  *
