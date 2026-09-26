@@ -13,9 +13,9 @@
 - **Assumption Record Links**: `None`
 - **Specification**: [Distribution / First-Use Readiness](../specs/2026-09-25-distribution-first-use-readiness.md)
 - **External Reference**: `N/A - local planning records remain authoritative`
-- **Owner / Actor**: Human authority owns every execution and publication decision; Codex is authorized for the bounded T1 package/bin implementation and its local verification only.
+- **Owner / Actor**: Human authority owns every execution and publication decision; Codex completed the authorized T1 package/bin implementation and local verification, then created the separately authorized local commit. No push, publication, or later task is authorized.
 - **Execution Scope**: Exactly `src/cli.ts`, `tsconfig.json` (add only `tests/distributionT1PackageBuild.test.ts` to normal typechecking), `tsconfig.package.json`, `scripts/clean-package-output.mjs`, `tests/distributionT1PackageBuild.test.ts`, `eslint.config.js`, this Task Record, and `docs/STATE.md`. Baseline: `main` / `8100c61f0222bd56a8c2f96989da818db940438a`; implementation branch: `codex/distribution-t1`.
-- **Approval Boundary**: T1 alone is authorized: deterministic clean production compilation, stale `dist/src` prevention, the public Node CLI shebang, focused build/bin tests, and these two control-record updates. `package.json`, `package-lock.json`, package identity/version/tags, npm configuration/authentication, README, CI, ROADMAP, dogfood repositories, and all other paths are outside scope. T2 remains blocked on authenticated package identity; T3-T6, package/tarball installation, npm pack/publication, commits, pushes, and M5 remain unauthorized.
+- **Approval Boundary**: T1 alone is authorized: deterministic clean production compilation, stale `dist/src` prevention, the public Node CLI shebang, focused build/bin tests, and these two control-record updates. One local T1 commit was separately authorized and completed; push remains unauthorized. `package.json`, `package-lock.json`, package identity/version/tags, npm configuration/authentication, README, CI, ROADMAP, dogfood repositories, and all other paths are outside scope. T2 remains blocked on authenticated package identity; T3-T6, package/tarball installation, npm pack/publication, and M5 remain unauthorized.
 - **Created**: 2026-09-25
 
 ## 2. Objective and boundaries
@@ -36,7 +36,7 @@
 ## 3. Gated dependency-ordered task breakdown
 
 - [x] **T0 - Distribution decision preflight**: Complete as a decision preflight. Version `0.1.0`, the `next` then separately authorized `latest` policy, and the initial Linux / Node 24 / npm 11 / Git support baseline are resolved. Package identity is blocked pending authenticated npm evidence; dogfood is deferred until before T5; publication is reserved for separately authorized T6. No authentication, metadata mutation, dogfood mutation, or publication occurred.
-- [ ] **T1 - Deterministic package/bin contract**: Implementation and local verification are complete on `codex/distribution-t1`, pending human review. Scope is limited to the exact paths in Section 1: production-only clean build, stale `dist/src` prevention, first-line Node shebang, and focused build/bin verification. No package metadata, npm authentication, pack, tarball installation, or publication.
+- [ ] **T1 - Deterministic package/bin contract**: Implementation and local verification are complete and committed locally on `codex/distribution-t1` as `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`; it is unpushed and unmerged, awaiting separate publication/review authorization. Scope is limited to the exact paths in Section 1: production-only clean build, stale `dist/src` prevention, first-line Node shebang, and focused build/bin verification. No package metadata, npm authentication, pack, tarball installation, or publication.
 - [ ] **T2 - Bounded package manifest**: BLOCKED until package identity is resolved through a human-controlled authenticated npm check; then apply the approved identity/version, metadata, positive package-content allowlist, and lockfile synchronization. No dependency additions without separate justification and authority.
 - [ ] **T3 - Exact-tarball acceptance (not started / unauthorized)**: `npm pack`, complete content inspection, hash/integrity capture, exact-tarball installation, and installed-bin smoke tests.
 - [ ] **T4 - Independent first-use acceptance (not started / unauthorized)**: Installed-tarball help/init, schema-v2 accepted flow, fail-closed flow, and target-root correctness.
@@ -74,8 +74,8 @@ authorizes the next, and T6 is not implicitly authorized by T1-T5.
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
 - **Start Time**: `2026-09-26 - T1 implementation authorization`
-- **Current Actor**: Codex - T1 implementation and local verification complete; human review is pending
-- **Next Action**: Human review of the exact local diff. Do not begin T2, authenticate to npm, change package metadata, mutate a dogfood project, pack/install/publish a tarball, push, or begin M5.
+- **Current Actor**: Human authority / Codex - T1 implementation is committed locally; separate publication/review authorization is pending
+- **Next Action**: Await separate publication/review authorization. Do not push, open a PR, begin T2, authenticate to npm, change package metadata, mutate a dogfood project, pack/install/publish a tarball, or begin M5.
 
 ### Transition history
 
@@ -129,14 +129,14 @@ following candidates describe later gated work only and do not authorize it.
 - **TDD Execution Evidence**: `N/A - implementation not authorized`
 - **TDD Exception Verification**: Documentation/control planning uses link, reference, scope, and diff validation.
 - **CI Evidence**: `N/A - no CI change or run authorized`
-- **Review Evidence**: T1 implementation and local verification are ready for human review; no human T1 acceptance is claimed. T2-T6 remain separately gated.
-- **Commit Evidence**: No T1 commit is authorized or created; push remains unauthorized.
+- **Review Evidence**: Human authority accepted the T1 implementation for local commit only; publication, PR review, merge, and downstream acceptance remain separately gated. T2-T6 remain separately gated.
+- **Commit Evidence**: `23f1b702e2a22a2dae01a9d24aceb00b5cffd867` — `feat(distribution): establish deterministic package build`; sole parent `8100c61f0222bd56a8c2f96989da818db940438a`; exactly the eight authorized T1 paths. Local only; not pushed or merged.
 - **Pull Request Evidence**: `N/A - PR not authorized`
 - **Release Evidence**: `N/A - publication and tag changes not authorized`
-- **Blocker and Resume Condition**: T1 is implemented locally and awaiting human review. T2 is blocked on authenticated package identity; T3-T6 remain unauthorized. The Distribution / First-Use readiness gate remains OPEN.
-- **Branch / Revision**: `codex/distribution-t1`, based on `8100c61f0222bd56a8c2f96989da818db940438a`; no commit or push is authorized.
+- **Blocker and Resume Condition**: T1 is implemented and committed locally, awaiting separate publication/review authorization. T2 is blocked on authenticated package identity; T3-T6 remain unauthorized. The Distribution / First-Use readiness gate remains OPEN.
+- **Branch / Revision**: `codex/distribution-t1` at `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, parent `8100c61f0222bd56a8c2f96989da818db940438a`; one commit ahead of `origin/main`, not pushed.
 - **Completion State**: `awaiting_review`
-- **Acceptance Results**: `Local T1 implementation and verification complete; human review and acceptance pending`
+- **Acceptance Results**: `T1 implementation accepted for local commit; verification passed; commit is local and unmerged; separate publication/review authorization remains pending`
 - **Changed-File Summary**: `Exact eight-path T1 build/bin contract only; package metadata, npm auth/publication, dogfood, T2-T6, and M5 remain outside scope.`
-- **Completion Exception**: `N/A - planning record remains open for review`
-- **Completion Decision and Timestamp**: `T1 local implementation/verification complete; awaiting human review as of 2026-09-27; workstream gate remains OPEN`
+- **Completion Exception**: `N/A - local implementation commit recorded; upstream publication and merge acceptance remain open`
+- **Completion Decision and Timestamp**: `T1 implementation and local verification committed as 23f1b702e2a22a2dae01a9d24aceb00b5cffd867 on 2026-09-27; unpushed/unmerged and awaiting separate publication/review authorization; workstream gate remains OPEN`

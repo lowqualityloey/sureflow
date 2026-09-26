@@ -2,10 +2,10 @@
 
 ## 1. Executive Summary & Current Position
 - **Project Name**: Sureflow — experimental source-built local CLI for bounded changes in supported Node.js/TypeScript projects
-- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — and the separate post-M4 size remediation remain complete. Distribution / First-Use Readiness is an unnumbered workstream with its ROADMAP gate OPEN. T0 is complete as a decision preflight; T1 is implemented locally and ready for human review, not committed or merged. T2 remains blocked on authenticated package identity; T3-T6 are unauthorized. No M5 or next capability milestone is selected or authorized.
+- **Current Milestone / Epic**: M4 — Bounded Multi-File Delivery — and the separate post-M4 size remediation remain complete. Distribution / First-Use Readiness is an unnumbered workstream with its ROADMAP gate OPEN. T0 is complete as a decision preflight; T1 is implemented and committed locally as `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, unpushed and unmerged, awaiting separate publication/review authorization. T2 remains blocked on authenticated package identity; T3-T6 are unauthorized. No M5 or next capability milestone is selected or authorized.
 - **Overall Status**: M1, M1.1, M2, and M3 accepted / complete. M4-T1 is accepted and committed at `f7b1fd2306ede49ebe8b2012db0b94a509f14e05`; M4-T2 is accepted and committed at `79f149996523b9104c3071a2c151cd289e805e07`; M4-T3 is accepted and committed at `70efa30aac32e77e845a53a6a1b6bda2567a2b89`; M4-T4 is accepted and committed at `d0473d52ab23936e0b4d308b84cdc107c17e67b7`; M4-T5 is accepted and committed at `92a33428adcb5d0321d2ac986fc0f641d3340731`; M4-T6 is human-accepted and closed. M4 remains complete. The separate post-M4 size remediation is complete at `4c07b77245b6c4f72d435214e071e4b9741824f8`; prior STATE reconciliation commits `b6b7144b61b4b0544d8586d3b0dfb10636549d12` and `a56dc7296a6a3bb9a36dfcfa70473b9eb7621905` remain in history. PR #6 merged the published `codex/m4-t6` branch into `main` at `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. No M4-T7 or next milestone is authorized.
 - **Target Release / Deadline**: M4 — no deadline recorded
-- **Current Working Branch**: `codex/distribution-t1` based on `8100c61f0222bd56a8c2f96989da818db940438a`; T1 implementation and local verification are ready for human review, uncommitted and unmerged. Package metadata, npm authentication, dogfood mutation, publication, push, T2-T6, and M5 remain unauthorized.
+- **Current Working Branch**: `codex/distribution-t1` at `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, based on `8100c61f0222bd56a8c2f96989da818db940438a`; T1 is committed locally, unpushed, and unmerged. Package metadata, npm authentication, dogfood mutation, publication, push, T2-T6, and M5 remain unauthorized.
 - **Last Updated**: 2026-09-27
 
 
@@ -70,14 +70,14 @@
 - [x] **TASK-2026-09-25-post-m4-size-remediation**: pre-push programming-workflow size compliance only; complete, human-accepted, and committed at `4c07b77245b6c4f72d435214e071e4b9741824f8`. All closeout gates passed and all three material size-policy findings are resolved. M4 remains complete; no behavioral changes or M4-T7/next-milestone work is authorized. A later separate authorization published `codex/m4-t6` and opened PR #6 to `main`; PR #6 was merged by normal merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`, and merge-commit CI run `36096310188` passed.
 
 ### Distribution / First-Use Readiness (unnumbered; gate OPEN)
-- [ ] **TASK-2026-09-25-distribution-first-use-readiness**: Workstream remains planned and the gate OPEN. T0 is complete as a decision preflight: `0.1.0`, `next` followed by separately authorized `latest`, and Linux / Node 24 / npm 11 / Git baseline are resolved; identity is blocked pending authenticated evidence; dogfood is deferred until before T5; publication is reserved for T6. T1 implementation and local verification are complete and ready for human review; it is not committed or merged. T2 is blocked on identity; T3-T6 remain unauthorized. This is not M5 or M4.1.
+- [ ] **TASK-2026-09-25-distribution-first-use-readiness**: Workstream remains planned and the gate OPEN. T0 is complete as a decision preflight: `0.1.0`, `next` followed by separately authorized `latest`, and Linux / Node 24 / npm 11 / Git baseline are resolved; identity is blocked pending authenticated evidence; dogfood is deferred until before T5; publication is reserved for T6. T1 implementation and local verification are committed locally at `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, unpushed/unmerged, and awaiting separate publication/review authorization. T2 is blocked on identity; T3-T6 remain unauthorized. This is not M5 or M4.1.
 
 ---
 
 ## 3. Current and Historical Working Sets
 - **Target Workspace / Package (if Monorepo)**: Standalone repository (no packages)
 - **Active RFC / Spec**: `docs/specs/2026-09-25-distribution-first-use-readiness.md` — planning only; gate OPEN.
-- **Active Task Spec**: `docs/tasks/2026-09-25-distribution-first-use-readiness.md` — workstream remains planned / To Do; T0 decision preflight is complete; T1 implementation and local verification are complete, awaiting human review; T2 remains identity-blocked.
+- **Active Task Spec**: `docs/tasks/2026-09-25-distribution-first-use-readiness.md` — workstream remains planned / To Do; T0 decision preflight is complete; T1 implementation and local verification are committed locally at `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, unpushed/unmerged; separate publication/review authorization is pending; T2 remains identity-blocked.
 - **Current Authorized Scope**: Exactly `src/cli.ts`, `tsconfig.json` (include only the new T1 test), `tsconfig.package.json`, `scripts/clean-package-output.mjs`, `tests/distributionT1PackageBuild.test.ts`, `eslint.config.js`, this Task Record, and `docs/STATE.md`. No `package.json`, lockfile, other runtime/test/config, CI, README, fixture, dependency, registry, publication, dogfood, or M5 changes are authorized.
 - **Historical Accepted Remediation Scope**: Exactly `src/completeTargetSet.ts`, `src/m4TargetInspection.ts`, `src/boundedReplacement.ts`, `src/boundedReplacementTarget.ts`, `tests/m4T1TaskContract.test.ts`, `tests/m4T1TaskContractLoader.test.ts`, `tsconfig.json`, `docs/tasks/2026-09-25-post-m4-size-remediation.md`, and `docs/STATE.md`. This completed scope is historical, not active authorization.
 - **Verification Commands (Scoped)**:
@@ -125,24 +125,24 @@
 - **Task ID**: `TASK-2026-09-25-distribution-first-use-readiness`
 - **Task Record**: `docs/tasks/2026-09-25-distribution-first-use-readiness.md`
 - **Specification**: `docs/specs/2026-09-25-distribution-first-use-readiness.md`
-- **Execution Scope**: `T1 only: src/cli.ts; tsconfig.json to include only tests/distributionT1PackageBuild.test.ts; tsconfig.package.json; scripts/clean-package-output.mjs; tests/distributionT1PackageBuild.test.ts; this Task Record; docs/STATE.md.`
+- **Execution Scope**: `T1 only: src/cli.ts; tsconfig.json to include only tests/distributionT1PackageBuild.test.ts; tsconfig.package.json; scripts/clean-package-output.mjs; tests/distributionT1PackageBuild.test.ts; eslint.config.js; this Task Record; docs/STATE.md.`
 - **Execution State**: `awaiting_review`
 - **Mapped `pk:tasks` Status**: `In Review`
 - **Active Task Pointer**: `None`
 - **Active Review Task**: `T1 - Deterministic package/bin contract`
-- **Owner / Current Actor**: `Codex - T1 implementation and local verification complete; human review is pending`
+- **Owner / Current Actor**: `Human authority / Codex - T1 implementation is committed locally; separate publication/review authorization is pending`
 - **Start Time**: `2026-09-26`
 - **Current Branch**: `codex/distribution-t1`.
-- **Current Revision**: `Based on main/origin/main at 8100c61f0222bd56a8c2f96989da818db940438a; T1 changes remain local and uncommitted.`
+- **Current Revision**: `codex/distribution-t1 at 23f1b702e2a22a2dae01a9d24aceb00b5cffd867; parent 8100c61f0222bd56a8c2f96989da818db940438a; one commit ahead of origin/main, unpushed.`
 - **Checkpoint Policy**: `Separate authorization is required before every implementation task. Hard-stop before package metadata/version changes, external-project mutation, commit, push, npm authentication, publication, dist-tag mutation, ROADMAP gate closure, or M5 selection.`
-- **Blockers and Resume Condition**: `T1 implementation and local verification are complete and awaiting human review. T2 remains blocked on authenticated package identity; T3-T6 remain unauthorized. The Distribution / First-Use gate remains OPEN.`
+- **Blockers and Resume Condition**: `T1 implementation and local verification are committed locally; separate publication/review authorization is pending. T2 remains blocked on authenticated package identity; T3-T6 remain unauthorized. The Distribution / First-Use gate remains OPEN.`
 - **Verification Status**: `T1 focused tests passed 5/5; full suite passed 588/588 across 41 files; typecheck, lint, build, package-output audit, PromptKit references, 23-contract execution-control fixture harness, and applicable hygiene gates passed. Execution-control validation retains 98 unrelated historical findings and has zero T1-specific findings. Node 24.20.0 / npm 11.20.0; default sandbox child-process execution previously returned spawnSync node EPERM, while focused/full tests passed under approved host execution.`
 - **Changed-File Summary**: `Exact T1 eight-path scope only; package metadata, dependencies, npm auth/publication, dogfood, T2-T6, and M5 unchanged/out of scope.`
-- **Latest Checkpoint**: `T0 complete; T1 implementation and local verification are complete and awaiting human review on codex/distribution-t1. Package identity remains unresolved, T2 blocked, T3-T6 unauthorized, and the gate OPEN.`
+- **Latest Checkpoint**: `T0 complete; T1 implementation and local verification are committed locally at 23f1b702e2a22a2dae01a9d24aceb00b5cffd867 on codex/distribution-t1, unpushed/unmerged. Package identity remains unresolved, T2 blocked, T3-T6 unauthorized, and the gate OPEN.`
 - **H6 CI Evidence Addendum**: `GitHub Actions run 35585861754 (<https://github.com/lowqualityloey/sureflow/actions/runs/35585861754>) tested 99b2e340ceec288982788b16ebaa8620ddb891ed and passed. The remote npm test step/job succeeded, and the committed H6 event-corruption test block contains no skip/only markers. No separately retrieved remote per-test Vitest summary is claimed because the log archive fetch timed out.`
 - **H7 CI Evidence Addendum**: `GitHub Actions run 35588373963 (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963>) tested 9bb55ca42f7ec8801cab4bc908c9be61d5b9b2c0 and passed; its test job `106296927285` (<https://github.com/lowqualityloey/sureflow/actions/runs/35588373963/job/106296927285>) concluded success. The remote npm ci, typecheck, npm test, lint, build, git diff --check, and cleanliness steps passed; npm test reported `tests/initStatus.test.ts` with 25 tests and 136 passed tests across 13 files, with no skipped tests reported. The tested SHA contains the source-install and partial-core-state `init --force` wording changes.`
 - **Latest Handoff**: `N/A`
-- **Next Action**: `Human review of the exact local T1 diff. Do not begin T2, authenticate to npm, change package metadata, pack/install/publish, mutate a dogfood project, push, or begin M5.`
+- **Next Action**: `Await separate publication/review authorization. Do not push, open a PR, begin T2, authenticate to npm, change package metadata, pack/install/publish, mutate a dogfood project, or begin M5.`
 
 ---
 
@@ -184,7 +184,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ## 5. Known Blockers, Risks & Open Questions
 - **Blockers**:
   - No technical M3 or M4 implementation blocker remains. M3 CORE-ONLY is integrated and post-merge validated. M4-T1 through T6 and the post-M4 size remediation are accepted and integrated into `main` by PR #6 merge commit `3400af5d8bccde510dc1b48835f4f1b0eab31d4c`; merge-commit CI run `36096310188` passed. PR #7 merged the final STATE reconciliation at `1c5ecc37c641897bbdd2b416fd1505bf4ebf22f5`. The accepted T6 final-state-write durability limitation remains documented in the Task Record. No M4-T7 or next milestone is authorized.
-  - Distribution / First-Use gate remains OPEN. T0 decision preflight is complete: version `0.1.0`, the `next` then separately authorized `latest` policy, and Linux / Node 24 / npm 11 / Git baseline are resolved. Authenticated package identity blocks T2/T6; dogfood is deferred until before T5; publication is reserved for separately authorized T6. T1 is identity-independent but still requires separate authorization. This is a planning gate, not an M4 defect or M5 authorization.
+  - Distribution / First-Use gate remains OPEN. T0 decision preflight is complete: version `0.1.0`, the `next` then separately authorized `latest` policy, and Linux / Node 24 / npm 11 / Git baseline are resolved. Authenticated package identity blocks T2/T6; dogfood is deferred until before T5; publication is reserved for separately authorized T6. T1 is identity-independent, committed locally, and awaits separate publication/review authorization. This is a planning gate, not an M4 defect or M5 authorization.
 - **Architectural Questions**:
   - Remaining from M0: C1 router/topology contract; C4 evidence schema key finalization + UNKNOWN transition table; C6 cost-gate units (deferred post-M2); C7 capability-filter before MCP (deferred post-M2). C8 receives a narrow M2 proposal: one literal Node/TypeScript+npm adapter behind a closed contract, not a generalized registry. C2/C3/C5 remain closed by M-D4/M-D3.
 - **Technical Debt & Risks**:
@@ -201,7 +201,7 @@ Staging area for rules observed during sessions but not yet approved as invarian
 ---
 
 ## 7. Next Immediate Actions (Queued)
-1. T0 decision preflight is complete; T1 implementation is ready for human review. Do not begin T2 without separate authorization and authenticated package identity.
+1. T0 decision preflight is complete; T1 implementation is committed locally and awaits separate publication/review authorization. Do not begin T2 without separate authorization and authenticated package identity.
 3. Keep the Distribution / First-Use gate OPEN; resolve package identity through a human-controlled authenticated check before T2/T6, decide dogfood before T5, and obtain separate publication authority before T6. Do not change package metadata, publish, or begin M5 without separate authorization.
 
 ---
@@ -269,6 +269,7 @@ Compact record of pairing sessions to enable instant chat resumption:
 | 2026-09-27 | Human authority / Codex | Distribution T1 lint-boundary scope addition | Added exactly `eslint.config.js` so `.mjs` follows the existing non-type-checked JavaScript override. No lint rules were weakened; T1’s revised exact scope is eight paths. |
 | 2026-09-27 | Human authority / Codex | Distribution T1 focused timeout correction authorization | Authorized a `15_000ms` per-test timeout only for the deterministic two-clean-build case in the existing T1 test file; no global timeout or assertions changed. |
 | 2026-09-27 | Codex | Distribution T1 implementation and local verification | T1 implementation and local gates are ready for human review and remain uncommitted/unmerged. Focused tests passed 5/5; full suite passed 588/588 across 41 files; typecheck, lint, build, package-output and listed hygiene gates passed. Node 24.20.0 / npm 11.20.0. T0 remains complete; package identity unresolved; T2 blocked; T3-T6 unauthorized; gate OPEN; M5 unselected; no npm authentication/publication or dogfood mutation. |
+| 2026-09-27 | Human authority / Codex | Distribution T1 local implementation commit | Authorized and created `23f1b702e2a22a2dae01a9d24aceb00b5cffd867` (`feat(distribution): establish deterministic package build`) with exactly the eight T1 paths. It is one commit ahead of `origin/main`, unpushed and unmerged. T2 remains blocked; T3-T6 unauthorized; gate OPEN; no npm auth/pack/publication, dogfood mutation, or M5 work. |
 
 ---
 
