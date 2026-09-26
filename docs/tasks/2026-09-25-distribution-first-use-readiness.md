@@ -134,7 +134,7 @@ following candidates describe later gated work only and do not authorize it.
 - **Pull Request Evidence**: `N/A - PR not authorized`
 - **Release Evidence**: `N/A - publication and tag changes not authorized`
 - **Blocker and Resume Condition**: T1 is implemented and committed locally, awaiting separate publication/review authorization. T2 is blocked on authenticated package identity; T3-T6 remain unauthorized. The Distribution / First-Use readiness gate remains OPEN.
-- **Branch / Revision**: `codex/distribution-t1` at `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, parent `8100c61f0222bd56a8c2f96989da818db940438a`; one commit ahead of `origin/main`, not pushed.
+- **Branch / Revision**: `codex/distribution-t1` at `23f1b702e2a22a2dae01a9d24aceb00b5cffd867`, parent `8100c61f0222bd56a8c2f96989da818db940438a`; T1 work remains local and unpushed. Exact ahead/behind counts are operational Git observations verified at publication checkpoints.
 - **Completion State**: `awaiting_review`
 - **Acceptance Results**: `T1 implementation accepted for local commit; verification passed; commit is local and unmerged; separate publication/review authorization remains pending`
 - **Changed-File Summary**: `Exact eight-path T1 build/bin contract only; package metadata, npm auth/publication, dogfood, T2-T6, and M5 remain outside scope.`
