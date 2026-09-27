@@ -37,9 +37,10 @@
 
 ### Assumption Records
 
-None. The unresolved package identity, version, dist-tag policy, platform claim,
-dogfood project, and publication authority are explicit human decision gates in
-T0 rather than provisional assumptions.
+No assumptions are used for the selected package identity, version, initial
+tag, or initial platform baseline: these were resolved by human decisions in
+T0 and the 2026-09-28 identity reconciliation. Dogfood remains deferred, and
+publication authority remains reserved for separately authorized T6.
 
 ## 1. Problem and authority boundary
 
@@ -49,10 +50,12 @@ ROADMAP therefore keeps Distribution / First-Use readiness OPEN before another
 major capability expansion is selected.
 
 This unnumbered readiness workstream is not M5, M4.1, or a capability
-milestone. This specification and its Task Record authorize planning records
-only. They do not authorize package metadata, source, tests, CI, authentication,
-registry, tag, version, publication, or release changes. A roadmap requirement
-does not itself grant execution authority.
+milestone. The planning records identify gated work but do not authorize its
+implementation. T1 is complete and merged. T2 is ready for separate
+authorization, not started; these records do not authorize package metadata,
+source, tests, CI, npm pack, publication, or release changes. A roadmap
+requirement or resolved package identity does not itself grant execution
+authority.
 
 M1-M4 and the post-M4 remediation remain complete. No M5 is selected.
 Publication and every registry/tag mutation require separate explicit human
@@ -63,13 +66,16 @@ authorization.
 - The repository version remains `0.0.0-m1`.
 - Linux with Node `24.20.0` and npm `11.19.0` is the demonstrated distribution
   baseline.
-- The current manifest exposes one `sureflow` binary but the emitted CLI lacks
-  the required public Node shebang.
+- The current manifest exposes one `sureflow` binary. T1 added the Node
+  shebang to the compiled CLI and is complete/merged; package name/version
+  metadata remains unchanged until separately authorized T2.
 - Runtime source currently appears to require only Node built-ins and local
   compiled modules; no runtime dependency addition is presently justified.
-- Current package-preview evidence is unbounded: 1,078 entries, including
+- The planning-baseline package preview was unbounded: 1,078 entries, including
   repository-internal source, tests, fixtures, PromptKit material, and stale
-  compiled output.
+  compiled output. T1 now provides deterministic production compilation and
+  stale-output cleanup; the final npm tarball has not yet been inspected
+  (T3 remains unauthorized).
 - Windows and macOS are not accepted package platforms until installed-package
   acceptance passes there.
 
@@ -83,14 +89,14 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 ### Decision Record: `DECISION-distribution-first-use-readiness-001`
 
 - **Decision ID**: `DECISION-distribution-first-use-readiness-001`
-- **Decision Statement**: Select the npm package identity only after authenticated publication-permission verification.
+- **Decision Statement**: Select Sureflow's intended npm package identity based on the authenticated read-only preflight and explicit human decision.
 - **Considered Options**: Preferred unscoped `sureflow` package with `sureflow` binary; fallback `@lowqualityloey/sureflow` package with the same binary.
-- **Selected Option(s)**: `None`; T0 must perform authenticated verification and obtain human approval before package metadata changes.
+- **Selected Option(s)**: `sureflow` package identity with the existing `sureflow` binary; selected by human authority after the read-only preflight.
 - **Rejected Option(s)**: `None`; registry 404 is not ownership evidence.
 - **Material Claim Links**: [CLAIM-DECISION-distribution-first-use-readiness-001-001](#CLAIM-DECISION-distribution-first-use-readiness-001-001)
-- **Remaining Uncertainty**: [UNCERTAINTY-DECISION-distribution-first-use-readiness-001-001](#UNCERTAINTY-DECISION-distribution-first-use-readiness-001-001)
+- **Remaining Uncertainty**: None for the intended package identity. Registry availability and future publication rights remain unguaranteed.
 - **Decision Owner**: Human authority
-- **Status**: `deferred`
+- **Status**: `approved`
 - **Version Selection Context**: `Not applicable - identity decision only`
 - **AI Recommendation**: `Not applicable - preferred/fallback order is human-provided`
 - **Selected Exact Version(s)**: `Not applicable - identity decision only`
@@ -100,7 +106,7 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 - **Version Rationale**: `Not applicable - identity decision only`
 - **Exact-Version Evidence**: `Not applicable - identity decision only`
 - **Existing Version Baseline**: Repository package version `0.0.0-m1`; unchanged by planning.
-- **Decision Owner Approval or Accepted Assumption**: Pending human decision after authenticated T0 verification.
+- **Decision Owner Approval or Accepted Assumption**: Human authority selected `sureflow` on 2026-09-28 following authenticated read-only preflight. `npm whoami` returned `lowqualityloey` at `https://registry.npmjs.org/`; both `sureflow` and `@lowqualityloey/sureflow` returned E404. These observations do not reserve the name or guarantee publication rights.
 - **pk:spike or ADR Link**: `None`
 
 <a id="CLAIM-DECISION-distribution-first-use-readiness-001-001"></a>
@@ -129,12 +135,12 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 ### Uncertainty Record: `UNCERTAINTY-DECISION-distribution-first-use-readiness-001-001`
 
 - **Uncertainty ID**: `UNCERTAINTY-DECISION-distribution-first-use-readiness-001-001`
-- **Affected Claim or Context**: Which preferred/fallback identity this project is authenticated and permitted to publish.
-- **Impact**: The public command, manifest name, lockfile root metadata, and release evidence depend on the answer.
-- **Resolution Action**: `Defer the decision`
+- **Affected Claim or Context**: Which preferred/fallback identity to select for repository metadata and later acceptance.
+- **Impact**: The public command, manifest name, lockfile root metadata, and release evidence depend on the selected identity.
+- **Resolution Action**: `Human authority selected the preferred unscoped identity after authenticated read-only preflight`
 - **Decision Owner**: Human authority
-- **Status**: `open`
-- **Supporting Evidence**: Registry 404 probes observed during planning are absence evidence only; `npm whoami` was unauthenticated.
+- **Status**: `resolved`
+- **Supporting Evidence**: Human-controlled read-only preflight on 2026-09-28: `npm whoami` returned `lowqualityloey` at `https://registry.npmjs.org/`; `sureflow` and `@lowqualityloey/sureflow` each returned E404. This evidence does not reserve the package name or guarantee future publication rights; publication remains separately authorized T6 work.
 
 <a id="DECISION-distribution-first-use-readiness-002"></a>
 
@@ -142,23 +148,23 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 
 - **Decision ID**: `DECISION-distribution-first-use-readiness-002`
 - **Decision Statement**: Approve a first distributable version and staged dist-tag policy.
-- **Considered Options**: Proposed `0.1.0` accepted as an exact tarball, then separately published under a non-default validation tag such as `next`, with a later independent decision to promote that same version to `latest`; or another human-approved version/tag sequence.
-- **Selected Option(s)**: `None`; `0.1.0` and `next` are proposals only.
+- **Considered Options**: Publish the first accepted `0.1.0` artifact under the non-default validation tag `next`, then separately authorize promotion of that exact accepted version to `latest`; or another human-approved version/tag sequence.
+- **Selected Option(s)**: First planned public version `0.1.0`; initial publication tag `next`; promotion of the exact accepted version to `latest` requires another explicit authorization.
 - **Rejected Option(s)**: Direct unverified publication to `latest`; rebuilding between acceptance and publication.
 - **Material Claim Links**: [CLAIM-DECISION-distribution-first-use-readiness-002-001](#CLAIM-DECISION-distribution-first-use-readiness-002-001)
 - **Remaining Uncertainty**: [UNCERTAINTY-DECISION-distribution-first-use-readiness-002-001](#UNCERTAINTY-DECISION-distribution-first-use-readiness-002-001)
 - **Decision Owner**: Human authority
-- **Status**: `proposed`
+- **Status**: `approved`
 - **Version Selection Context**: `Existing project`
-- **AI Recommendation**: Proposed `0.1.0`, subject to human approval and exact-artifact acceptance.
-- **Selected Exact Version(s)**: `None - not approved`
-- **Release Channel**: `stable` is proposed for the package version; initial dist-tag proposal is non-default validation tag `next`.
+- **AI Recommendation**: `Not applicable - version and tag policy selected by human authority`
+- **Selected Exact Version(s)**: `0.1.0` (planned; not published)
+- **Release Channel**: Experimental pre-1.0; initial publication uses `next` only under separate T6 authorization. After publication, prove version-qualified registry invocation; promotion of that exact accepted version to `latest` requires another explicit authorization. Document unversioned `npx` only after `latest` behavior is proven.
 - **Support/Lifecycle Status**: Experimental pre-1.0 package; no stability guarantee beyond accepted contracts.
 - **Compatibility Constraints**: Node `^24.0.0`, npm `>=11`, Git, and the documented supported project shapes.
 - **Version Rationale**: `0.1.0` communicates a first distributable experimental package without claiming 1.0 stability.
-- **Exact-Version Evidence**: Human authorization is absent; the current repository value remains `0.0.0-m1`.
+- **Exact-Version Evidence**: Human authority approved `0.1.0` in T0 on 2026-09-26. Repository package metadata remains `0.0.0-m1` until separately authorized T2 work.
 - **Existing Version Baseline**: `0.0.0-m1`; no planning-time change.
-- **Decision Owner Approval or Accepted Assumption**: Pending human decision in T0.
+- **Decision Owner Approval or Accepted Assumption**: Human authority approved `0.1.0`, initial `next`, and separately authorized later promotion to `latest` in T0. Publication and promotion remain separately authorized T6 operations.
 - **pk:spike or ADR Link**: `None`
 
 <a id="CLAIM-DECISION-distribution-first-use-readiness-002-001"></a>
@@ -187,18 +193,18 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 ### Uncertainty Record: `UNCERTAINTY-DECISION-distribution-first-use-readiness-002-001`
 
 - **Uncertainty ID**: `UNCERTAINTY-DECISION-distribution-first-use-readiness-002-001`
-- **Affected Claim or Context**: Final version, validation tag, and whether/when that exact version may be promoted to `latest`.
-- **Impact**: Registry coordinates and documented `npx` commands cannot be finalized without the decision.
-- **Resolution Action**: `Defer the decision`
+- **Affected Claim or Context**: Whether the selected version/tag workflow has been verified against a published artifact and whether `latest` may be promoted.
+- **Impact**: Registry behavior and unversioned `npx` guidance cannot be claimed until separately authorized publication and registry proofs exist.
+- **Resolution Action**: `Record the approved version and staged tag policy; retain publication and promotion as separate authorization gates`
 - **Decision Owner**: Human authority
-- **Status**: `open`
-- **Supporting Evidence**: This planning proposal only; no registry mutation is authorized.
+- **Status**: `resolved`
+- **Supporting Evidence**: Human T0 approval recorded 2026-09-26: planned version `0.1.0`, initial tag `next`, and separate authorization required to promote the exact accepted version to `latest`. No registry mutation is authorized by this decision record; document unversioned `npx` only after `latest` behavior is proven.
 
 ## 4. Deterministic package architecture
 
 ```text
-identity-independent T1 build/bin contract (separate authorization required)
-  -> authenticated package identity before T2
+completed, merged T1 deterministic build/bin contract
+  -> human-selected package identity (`sureflow`; T2 still needs separate authorization)
   -> T2 approved identity/version manifest and package allowlist
   -> clean final package output + package-only TypeScript compilation
   -> npm pack
@@ -301,7 +307,7 @@ out of scope unless separately selected later.
 
 | Failure scenario | Detection | Required response |
 | :--- | :--- | :--- |
-| Package identity lacks authenticated authority | T0 authenticated permission check | STOP before manifest changes |
+| Selected package name is unavailable or publication permission is absent | T2 metadata checks and separately authorized T6 publication preflight | STOP before unauthorized metadata or registry mutation; E404 is not a reservation or permission guarantee |
 | Version or tag policy is unapproved | T0 decision checklist | STOP before artifact build/publication |
 | Stale compiled module survives | Exact source-to-tarball runtime inventory | Reject artifact; clean and rebuild, then restart acceptance |
 | Internal or credential material is packed | Complete tarball allowlist and secret scan | Reject artifact; never publish |
@@ -315,17 +321,19 @@ out of scope unless separately selected later.
 ## 10. Dependency-ordered work breakdown
 
 - **T0 - Distribution decision preflight**: Record decision state and
-  downstream prerequisites. Package identity must be authenticated before T2
-  or T6; dogfood selection is required before T5; separate publication
-  authority is required before T6. Do not publish.
-- **T1 - Deterministic package/bin contract**: After separate authorization,
-  implement the identity-independent package-specific clean build, public CLI
-  shebang, required compiled runtime, and stale-output prevention. T1 must not
-  change package name/version/tags, `package.json`, or `package-lock.json`.
-- **T2 - Bounded package manifest**: Only after authenticated package identity
-  is resolved, apply the approved identity/version,
-  metadata, positive content allowlist, and lockfile synchronization. Add no
-  dependency without separate justification.
+  downstream prerequisites. Human authority selected `sureflow` after the
+  authenticated read-only check; this does not establish reservation or future
+  publication rights. T2 still requires separate implementation
+  authorization; dogfood selection is required before T5; separate
+  publication authority is required before T6. Do not publish.
+- **T1 - Deterministic package/bin contract**: Complete and merged. T1
+  established the identity-independent package-specific clean build, public
+  CLI shebang, required compiled runtime, and stale-output prevention without
+  changing package name/version/tags, `package.json`, or `package-lock.json`.
+- **T2 - Bounded package manifest**: Only after separate implementation
+  authorization, apply selected package identity `sureflow`, planned version
+  `0.1.0`, required metadata, positive content allowlist, and lockfile root
+  synchronization. Add no dependency without separate justification.
 - **T3 - Exact-tarball acceptance**: Pack, inspect every entry, capture artifact
   hash/integrity, install that exact tarball, and smoke-test its installed bin.
 - **T4 - Independent first-use acceptance**: Run help/init, the schema-v2
@@ -382,12 +390,14 @@ paths is authorized by this planning record.
 ## 12. Open human decisions and readiness gate
 
 T0 records decision state and downstream prerequisites; it does not require all
-later-task decisions or external authority to be consumed immediately. Package
-identity must be verified through a human-controlled authenticated check before
-T2 or T6. Dogfood selection and mutation authority are required before T5.
-Publication authority is separately required before T6. Identity-independent
-T1 may be considered for separate authorization without changing
-`package.json`, `package-lock.json`, identity, version, or dist-tags.
+later-task decisions or external authority to be consumed immediately. The
+intended package identity `sureflow` is selected based on a human-controlled
+authenticated read-only preflight, but E404 and account identity do not reserve
+the name or guarantee publication rights. T2 is ready for separate
+authorization and has not started; no T2 implementation is authorized here.
+Dogfood selection and mutation authority are required before T5. Publication
+authority is separately required before T6. T1 is complete and merged without
+changing the package metadata; no later task is implicitly authorized.
 
 The Distribution / First-Use gate remains OPEN until the accepted exact
 artifact, installed-package flows, dogfood, separately authorized publication,
