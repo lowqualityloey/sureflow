@@ -1,6 +1,6 @@
 {
   "name": "sureflow",
-  "version": "0.0.0-m1",
+  "version": "0.1.0",
   "description": "Experimental local CLI for bounded changes in supported Node.js and TypeScript projects.",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
@@ -11,8 +11,14 @@
   "bin": {
     "sureflow": "./dist/src/cli.js"
   },
+  "files": [
+    "dist/src"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "clean:package": "node scripts/clean-package-output.mjs",
+    "build:package": "npm run clean:package && tsc -p tsconfig.package.json",
+    "prepack": "npm run build:package",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint ."
