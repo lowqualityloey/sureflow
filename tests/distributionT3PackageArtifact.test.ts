@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 type PackEntry = Record<string, unknown>;
-const root = fileURLToPath(new URL("../", import.meta.url)), verifier = join(root, "scripts/verify-distribution-artifact.mjs"), npmCli = process.env["SUREFLOW_NPM_CLI"] ?? "";
+const root = fileURLToPath(new URL("../", import.meta.url)), verifier = join(root, "scripts/verify-distribution-artifact.mjs"), npmCli = process.env["SUREFLOW_NPM_CLI"] ?? process.env["npm_execpath"] ?? "";
 let sourceRoot = "", sourceCommit = "", testRoot = "", artifact = "", packJson = "";
 let env: NodeJS.ProcessEnv = {};
 
@@ -77,7 +77,7 @@ function unpack(name: string): string {
 }
 
 beforeAll(() => {
-  if (!npmCli) throw new Error("SUREFLOW_NPM_CLI must name the qualified npm 11 CLI; no PATH fallback is allowed");
+  if (!npmCli) throw new Error("A qualified npm 11 CLI must be supplied by SUREFLOW_NPM_CLI or npm lifecycle npm_execpath; no PATH fallback is allowed");
   const version = execFileSync(process.execPath, [npmCli, "--version"], { encoding: "utf8", env: { PATH: `${dirname(process.execPath)}:/usr/bin:/bin`, HOME: tmpdir(), npm_config_userconfig: "/dev/null" } }).trim();
   if (!/^11\./.test(version)) throw new Error(`Expected npm 11, received ${version}`);
   testRoot = mkdtempSync(join(tmpdir(), "sureflow-t3-artifact-test-"));
