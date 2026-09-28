@@ -11,6 +11,7 @@
  * Exit codes are the approved §9 contract: 0 = accepted/pass,
  * 2 = controlled halt/blocked/failure.
  */
+import { realpathSync } from "node:fs";
 import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { mutationLockExists } from "./mutationLock.js";
@@ -240,7 +241,13 @@ export async function runCliAsync(
 /** True only when this module is the process entrypoint (not when imported by tests). */
 function invokedDirectly(): boolean {
   const entry = process.argv[1];
-  return entry !== undefined && entry === fileURLToPath(import.meta.url);
+  if (entry === undefined) return false;
+  try {
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+  } catch (error) {
+    if (error instanceof Error) return false;
+    throw error;
+  }
 }
 
 if (invokedDirectly()) {

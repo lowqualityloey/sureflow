@@ -50,12 +50,14 @@ ROADMAP therefore keeps Distribution / First-Use readiness OPEN before another
 major capability expansion is selected.
 
 This unnumbered readiness workstream is not M5, M4.1, or a capability
-milestone. The planning records identify gated work but do not authorize its
-implementation. T1 is complete and merged. T2 is ready for separate
-authorization, not started; these records do not authorize package metadata,
-source, tests, CI, npm pack, publication, or release changes. A roadmap
-requirement or resolved package identity does not itself grant execution
-authority.
+milestone. At the original planning baseline, these records identified gated
+work without authorizing implementation. Since then, T0 decisions were
+reconciled, T1 and T2 were separately authorized and merged, and T3 was
+separately authorized and completed. T3 accepted one exact local artifact
+bound to source commit `7ea4c748f2c67e533548c7a67b64d1154a0a3794`; it remains
+unpublished. This does not authorize T4-T6, publication, tag mutation, dogfood
+mutation, or M5. A roadmap requirement or resolved package identity does not
+itself grant execution authority.
 
 M1-M4 and the post-M4 remediation remain complete. No M5 is selected.
 Publication and every registry/tag mutation require separate explicit human
@@ -63,19 +65,31 @@ authorization.
 
 ## 2. Current evidence and proposed product boundary
 
-- The repository version remains `0.0.0-m1`.
+- The planning-baseline repository version was `0.0.0-m1`; T2 has since
+  implemented the canonical package as `sureflow@0.1.0`.
 - Linux with Node `24.20.0` and npm `11.19.0` is the demonstrated distribution
   baseline.
-- The current manifest exposes one `sureflow` binary. T1 added the Node
-  shebang to the compiled CLI and is complete/merged; package name/version
-  metadata remains unchanged until separately authorized T2.
+- T3 accepted the exact `sureflow-0.1.0.tgz` bytes from source commit
+  `7ea4c748f2c67e533548c7a67b64d1154a0a3794`, identified by SHA-256
+  `5e93ec7873223ac7cc63ecef6f8c30bc892e648bdd58b63826d8df2b1b5bbd08` and
+  npm integrity
+  `sha512-zPao8mWB0JJIZ0D+g3V9sqs7hdj4ZmgzuaGMTxDHxpSjZ4Fs02OA4M2Wv8Wjez90l/gwX1LpxOxX5vvke0c6lg==`.
+  The artifact is preserved locally and has not been published. Full evidence
+  is recorded in the Task Record. No npm tag has been mutated; acceptance does
+  not establish publication permission.
+- The current manifest exposes one `sureflow` binary for `sureflow@0.1.0`.
+  T1 added the Node shebang to the compiled CLI and is complete/merged; T2
+  separately established package identity/version metadata and the bounded
+  package allowlist.
 - Runtime source currently appears to require only Node built-ins and local
   compiled modules; no runtime dependency addition is presently justified.
 - The planning-baseline package preview was unbounded: 1,078 entries, including
   repository-internal source, tests, fixtures, PromptKit material, and stale
-  compiled output. T1 now provides deterministic production compilation and
-  stale-output cleanup; the final npm tarball has not yet been inspected
-  (T3 remains unauthorized).
+  compiled output. T1 provides deterministic production compilation and
+  stale-output cleanup. T3 exact-artifact acceptance is complete: the
+  recorded tarball passed complete inventory/safety inspection, exact-source
+  binding, offline installation, and installed-bin smoke. The local artifact
+  remains unpublished; full independent first-use project flows belong to T4.
 - Windows and macOS are not accepted package platforms until installed-package
   acceptance passes there.
 
@@ -162,8 +176,8 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 - **Support/Lifecycle Status**: Experimental pre-1.0 package; no stability guarantee beyond accepted contracts.
 - **Compatibility Constraints**: Node `^24.0.0`, npm `>=11`, Git, and the documented supported project shapes.
 - **Version Rationale**: `0.1.0` communicates a first distributable experimental package without claiming 1.0 stability.
-- **Exact-Version Evidence**: Human authority approved `0.1.0` in T0 on 2026-09-26. Repository package metadata remains `0.0.0-m1` until separately authorized T2 work.
-- **Existing Version Baseline**: `0.0.0-m1`; no planning-time change.
+- **Exact-Version Evidence**: Human authority approved planned version `0.1.0` in T0 on 2026-09-26. T2 was subsequently separately authorized and merged; the current package metadata is `sureflow@0.1.0`. No publication has occurred.
+- **Existing Version Baseline**: `0.0.0-m1` at the original planning baseline; T0 made no planning-time metadata change.
 - **Decision Owner Approval or Accepted Assumption**: Human authority approved `0.1.0`, initial `next`, and separately authorized later promotion to `latest` in T0. Publication and promotion remain separately authorized T6 operations.
 - **pk:spike or ADR Link**: `None`
 
@@ -204,14 +218,13 @@ make a multi-OS acceptance matrix mandatory without separate product policy.
 
 ```text
 completed, merged T1 deterministic build/bin contract
-  -> human-selected package identity (`sureflow`; T2 still needs separate authorization)
-  -> T2 approved identity/version manifest and package allowlist
+  -> human-selected package identity (`sureflow`)
+  -> completed, merged T2 identity/version manifest and package allowlist
   -> clean final package output + package-only TypeScript compilation
-  -> npm pack
+  -> completed T3 exact-tarball acceptance
   -> complete tarball inspection + SHA-256/integrity capture
-  -> install exact tarball in independent runner
-  -> invoke installed .bin against separate target project
-  -> first-use acceptance + fail-closed acceptance
+  -> exact tarball installed in independent runner; installed-bin smoke passed
+  -> separately authorized T4 first-use acceptance + fail-closed project flows
   -> approved external-project dogfood
   -> separate publication authorization
   -> publish exact accepted tarball under validation tag
@@ -244,6 +257,11 @@ of README, license, and package metadata is permitted.
 
 - Record the accepted tarball path/name, SHA-256, and npm integrity metadata
   where available.
+- T3 accepted `sureflow-0.1.0.tgz`, bound to source commit
+  `7ea4c748f2c67e533548c7a67b64d1154a0a3794`, SHA-256
+  `5e93ec7873223ac7cc63ecef6f8c30bc892e648bdd58b63826d8df2b1b5bbd08`, and
+  npm integrity
+  `sha512-zPao8mWB0JJIZ0D+g3V9sqs7hdj4ZmgzuaGMTxDHxpSjZ4Fs02OA4M2Wv8Wjez90l/gwX1LpxOxX5vvke0c6lg==`.
 - Do not rebuild after acceptance and before publication.
 - Publication must consume the exact accepted `.tgz`.
 - Any rebuild invalidates acceptance and requires complete re-verification.
@@ -320,25 +338,29 @@ out of scope unless separately selected later.
 
 ## 10. Dependency-ordered work breakdown
 
-- **T0 - Distribution decision preflight**: Record decision state and
-  downstream prerequisites. Human authority selected `sureflow` after the
-  authenticated read-only check; this does not establish reservation or future
-  publication rights. T2 still requires separate implementation
-  authorization; dogfood selection is required before T5; separate
+- **T0 - Distribution decision preflight**: Complete. Human authority selected
+  `sureflow` after the authenticated read-only check; this does not establish
+  reservation or future publication rights. T2 was later separately
+  authorized and merged. Dogfood selection is required before T5; separate
   publication authority is required before T6. Do not publish.
 - **T1 - Deterministic package/bin contract**: Complete and merged. T1
   established the identity-independent package-specific clean build, public
   CLI shebang, required compiled runtime, and stale-output prevention without
   changing package name/version/tags, `package.json`, or `package-lock.json`.
-- **T2 - Bounded package manifest**: Only after separate implementation
-  authorization, apply selected package identity `sureflow`, planned version
-  `0.1.0`, required metadata, positive content allowlist, and lockfile root
-  synchronization. Add no dependency without separate justification.
-- **T3 - Exact-tarball acceptance**: Pack, inspect every entry, capture artifact
-  hash/integrity, install that exact tarball, and smoke-test its installed bin.
+- **T2 - Bounded package manifest**: Complete and merged at
+  `ce305af119d68ecea12e1825ee4cbad9d1f0e817`; it established
+  `sureflow@0.1.0`, the positive `dist/src` allowlist, and lockfile root
+  synchronization without adding a dependency.
+- **T3 - Exact-tarball acceptance**: Complete. The CLI installed-`.bin`
+  checkout-resolution defect was repaired in the human-authorized `src/cli.ts`
+  scope expansion. The exact artifact accepted from committed source
+  `7ea4c748f2c67e533548c7a67b64d1154a0a3794` is recorded in the Task Record.
+  Its independent install and installed-bin help/unknown-command smoke passed.
+  This did not exercise T4's full first-use project flows and did not publish
+  the package.
 - **T4 - Independent first-use acceptance**: Run help/init, the schema-v2
-  accepted flow, fail-closed flow, and target-root checks using the installed
-  tarball.
+  accepted flow, fail-closed flow, and target-root checks using the exact
+  accepted installed tarball. Not started; separate authorization required.
 - **T5 - Dogfood and release-readiness reconciliation**: Exercise the approved
   independent project and prepare current-facing documentation and release
   evidence. Do not publish.
@@ -393,11 +415,14 @@ T0 records decision state and downstream prerequisites; it does not require all
 later-task decisions or external authority to be consumed immediately. The
 intended package identity `sureflow` is selected based on a human-controlled
 authenticated read-only preflight, but E404 and account identity do not reserve
-the name or guarantee publication rights. T2 is ready for separate
-authorization and has not started; no T2 implementation is authorized here.
+the name or guarantee publication rights. T1 and T2 are complete and merged;
+the canonical package is `sureflow@0.1.0`. T3 is complete: one exact local
+artifact is accepted and bound to committed source
+`7ea4c748f2c67e533548c7a67b64d1154a0a3794`; it remains unpublished. T4 is not
+started and requires separate authorization; T5 and T6 remain unauthorized.
 Dogfood selection and mutation authority are required before T5. Publication
-authority is separately required before T6. T1 is complete and merged without
-changing the package metadata; no later task is implicitly authorized.
+authority is separately required before T6. Completion of T3 does not
+implicitly authorize later tasks.
 
 The Distribution / First-Use gate remains OPEN until the accepted exact
 artifact, installed-package flows, dogfood, separately authorized publication,
