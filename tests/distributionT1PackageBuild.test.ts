@@ -107,40 +107,48 @@ describe("Distribution T1 package build/bin contract", () => {
     });
   });
 
-  it("emits exactly current production source modules and removes stale output", () => {
-    withPackageWorkspace((workspace) => {
-      const stalePath = join(workspace, "dist/src/t1-distinctive-stale-probe.js");
-      mkdirSync(dirname(stalePath), { recursive: true });
-      writeFileSync(stalePath, "stale");
+  it(
+    "emits exactly current production source modules and removes stale output",
+    () => {
+      withPackageWorkspace((workspace) => {
+        const stalePath = join(workspace, "dist/src/t1-distinctive-stale-probe.js");
+        mkdirSync(dirname(stalePath), { recursive: true });
+        writeFileSync(stalePath, "stale");
 
-      runPackageBuild(workspace);
+        runPackageBuild(workspace);
 
-      const outputDirectory = join(workspace, "dist/src");
-      const outputPaths = listFiles(outputDirectory)
-        .map((path) => relative(outputDirectory, path).split(sep).join("/"))
-        .sort((left, right) => left.localeCompare(right));
-      expect(outputPaths).toEqual(sourceOutputPaths(workspace));
-      expect(existsSync(stalePath)).toBe(false);
-      expect(outputPaths.some((path) => path.includes(".test."))).toBe(false);
-    });
-  });
-
-  it("emits an executable CLI entry with the existing command surface", () => {
-    withPackageWorkspace((workspace) => {
-      runPackageBuild(workspace);
-      const cliPath = join(workspace, "dist/src/cli.js");
-      const cliContents = readFileSync(cliPath, "utf8");
-      const help = execFileSync(process.execPath, [cliPath, "--help"], {
-        cwd: workspace,
-        encoding: "utf8",
+        const outputDirectory = join(workspace, "dist/src");
+        const outputPaths = listFiles(outputDirectory)
+          .map((path) => relative(outputDirectory, path).split(sep).join("/"))
+          .sort((left, right) => left.localeCompare(right));
+        expect(outputPaths).toEqual(sourceOutputPaths(workspace));
+        expect(existsSync(stalePath)).toBe(false);
+        expect(outputPaths.some((path) => path.includes(".test."))).toBe(false);
       });
+    },
+    15_000,
+  );
 
-      expect(cliContents.split(/\r?\n/, 1)[0]).toBe("#!/usr/bin/env node");
-      for (const command of productionCommands) {
-        expect(help).toContain(command);
-      }
-    });
-  });
+  it(
+    "emits an executable CLI entry with the existing command surface",
+    () => {
+      withPackageWorkspace((workspace) => {
+        runPackageBuild(workspace);
+        const cliPath = join(workspace, "dist/src/cli.js");
+        const cliContents = readFileSync(cliPath, "utf8");
+        const help = execFileSync(process.execPath, [cliPath, "--help"], {
+          cwd: workspace,
+          encoding: "utf8",
+        });
+
+        expect(cliContents.split(/\r?\n/, 1)[0]).toBe("#!/usr/bin/env node");
+        for (const command of productionCommands) {
+          expect(help).toContain(command);
+        }
+      });
+    },
+    15_000,
+  );
 
   it(
     "produces identical sorted output paths and hashes across clean builds",

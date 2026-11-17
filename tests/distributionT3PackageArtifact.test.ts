@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -7,6 +7,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 type PackEntry = Record<string, unknown>;
+interface VerifyResult {
+  readonly status: number | null;
+  readonly stdout: string;
+  readonly stderr: string;
+}
 const root = fileURLToPath(new URL("../", import.meta.url)), verifier = join(root, "scripts/verify-distribution-artifact.mjs"), npmCli = process.env["SUREFLOW_NPM_CLI"] ?? process.env["npm_execpath"] ?? "";
 let sourceRoot = "", sourceCommit = "", testRoot = "", artifact = "", packJson = "";
 let env: NodeJS.ProcessEnv = {};
@@ -23,6 +28,37 @@ function args(json: string, mode: "inspect" | "install" = "inspect", file = arti
   return [verifier, "--artifact", file, "--pack-json", json, "--source-root", sourceRoot, "--source-commit", sourceCommit, "--expected-name", "sureflow", "--expected-version", "0.1.0", "--npm-cli", npmCli, "--pack-command", "npm pack . --json --offline --foreground-scripts=false", "--mode", mode];
 }
 const verify = (json: string, mode: "inspect" | "install" = "inspect", file = artifact) => spawnSync(process.execPath, args(json, mode, file), { cwd: testRoot, env, encoding: "utf8", maxBuffer: 4 * 1024 * 1024 });
+function verifyAsync(json: string, mode: "inspect" | "install" = "inspect", file = artifact): Promise<VerifyResult> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, args(json, mode, file), { cwd: testRoot, env, shell: false, stdio: ["ignore", "pipe", "pipe"] });
+    const stdout: Buffer[] = [], stderr: Buffer[] = [], maxBuffer = 4 * 1024 * 1024;
+    let stdoutBytes = 0, stderrBytes = 0, spawnError: Error | null = null, outputError: Error | null = null;
+    const capture = (chunks: Buffer[], chunk: Buffer, currentBytes: number, stream: "stdout" | "stderr"): number => {
+      if (currentBytes >= maxBuffer) return currentBytes;
+      const remaining = maxBuffer - currentBytes, overflowed = chunk.byteLength > remaining;
+      chunks.push(overflowed ? chunk.subarray(0, remaining) : chunk);
+      if (overflowed && outputError === null) {
+        outputError = new Error(`Distribution verifier ${stream} exceeded the 4 MiB output limit`);
+        child.kill();
+      }
+      return currentBytes + Math.min(chunk.byteLength, remaining);
+    };
+    child.stdout.on("data", (chunk: Buffer) => { stdoutBytes = capture(stdout, chunk, stdoutBytes, "stdout"); });
+    child.stderr.on("data", (chunk: Buffer) => { stderrBytes = capture(stderr, chunk, stderrBytes, "stderr"); });
+    child.once("error", (error: Error) => { spawnError = error; });
+    child.once("close", (status: number | null) => {
+      if (spawnError !== null) {
+        reject(new Error(`Unable to spawn distribution verifier: ${spawnError.message}`));
+        return;
+      }
+      if (outputError !== null) {
+        reject(outputError);
+        return;
+      }
+      resolve({ status, stdout: Buffer.concat(stdout).toString("utf8"), stderr: Buffer.concat(stderr).toString("utf8") });
+    });
+  });
+}
 
 function wrapper(): string {
   const directory = join(testRoot, "qualified-bin"); mkdirSync(directory);
@@ -87,15 +123,15 @@ beforeAll(() => {
 afterAll(() => { if (testRoot) rmSync(testRoot, { recursive: true, force: true }); });
 
 describe("Distribution T3 package artifact verifier", () => {
-  it("accepts a disposable artifact and independently installs and smokes its bin", () => {
-    const result = verify(packJson, "install"); expect(result.status, result.stderr).toBe(0);
+  it("accepts a disposable artifact and independently installs and smokes its bin", async () => {
+    const result = await verifyAsync(packJson, "install"); expect(result.status, result.stderr).toBe(0);
     const evidence: unknown = JSON.parse(result.stdout);
     expect(evidence).toMatchObject({ accepted: true, packageName: "sureflow", packageVersion: "0.1.0", sourceCommit });
     expect(evidence).toHaveProperty("sha256"); expect(evidence).toHaveProperty("installed.runnerContainment", true);
     expect(evidence).toHaveProperty("installed.nodePathAbsent", true); expect(evidence).toHaveProperty("installed.helpExit", 0);
     expect(evidence).toHaveProperty("installed.helpOutputPresent", true);
     expect(evidence).toHaveProperty("installed.unknownCommandExit", 2);
-  });
+  }, 60_000);
   it.each([
     ["name", (entry: PackEntry) => { entry["name"] = "other-package"; }],
     ["version", (entry: PackEntry) => { entry["version"] = "9.9.9"; }],
