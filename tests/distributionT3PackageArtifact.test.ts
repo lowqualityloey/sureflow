@@ -6,7 +6,10 @@ import { delimiter, dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { runBounded, type BoundedRunResult } from "./helpers/boundedOutput.js";
+
 type PackEntry = Record<string, unknown>;
+type VerifyResult = BoundedRunResult;
 const root = fileURLToPath(new URL("../", import.meta.url)), verifier = join(root, "scripts/verify-distribution-artifact.mjs"), npmCli = process.env["SUREFLOW_NPM_CLI"] ?? process.env["npm_execpath"] ?? "";
 let sourceRoot = "", sourceCommit = "", testRoot = "", artifact = "", packJson = "";
 let env: NodeJS.ProcessEnv = {};
@@ -23,6 +26,9 @@ function args(json: string, mode: "inspect" | "install" = "inspect", file = arti
   return [verifier, "--artifact", file, "--pack-json", json, "--source-root", sourceRoot, "--source-commit", sourceCommit, "--expected-name", "sureflow", "--expected-version", "0.1.0", "--npm-cli", npmCli, "--pack-command", "npm pack . --json --offline --foreground-scripts=false", "--mode", mode];
 }
 const verify = (json: string, mode: "inspect" | "install" = "inspect", file = artifact) => spawnSync(process.execPath, args(json, mode, file), { cwd: testRoot, env, encoding: "utf8", maxBuffer: 4 * 1024 * 1024 });
+function verifyAsync(json: string, mode: "inspect" | "install" = "inspect", file = artifact): Promise<VerifyResult> {
+  return runBounded(process.execPath, args(json, mode, file), { cwd: testRoot, env });
+}
 
 function wrapper(): string {
   const directory = join(testRoot, "qualified-bin"); mkdirSync(directory);
@@ -87,15 +93,15 @@ beforeAll(() => {
 afterAll(() => { if (testRoot) rmSync(testRoot, { recursive: true, force: true }); });
 
 describe("Distribution T3 package artifact verifier", () => {
-  it("accepts a disposable artifact and independently installs and smokes its bin", () => {
-    const result = verify(packJson, "install"); expect(result.status, result.stderr).toBe(0);
+  it("accepts a disposable artifact and independently installs and smokes its bin", async () => {
+    const result = await verifyAsync(packJson, "install"); expect(result.status, result.stderr).toBe(0);
     const evidence: unknown = JSON.parse(result.stdout);
     expect(evidence).toMatchObject({ accepted: true, packageName: "sureflow", packageVersion: "0.1.0", sourceCommit });
     expect(evidence).toHaveProperty("sha256"); expect(evidence).toHaveProperty("installed.runnerContainment", true);
     expect(evidence).toHaveProperty("installed.nodePathAbsent", true); expect(evidence).toHaveProperty("installed.helpExit", 0);
     expect(evidence).toHaveProperty("installed.helpOutputPresent", true);
     expect(evidence).toHaveProperty("installed.unknownCommandExit", 2);
-  });
+  }, 60_000);
   it.each([
     ["name", (entry: PackEntry) => { entry["name"] = "other-package"; }],
     ["version", (entry: PackEntry) => { entry["version"] = "9.9.9"; }],

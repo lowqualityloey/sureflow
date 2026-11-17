@@ -7,6 +7,7 @@
 - **Target Release / Deadline**: M4 — no deadline recorded
 - **Current Working Branch**: Canonical project integration branch is `main`. No implementation topic branch is active. T3 is integrated through PR #15, and PR #16 integrated its post-merge reconciliation; both merge CI runs passed and the temporary documentation branch was cleaned up. T4 requires separate human authorization; T5-T6, publication/tag mutation, dogfood mutation, and M5 remain unauthorized.
 - **Last Updated**: 2026-09-29
+- **Engine Version**: v2.3.0 @ 52adbe1
 
 
 ---

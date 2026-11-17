@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist/**", "coverage/**", "node_modules/**", "fixtures/**", ".sureflow/**"] },
+  { ignores: ["dist/**", "coverage/**", "node_modules/**", "fixtures/**", ".sureflow/**", ".promptkit/**"] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
